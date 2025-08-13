@@ -20,6 +20,18 @@
     "light": "/logo/e6-dev-portal-logo-light.svg",
     "dark": "/logo/e6-dev-portal-logo-dark.svg"
   },
+  "api": {
+    "examples": {
+      "defaults": "required"
+    },
+    "mdx": {
+      "server": "https://partner.dune1.euw-1.aws.tst.e6tech.net",
+      "auth": {
+        "method": "key",
+        "name": "TEST"
+      }
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -285,43 +297,6 @@
               "docs/ledger/payments/payment-partner-integration",
               "docs/ledger/payments/automatic-load"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Tech Specs",
-        "groups": [
-          {
-            "group": "Tech Specs",
-            "pages": [
-              {
-                "group": "Home",
-                "pages": [
-                  "tech-specs/getting-started/introduction",
-                  "tech-specs/getting-started/environments",
-                  "tech-specs/getting-started/data-segregation",
-                  "tech-specs/getting-started/headers",
-                  "tech-specs/getting-started/authentication",
-                  "tech-specs/getting-started/identifiers",
-                  "tech-specs/getting-started/pagination",
-                  "tech-specs/getting-started/response-codes",
-                  "tech-specs/getting-started/logging",
-                  "tech-specs/getting-started/deprecations"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Programs",
-            "openapi": {
-              "source": "tech-specs/openapi/customer-management/programs/programs.yaml"
-            }
-          },
-          {
-            "group": "Customers",
-            "openapi": {
-              "source": "tech-specs/openapi/customer-management/customers/customers/customers.json"
-            }
           }
         ]
       },
