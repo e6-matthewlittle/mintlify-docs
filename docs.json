@@ -297,6 +297,118 @@
               "docs/ledger/payments/payment-partner-integration",
               "docs/ledger/payments/automatic-load"
             ]
+          },
+          {
+            "group": "Fees"
+            "pages": [
+              "docs/ledger/fees/fees-overview",
+              "docs/ledger/fees/fees-plans",
+              "docs/ledger/fees/customer-fees",
+              "docs/ledger/fees/fee-rules",
+              "docs/ledger/fees/one-time-fees",
+              "docs/ledger/fees/fee-waivers",
+              "docs/ledger/fees/override-fees",
+              "docs/ledger/fees/partner-fees"
+            ]
+          },
+          {
+            "group": "Revolving Credit"
+            "pages": [
+              "docs/ledger/revolving-credit/overview",
+              "docs/ledger/revolving-credit/programs",
+              "docs/ledger/revolving-credit/customers",
+              "docs/ledger/revolving-credit/credit-limits",
+              "docs/ledger/revolving-credit/spend",
+              "docs/ledger/revolving-credit/interest-accrual",
+              "docs/ledger/revolving-credit/fees",
+              "docs/ledger/revolving-credit/billing",
+              "docs/ledger/revolving-credit/due-amounts",
+              "docs/ledger/revolving-credit/direct-debits",
+              "docs/ledger/revolving-credit/repayment",
+              "docs/ledger/revolving-credit/delinquency",
+              "docs/ledger/revolving-credit/billing-history",
+              "docs/ledger/revolving-credit/annual-statement-files",
+              "docs/ledger/revolving-credit/sub-balance-adjustments",
+              "docs/ledger/revolving-credit/direct-debit-reversals",
+              "docs/ledger/revolving-credit/payoff-estimation",
+              "docs/ledger/revolving-credit/simulation"
+            ]
+          },
+          {
+            "group": "Loan on Revolving Credit"
+            "pages": [
+              "docs/ledger/loan-on-rc/overview",
+              "docs/ledger/loan-on-rc/programs",
+              "docs/ledger/loan-on-rc/customers",
+              "docs/ledger/loan-on-rc/loan-creation",
+              "docs/ledger/loan-on-rc/loan-details",
+              "docs/ledger/loan-on-rc/loan-adjustment",
+              "docs/ledger/loan-on-rc/loan-cancellation"
+            ]
+          },
+          {
+            "group": "Installments"
+            "pages": [
+              "docs/ledger/installments/overview",
+              "docs/ledger/installments/programs",
+              "docs/ledger/installments/customers",
+              "docs/ledger/installments/loan-creation",
+              "docs/ledger/installments/interest-accrual",
+              "docs/ledger/installments/loan-detials",
+              "docs/ledger/installments/billing",
+              "docs/ledger/installments/billing-history",
+              "docs/ledger/installments/direct-debits",
+              "docs/ledger/installments/repayment",
+              "docs/ledger/installments/simulation"
+            ]
+          },
+          {
+            "group": "Interest-bearing deposits"
+            "pages": [
+              "docs/ledger/interest-deposits/overview",
+              "docs/ledger/interest-deposits/programs",
+              "docs/ledger/interest-deposits/customers",
+              "docs/ledger/interest-deposits/interest-accrual",
+              "docs/ledger/interest-deposits/interest-adjustments",
+              "docs/ledger/interest-deposits/interest-posting",
+              "docs/ledger/interest-deposits/savings-goals",
+              "docs/ledger/interest-deposits/simulation"
+            ]
+          },
+          {
+            "group": "Term deposits"
+            "pages": [
+              "docs/ledger/term-deposits/overview",
+              "docs/ledger/term-deposits/programs",
+              "docs/ledger/term-deposits/customers",
+              "docs/ledger/term-deposits/maturity",
+              "docs/ledger/term-deposits/cancellation",
+              "docs/ledger/term-deposits/simulation",
+            ]
+          },
+          {
+            "group": "Rewards"
+            "pages": [
+              "docs/ledger/term-deposits/overview",
+              "docs/ledger/term-deposits/enablement",
+              "docs/ledger/term-deposits/product-setup",
+              "docs/ledger/term-deposits/enrollment",
+              "docs/ledger/term-deposits/earn",
+              "docs/ledger/term-deposits/distribution",
+              "docs/ledger/term-deposits/redemption"
+            ]
+          },
+          {
+            "group": "FX"
+            "pages": [
+              "docs/ledger/fx/overview",
+              "docs/ledger/fx/exchanges",
+              "docs/ledger/fx/currency-pairs",
+              "docs/ledger/fx/exchange-margins",
+              "docs/ledger/fx/rates",
+              "docs/ledger/fx/fx-transfer",
+              "docs/ledger/fx/safe-drafts"
+            ]
           }
         ]
       },
