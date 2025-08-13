@@ -1,0 +1,47 @@
+---
+title: "Chargeoffs"
+route: /docs/balances/chargeoffs
+excerpt: Chargeoffs are used to write off a customer account balance.
+types: 
+  - guide
+_tags:
+  - purchase
+  - transactions
+  - chargeoffs
+  - customer change orders api
+  - dashboard
+  - adjustments
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Chargeoffs
+
+A chargeoff is a type of transaction that specifies that the funds owed by a customer account are considered delinquent. Initiating a chargeoff is usually actioned after all other resolution paths with the end customer have been exhausted.
+
+<Callout
+    calloutType={'info'}
+>
+    Chargeoffs and adjustments are similar, but adjustments credit or debit the operating program, while chargeoffs debit or credit a specific partner user.
+
+</Callout>
+
+## What we do
+
+Episode Six (E6) provides the ability to write off a customer account balance. A chargeoff creates a transaction which takes funds from the customer balance and send the funds to the program operating balance.
+
+## Prerequisites
+
+In order to create a chargeoff, a customer account must first exist. For more information, see [Customers](/docs/customers/customers).
+
+A change order must also exist to which the chargeoff request will be tied. For more information, see [Customer change orders](/docs/change-orders/customer-change-orders).
+
+## Actions
+
+To initiate a customer chargeoff request, call the [Create Customer Change Order Chargeoff Request API](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_createUpdateChargeoffRequest_PUT). The `customer-number` specifies the customer account whose funds are to be used in the chargeoff. The `change-order-id` specifies an encrypted identifier for a change order obtained from TRITIUM® API.
+
+## What's next
+
+Once an chargeoff has been processed, the customer’s balance is updated in real-time. For more information, see [Customer balances](/docs/balances/customer-balances).

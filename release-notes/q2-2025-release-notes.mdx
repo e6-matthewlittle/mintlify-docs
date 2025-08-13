@@ -1,0 +1,77 @@
+---
+title: "Q2 2025 release notes"
+menu: Release
+route: /docs/release/q2-2025-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "05-01-2025"
+
+---
+# Q2 2025 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## April
+
+### New Features
+
+**Revolving Credit - Added the ability to manage contractual rates** <br/>
+Revolving credit customer configurations now include contractual rates alongside the active accrual rates. Similar to existing accrual rate configuration, the contractual rates can be set using the `TIER` mode or the `DIRECT` mode. Contractual rates are used for disclosures which should not take into account promotional rates. If contractual rates are not populated, then the active accrual rates are used for disclosures.
+
+**Fees - Added new account inactivity fee** <br/>
+Implemented new inactivity fee (`inactivityFee`) that will charge a fee to all customers which have not performed any transactions in the previous month. Fees are assessed on the first day of the month, each month.
+
+**Card Payments - Added MCC-based configurable authorization hold behaviors** <br/>
+Clients can now self-configure authorization hold behaviors at the MCC level including authorization hold amount padding and authorization hold duration. These configurations can be set using the `PUT /programs/{program-name}/authorization-configs` API endpoint. Each request includes an `mcc`,  a `paddingAmount` to be added to the requested authorization amount, a `paddingPercentage` to be added to the requested authorization amount, a `floorAuthHoldAmount` to set a minimum amount to round up small authorization amounts, and `durationDays` for how long the auth hold will last. These configurations will override the default authorization hold configuration if set.
+
+
+### Enhancements 
+
+**Cooperative Authorization - Updated partial authorization reversal processing** <br/>
+In the case of a partial authorization reversal, a call to your Authorization endpoint will be made with the replacement authorization amount. Partial reversals sent to your Reversal endpoint for cooperative authorization will now include a `replacementTransactionId` so that the replacement authorization can be identified as needed. 
+
+**Customer Card Issuance - Card reissuance can now process deactivate current settings for virtual cards** <br/>
+When making a request to reissue a virtual card, setting the `deactivateCurrent` value to `false` will now leave the existing virtual card active. Previously this setting only worked for physical cards.
+
+**Network Messages - All network message records returned via API now including network message attributes** <br/>
+Any API which returns the `NetworkMessageDTO` will now also include an array of `attributes` populated with the network message attributes added during card payment processing.
+
+**Card PINs - PIN Change notification event will fire for ATM originated changes** <br/>
+When a cardholder changes the card PIN at an ATM, a `PINChanged` notification event type will be triggered.
+
+**Customer Relationships - Updated default control level inheritance** <br/>
+When adding an existing customer as a child customer to another customer account, the control level of the child account will not be overridden by the new parent and the existing assignment of control level will be maintained.
+
+**Payments - Added `feeMemo` to Load API** <br/>
+The Load API now accepts `feeMemo` string to be passed in when using the `loadAmountsWithFees` array. The string passed into this field will be used to populate the `memo` field of the fee transaction entry that is created as part of the load call.
+
+**Dashboard - Updated default pages based on user roles** <br/>
+Updated the default landing page for Dashboard users based on user role hierarchy. Users with `platformManager` will always default to the Partners page. Then, users with `programManager` will default to the Programs page. Then, users with `customerManager`, `customerAgent`, `retailManager`, `riskManager`, `riskAgent`, and `financialManager` will default to the Customers page. Then, users with `readOnly` or `approver` will default to the Change Order page. Then, users with `audit` will default to the Audit page.
+
+**Revolving Credit - Added new installment summary fields to billing outputs** <br/>
+Each billing history returned via API will now include `newInstallments`, `cancelledInstallments`, and `currentCycleAmountForLoans` to summarize the installments activity performed in the previous cycle. These fields are also available in the revolving credit billing statement file.
+
+**Reports - Added installment summary balances to RC sub-balances report** <br/>
+Summary sub-balances will now be included in the Revolving Credit Customer Sub-Balances Report including `INSTALLMENTS_PRINCIPAL` and `INSTALLMENTS_INTEREST`.
+
+**Revolving Credit - Enhanced utilization of excess credit during billing** <br/>
+Excess credits will now be attempted to be utilized during billing to account for billing-driven actions such as billing of installment principal and interest posting. This will occur prior to minimum due calculation so that the min due is calculated as expected after excess credits have been used.
+
+**Card Expiration - Created upcoming card expiration notification** <br/>
+Added new process to generate a file containing details of cards that are expiring within a set upcoming window.
+
+**Installments - Updated Dashboard to show new interest configurations** <br/>
+Installment parent customer accounts and child loan customer accounts in Dashboard now display all new configurations related to interest-bearing loans.
+
+**Dashboard - Reintroduced customer number on person details page** <br/>
+Corrected issue of missing customer number in the person details page of Dashboard following implementation of the new person details page layout.
+
+### Deprecation 
+
+**Programs - Program creation now limited to platform managers** <br/>
+Program creation now requires the calling user to have the `platformManager` role. For most clients this means that new program creation will now have to be done by Episode Six. Requesting a new program can be done by submitting a request using your service management portal.

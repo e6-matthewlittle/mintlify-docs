@@ -1,0 +1,35 @@
+---
+title: "Accrued interest adjustment"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/accrued-interest-adjustment
+excerpt: How accrued interest balances can be adjusted before posting.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - savings account
+  - customer setup
+containerWide: true
+showHeadingsNav: true
+---
+
+# Accrued interest adjustment
+
+In certain cases, a prior processing error may lead to a situation where interest accrual did not result in the expected accrual. This could have been because a credit or debit did not post to the account when it was supposed to, an incorrect payment amount was processed, or account configurations were incorrect. An accrued interest adjustment can be used to correct these types of scenarios to get the accrued interest balance where it needs to be ahead of posting. An adjustment can also be used as part of the account closure process.
+
+## What we do
+
+Episode Six (E6) provides the ability to execute an accrued interest adjustment for an interest-bearing deposit customer account.
+
+## Prerequisites
+
+Interest adjustments can only be processed on interest-bearing deposit customers that have been [configured](/docs/interest-bearing-deposits/customer-configuration).
+
+## Actions
+
+An adjustment of accrued interest balances can be performed by calling the [Create Accrued Interest Adjustment API](/tech-specs/interest-bearing-deposits/customers/api?#operation/adjustInterest). The request should include the `currency` and the `amount` for the adjustment. The adjustment `amount` can be positive or negative up to three decimal places beyond the currency decimal point precision.
+
+## What's next
+
+After accrued interest has been adjustment, pending interest balances for a customer can be viewed in the `unpostedInterestBalances` array returned from the [Retrieve Interest-Bearing Deposit Customer API](/tech-specs/interest-bearing-deposits/customers/api?#operation/retrieveInterestBearingDepositsCustomer).

@@ -1,0 +1,70 @@
+---
+title: "Interest-bearing deposits overview"
+sidebarTitle: "Overview"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/overview
+excerpt: Interest-bearing deposit accounts allow customers to earn interest on the balance of the account.
+types: 
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - checking account
+  - savings account
+  - interest
+  - deposit
+containerWide: true
+showHeadingsNav: true
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# Interest-bearing deposits overview
+
+Interest-bearing deposit accounts allow customers to earn interest on their account balance. This provides an incentive for customers to leave funds in the account in return for interest yields. Companies which offer interest-bearing deposit accounts can then use the deposited funds to back other activities such as lending or investment.
+
+## Uses
+
+Common use cases for interest-bearing deposit accounts include:
+
+- Interest-bearing checking accounts
+- Savings accounts
+- High yield savings accounts
+
+## How it works
+
+Episode Six (E6) provides the ability to configure interest-bearing deposit products. Customer account interest rates can be set using interest rate tiers so that customer rates can be easily set and maintained. Each customer of the interest-bearing product will accrue interest on deposited funds based on the program and customer level configurations. On a period basis, accrued interest will be posted to the customer account from the program operating account.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+        linkPath="/docs/interest-bearing-deposits/program-configuration"
+        title={"Program configuration"}
+        body={"Setting up an interest-bearing deposit product for a program."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/interest-bearing-deposits/customer-configuration"
+        title={"Customer configuration"}
+        body={"Setting up an interest-bearing deposit product for a customer."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/interest-bearing-deposits/interest-accrual"
+        title={"Interest accrual"}
+        body={"How interest is accrued on deposited customer balances."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/interest-bearing-deposits/interest-posting"
+        title={"Interest posting"}
+        body={"How accrued interest is posted to customer accounts."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/interest-bearing-deposits/accrued-interest-adjustment"
+        title={"Accrued interest adjustment"}
+        body={"How accrued interest balances can be adjusted before posting."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

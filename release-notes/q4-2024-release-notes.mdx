@@ -1,0 +1,164 @@
+---
+title: "Q4 2024 release notes"
+menu: Release
+route: /docs/release/q4-2024-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "08-30-2024"
+
+---
+# Q4 2024 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## December
+
+### New Features
+
+**Controls - Added new merchant list control** <br/>
+Authorization controls can now be setup for merchant lists instead of individual merchant whitelisting. When registering a merchant using `acquirerId` and `merchantId` , a `classifier` group can be setup to move that merchant into a list. Customers can then be assigned to allow multiple merchant lists so that merchant can be whitelisted using a customer attribute named `affiliations`.
+
+### Enhancements
+
+**Revolving Credit - Added the ability to simulate funds transfers** <br/>
+Users can now simulate funds transfer transactions as part of revolving credit account simulation by specifying a transaction event with type `fundTransfer`.
+
+**Revolving Credit - Added the ability to cancel loans under a revolving credit account** <br/>
+Loans created under a revolving credit account can now be cancelled by calling the offering action endpoint with the defined action `cancelLoan` and specifying the `loanCustomerNumber` as part of the request payload. Once a loan is cancelled, the outstanding balance will be returned to the `PURCHASE_CURRENT_PRINCIPAL` sub-balance. This feature is also available in Dashboard.
+
+**Revolving Credit - Expanded roles for Retrieve Child Programs API** <br/>
+The Retrieve Child Programs API can now be called by `CustomerManager, CustomerAgent` in addition to the roles which could already call the API.
+
+**Revolving Credit - Normalized balance definitions across summary and billing** <br/>
+Revolving credit balance fields returned in the offering summary and billing history APIs have been updated including `totalBalance`, `availableBalance`, `totalLoanBalance`, and `totalLoanCharges` to reduce the amount of math needed to be performed by API consumers across different scenarios.
+
+**Reports - Added UPI monthly reports** <br/>
+Implemented new monthly card issuance report for UPI which details the number of cards issued, cancelled, and total number of active cards in each period.
+
+**Reports - Expanded revolving credit reconciliation report to include loan balances** <br/>
+Revolving credit program reconciliation report was expanded to include loan balances: `totalLoansBilledInterestBalance`, `totalLoansAccruedInterestBalance`, and `totalLoansBalance`. 
+
+**Controls - MCC controls can now intake MCC ranges** <br/>
+MCC controls including `allowed_mcc` and `blocked_mcc` can now intake MCC ranges using a hyphen "-" separator between MCCs.
+
+**Card PINs - Split out PIN plugins to enable easier client configuration** <br/>
+E6 PIN validation and PIN management plugins have been decomposed so that clients can "opt-out" of using E6 PIN validation without having to go through a customization.
+
+**Controls - Added new unmatched clearing MCC control** <br/>
+A new `withheld_mcc` control was added that detects blocked MCCs in a clearing where no prior authorization occurred and deducts the amount from the program operating balance instead of the customer balance. Clients can then see the transaction in the Transaction Report and make adjustments to the customer account as needed.
+
+**Controls - Added new security level indicator control** <br/>
+A new `security_level_indicator` control was implemented so that a card payment can be declined if certain security level indicators are matched.
+
+**Transactions - New API to retrieve auth holds and transactions** <br/>
+Implemented a new API that retrieves all active authorization holds and transactions for a customer. The API returns a list of paginated entries with a common data model based on the provided query parameters.
+
+**User Authentication - Added support for logout of OpenID IAM provider** <br/>
+Authentication using OpenID will now return not only the token, but also the logout URL so that logout actions can be taken for the authorized token.
+
+**Reports - Added new balance exception report** <br/>
+The balance exception report provides a daily list of customer balance rule exceptions. The supported exception types include: `NEGATIVE`, `BALANCE_FLOOR`, `BALANCE_LIMIT`. The report includes the customer number, the balance at the time of the exception, and the limit that was exceeded.
+
+**Controls - Added new contactless decline control** <br/>
+New `disabled_contactless` was implemented to allow clients to block all contactless transactions if desired.
+
+**Controls - Added new monthly / 30 day ATM controls** <br/>
+Implemented new `atm_international_30d` and `atm_domestic_30d` to manage monthly international ATM and domestic ATM limits similar to the existing ATM controls.
+
+**Term Deposits  - Expanded term deposit reinvestment options** <br/>
+Term deposit reinvestment has been expanded to include options for `reinvestmentAmountPreference` which can be set to either `ALL` and `PRINCIPAL_ONLY`. Term deposit customer summary and reports were also expanded to include the `originalAmount` that was part of the initial account setup request.
+
+**Term Deposits - Added the ability to manually post interest to an account** <br/>
+Customer accounts can have interest adjusted manually by making an adjustment to the customer account and setting the `transactionTypeCode` to `26` for interest.
+
+**Card Issuance - Added new automatic card re-issuance configurations** <br/>
+Platform can now be configured to automatically reissue cards nearing expiration at the selected number of months rather than the default.
+
+**Controls - Added new card not present country whitelisting control** <br/>
+Added new `card_not_present_allowed_countries` control which allows certain countries to be whitelisted for card not present transactions. Allowed countries should be provided as a comma separated string using ISO country codes. This should not be used in combination with the `disable_card_not_present` control being set to `true`. 
+
+## November
+There was no lower environment releases in November due to the production freeze period scheduled for December.
+
+## October
+
+### New Features
+
+**Card Schemes - Added UnionPay International (UPI) support** <br/>
+Card issuance and processing on UnionPay International (UPI) is now supported in line with existing card schemes.
+
+### Enhancements
+
+**Revolving Credit - Reversals will now only unwind interest in the current period** <br/>
+Reversals made on outbound payments such as purchases and cash advances will now only attempt to unwind unbilled interest if the reversal and original transaction both occur in the current period. Otherwise, sub-balance adjustments need to be used to align interest sub-balances due to the impact that billing has on traceability of the interest sub-balance changes.
+
+**Revolving Credit - Updated Dashboard to expose incremental balance min due configurations** <br/>
+Program configurations for revolving credit in Dashboard now includes minimum due settings for both full balance based calculation and incremental balance based calculation for respective balances. Principal minimum due configurations in Dashboard use full balance calculation for all draw types other than installments where both full balance and incremental balance options are available. Fees and interest use incremental balance configurations.
+
+**Revolving Credit - Corrected revolving credit simulation autoload issue** <br/>
+Corrected issue where automatic load was not operating as expected during revolving credit account simulation.
+
+**Revolving Credit - Corrected load reversal simulation issue** <br/>
+Updated timestamp look up logic for load reversal so that account is being debited as expected during revolving credit account simulation.
+
+**Card Issuance - Added new option to set automatic reissuance configuration** <br/>
+Card profiles can accept `reissueMonthsAhead` which will determine how many months ahead of expiration the card profile will automatically reissue the card.
+
+**Controls - Implemented reversal processing for corporate controls** <br/>
+Added reversal logic for corporate controls so that risk measures at varying levels are reduced the amount of reversals.
+
+**Revolving Credit - Extended minimum payment history processing for 0 amount min dues** <br/>
+Revolving credit min due history will now include a record for every billing regardless of calculated value including `0` amounts. The billing history API was updated to include the `unpaidMinimumPayments` field and the revolving credit customer summary was updated to include the `delinquentPeriodCounter` which was already in the billing history. The former field is the count of all unpaid minimums, while the latter is the age, in period count, of the oldest unpaid minimum.
+
+**Reports - Added new outstanding authorization holds report** <br/>
+New report provide a list of all outstanding authorization holds for a partner. This report is generated daily and delivered to the specified destination as is true with other reports. File naming convention is `${currentTime}-outstandingAuthHold-${partnerName}-\${date}.txt`
+
+**Revolving Credit - Extended repayment assessment logic to take lesser of real-time and statemented value** <br/>
+Repayment assessment performed at grace end will now do a `0` value check for the real-time sum of billed sub-balances for statement balance and the real-time sum of period minimums for total due. If the statement balance of the last billing period close is less than the sum of the billed sub-balances, then that value will be compared with repayments.
+
+**Revolving Credit - Added additional billing history API fields** <br/>
+A new `fundTransfers` field was added to the billing history API which summarizes the total amount of fund transfers performed in the period. The `payments` field was updated to take into account load reversals as well as loads in a net position of those transactions.
+
+**Card Payment Simulation - Added support for UPI card payment simulation** <br/>
+UnionPay International (UPI) card payments can now be simulated using the card payment simulator APIs. 
+
+**Reports - Updated revolving credit reports to include INSTALLMENTS** <br/>
+The following reports will now include fields relative to enable the `INSTALLMENTS` draw type: Revolving Credit Customer Summary Report, Revolving Credit Repayment Report, Revolving Credit Balance Report, and Revolving Credit Billing Report.
+
+**Reports - Added additional UPI fields to ISO8583 reports** <br/>
+Added UPI `DE22`, `F125`, and `Field 60.2.5` in the `rawMessage` portion of the ISO8583 Authorization and ISO8583 Settlement reports.
+
+**Revolving Credit - Corrected issue with statement file `transDate`** <br/>
+Updated query logic to ensure that revolving credit statement file populates `transDate` as expected with the date when the transaction was authorized.
+
+**Reports - Added new Incremental Customer Balance Report** <br/>
+New Incremental Customer Balance Report includes the same fields as the existing Customer Account Balance Report but only includes customers who have transacted within the reporting window.
+
+**Adjustments - Customer facing memos can now be provided in adjustment change requests** <br/>
+Customer-facing memos can now be set using the `customerMemo` field in an adjustment change order as well as the existing internal memo field.
+
+**Revolving Credit - Extended automatic load to take lesser of real-time and statemented value** <br/>
+Automatic load amount calculation will now check the real-time sum of billed sub-balances for statement balance and the real-time sum of period minimums for total due. If the statement balance less interim repayments of the last billing period close is less than the sum of the billed sub-balances, then that value will be used. Fixed amount options for automatic load will work the same.
+
+**Interest Bearing Deposits - Added support for interest bearing deposits in Dashboard** <br/>
+Dashboard now supports interest bearing deposit program setup and configuration for program managers as well as customer financial view and management for customer agents.
+
+**Adjustments - Added the ability to pass transaction attributes in adjustment change requests** <br/>
+Adjustment change requests can now pass transaction attributes in using the `attributes` array.
+
+**Controls - Added new cashback amount controls** <br/>
+Added three new controls to limit the amount of cashback allowed at POS systems including: `combined_cashback_amount_1d`, `combined_cashback_amount_7d`, and `combined_cashback_amount_30d`.
+
+**Revolving Credit - Corrected revolving credit installment amortization scheduling issue** <br/>
+Corrected issue with installment creation for revolving credit accounts where amortization scheduling resulting in a February 28 due date would cause future due dates to all be the 28th instead of the expected offset.
+
+**Reports - Added new interest bearing deposit summary report** <br/>
+New Interest Bearing Deposit Summary report was added to provide balance and configuration details of interest bearing deposit customers. Report naming convention follows: `${endDateTime}-InterestBearingDepositReport-${partnerName}-\${programName}.txt` and the report is run daily.
+
+**Reports - Added new term deposit summary report** <br/>
+New Term Deposit Summary report was added to provide balance and configuration details of term deposit customers. Report naming convention follows: `${endDateTime}-termDeposit-${partnerName}-\${programName}.txt` and the report is run daily.

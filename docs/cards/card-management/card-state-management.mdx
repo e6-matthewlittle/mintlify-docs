@@ -1,0 +1,81 @@
+---
+title: "Card state management"
+menu: Cards
+route: /docs/cards/card-state-management
+excerpt: Card states allow for the lifecycle of the card to be tracked.
+types: 
+  - guide
+_tags:
+  - cards
+  - card states
+  - orders
+  - card deactivation
+  - card activation
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Card state management
+
+Card states allow for the lifecycle of the card to be tracked. Throughout the card lifecycle, the state is used to enforce the ability to use the card.
+
+## What we do
+
+Episode Six (E6) provides full lifecycle management for every card created within the Tritium® platform. E6 allows the card state for customer cards to be updated as necessary throughout the card lifecycle. E6 manages card state transitions to ensure that cards do not flow to disallowed states from their current state.
+
+<Callout
+    calloutType={'info'}
+>
+  Card state changes are separate from card blocks. A card block prevents the use of a card. When applied, the user is unable to perform transactions with the card until the block has been released. You can read more about blocking cards in
+    <a href="/docs/blocks/card-blocks"> Card blocks</a>.
+</Callout>
+
+## Prerequisites
+
+Before managing the card state, the card must first be [issued](/docs/cards/issuance-overview). As soon as a card is created, it will be defaulted to the `created` state. Depending on the type of card profile that was used to create the card, it can be moved into different flows automatically.
+
+## Actions
+
+Card state updates can be made at any time once a card is created. Some card state transitions are processed automatically. These transitions include a physical card moving from `created` to `shipped` once the card embossing file has been generated for that card. Perform a card state change by calling the [Update Card State API](/tech-specs/cards/card-state-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_changeCardState_PUT). A state must be provided in the request and a memo can optionally be included.
+
+The following diagram shows the lifecycle of a card's different states.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/state/e6_dev_portal_state_cards.svg'}
+    caption={'Card lifecycle states'}
+/>
+
+### Card activation
+
+One method for activating a physical card includes using the [Update Card State API](/tech-specs/cards/card-state-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_changeCardState_PUT) with a state in the request of `activated`. For more information on this and other card activation methods, see [Card activation](/docs/cards/card-activation).
+
+### Card deactivation
+
+Once a card is no longer needed, the card can be deactivated.To deactivate a card, set the state in the request to `invalid`. Once a card has been set to `invalid`, it can no longer be transitioned to another state. When a card is deactivated, a card block is created on the card so that it can no longer be used. For more information, see [Card blocks](/docs/blocks/card-blocks).
+
+<Callout
+    calloutType={'info'}
+>
+   You can alternatively deactivate a card by setting <tt>deactivateCurrent</tt> to <tt>true</tt> when reissuing a card. For more information, see
+    <a href="/docs/cards/customer-card-issuance"> Customer card issuance</a>.
+</Callout>
+
+### Other card states
+
+A card can be transitioned to various card states calling the same [Update Card State API](/tech-specs/cards/card-state-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_changeCardState_PUT). Other card states are commonly used when managing card stocks outside the E6 platform. See the appendix for other card state definitions.
+
+## Appendix: Card states
+
+| State | Description |
+| -- | -- |
+| `created` | Card has been created in the database. |
+| `shipped` | Card has shipped to the manufacturer for production. |
+| `sold` | Card has been sold, typically at a point-of-sale (POS). |
+| `returned` | Card has been returned to the banking institution. |
+| `resent` | Card has been resent to the customer's address. |
+| `activated` | Card is activated and ready for use. |
+| `invalid` | Card is no longer valid and is blocked from further use. |

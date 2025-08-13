@@ -1,0 +1,40 @@
+---
+title: Partner transfers
+menu: Payments
+route: /docs/payments/partner-transfers
+excerpt: Partner transfers allow money movement from one partner to another.
+types: 
+  - guide
+_tags:
+  - partner
+  - transfer
+  - funds
+  - ledger
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Partner transfers
+
+Partner transfers allow money movement from one partner to another. Partner transfers allow one party to manage pools of funds in a ledger and then reallocate those funds to other parties as needed. Examples of use cases include:
+
+- Enabling a third party to preload funds for future disbursement to customers
+- Managing nostro account currency trade balances
+
+## What we do
+
+Episode Six (E6) allows you to transfer funds between partner accounts. When a transfer is made, the target partner’s account is credited, while the initiator partner’s account is debited. Partner transfers can include multiple money movements across different currencies in a single request.
+
+## Prerequisites
+
+To transfer funds between partners, you must have partners set up. Both partners must be set up with the currencies to be transferred. To learn more about setting up partners, see [Partners](/docs/platform-access/partners).
+After the partners have been created, a partner linkage must be established before transfers can be made. To learn more about linking partners, see [Data segregation](/tech-specs/getting-started/data-segregation).
+
+## Actions
+
+To transfer funds from partner to partner, call the [Partner Transfer API](/tech-specs/payments/partner-transfer).
+
+## What's next
+
+After the partner transfer is completed, you can view the new balances of the credited and debited partner accounts. You can view the balances by calling the [Get partner account balances API](/tech-specs/balances/partner-balances/api#tag/Partner-Accounts).

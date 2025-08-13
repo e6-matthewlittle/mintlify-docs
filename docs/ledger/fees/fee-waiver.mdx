@@ -1,0 +1,41 @@
+---
+title: "Fee waivers"
+menu: Fees
+route: /docs/fees/fee-waivers
+excerpt: A fee waiver acts to prevent an assessed fee from applying to a customer account.
+types: 
+  - guide
+_tags:
+  - fees
+  - fee waiver
+  - fee exception
+  - override
+  - one-time
+containerWide: true
+showHeadingsNav: true
+date: "07-24-2024"
+---
+
+# Fee waivers
+
+A fee waiver exempts an assessed fee from applying. Fee waivers can be used to limit more costly customer actions by granting a set number of free uses before fees apply. For example, ATM transaction fees might be waived for the first five withdrawals in a month, but additional withdrawals would then incur a fee.
+
+## What we do
+
+Episode Six (E6) allows you to set fee waivers at the fee plan and individual customer levels to prevent assessed fees from applying. Once active, a fee waiver will prevent matching transaction source and transaction type fees from being applied. For more information see [Transactions](/docs/transactions/transactions). 
+
+## Prerequisites
+
+For a fee waiver to be added to a fee plan, a fee plan must first exist. For more informaton see [Fee Plans](/docs/fees/fee-plans).
+
+## Actions  
+
+Fee waivers can be added to fee plans or directly to customers, with a set number of uses defined by the `freeCount` and a replenishment cycle known as the `type`. The `freeCount` specifies how many times the waiver will activate and prevent a fee from applying, while the `type` determines the frequency of this count resetting, such as daily, weekly, or monthly.
+
+To add a fee waiver to a fee plan, call the [Create or Update a Fee Waiver Entry for a Fee Plan](/tech-specs/fees/program-fee-plans/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingFeesAPI_getFreeFees_GET). 
+
+To  add a fee waiver to an individual customer account, call the [Create Customer Fee Waiver Rule](/tech-specs/fees/customer-fee-rules/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createFreeFee_PUT).
+
+## What's next
+
+After adding fee waivers to a fee plan, they can be retrieved by calling the [Retrieve Fee Waivers for a Fee Plan](/tech-specs/fees/program-fee-plans/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingFeesAPI_getOperatingProgramFeeEntries_GET).

@@ -1,0 +1,91 @@
+---
+title: "Virtual card access"
+menu: Cards
+route: /docs/cards/virtual-card-access
+excerpt: Virtual card access is a method for exposing card details to a cardholder or merchant when required to make a card payment through a digital interface.
+types: 
+  - guide
+_tags:
+  - cards
+  - virtual card
+  - PCI
+  - pan
+  - cvv2
+  - secure card details
+containerWide: true
+showHeadingsNav: true
+date: "11-18-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Virtual card access
+
+Virtual card access is a method for exposing card details to a cardholder or merchant when required to make a card payment through a digital interface. Cards can either be virtual only or a physical card can have its details accessed virtually. Common use cases for virtual cards include:
+
+- Enabling card-not-present (CNP) and online spend by providing card details to customers immediately upon opening an account at any point
+- Securely sharing card details with merchants so that they can charge virtual cards without the customer having to provide the details
+
+## What we do
+
+Episode Six (E6) provides mechanisms to distribute secure details of an E6-issued card. E6 APIs can be used to retrieve all card details needed for a card payment, including the Primary Account Number (PAN), security code, and expiration date. Multiple mechanisms exist so that you can access secure card data regardless of your Payment Card Industry Data Security Standard (PCI-DSS) certification status.
+
+E6 also supports the issuance of virtual-only cards. Issuing a virtual card generates the card details without leading to a physical card being manufactured. Virtual-only cards are [issued](/docs/cards/issuance-overview) using the same process as ordering a physical card. When a virtual card has been created, it will not be included in E6's JSON embossing file. Instead, the virtual card details will be generated and the card will be activated immediately.
+
+## Prerequisites
+
+Before retrieving card details virtually, a physical or virtual-only card should already have been [issued](/docs/cards/issuance-overview).
+
+To display card details to an end customer, a client system for delivering the secure card details must be established. This system can be a user interface such as a customer mobile application, web application, or customer communication delivery channels such as text or email. If you are not PCI-compliant, then your host / server-side systems are **not** allowed to process secure card details.
+
+<Callout
+    calloutType={'warning'}
+>
+    E6 does not provide any type of frontend applications or frontend software development kits (SDKs) for presenting secure card details. E6 clients are responsible for developing a frontend application to use in the secure card detail retrieval flow.
+</Callout>
+
+## Actions
+
+There are two approaches to retrieving card details virtually depending on your PCI compliance. If you are PCI-compliant, you are able to directly retrieve the secure card details through your host system and then pass the details to the end channel. If you are **not** PCI-compliant, then you are able to access card details using a one-time access token method.
+
+### PCI-Compliant Systems
+
+Secure card details can be directly retrieved using the [Retrieve Secure Card API](/tech-specs/cards/virtual-card-access/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getSecure_GET). This API returns the card `pan` and the security code as `cvv2`.
+
+### Non-PCI-Compliant Systems
+
+Secure card details can be retrieved by generating a token and then validating the token. This process uses two E6 API calls. This flow returns the card `pan` and the security code as `cvv2`. To securely retrieve a card's PAN and CVV2:
+
+1. Call the [Generate Card PAN Token API](/tech-specs/cards/virtual-card-access/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_generatePanToken_POST) to receive a token in the `tokenId` attribute and a callback URL in the `callbackUrl` attribute.
+2. Call the [Retrieve Card PAN API](/tech-specs/cards/virtual-card-access/api?#operation/net.e6tech.h3.middletier.api.v1.mobile.MobileAuthAPI_accessPan_POST). To call this API, use the `callbackUrl` that was returned when the token was generated followed by `/restful` and the endpoint path specified.
+"operationId": "net.e6tech.h3.middletier.api.v1.mobile.MobileAuthAPI_accessPan_POST",In the request body, include the `tokenId` that was returned in the previous API call. This call consumes the token and returns the requested secure card details. For an example of how this flow works, see the  [Appendix](#appendix).
+
+## What's next
+
+Once card details have been retrieved, you can process card payments using the card details. For more information, see [Card payments](/docs/cards/card-payments).
+
+The card [PIN](/docs/cards/pin-management) can also be retrieved separately if needed.
+
+## Appendix
+
+### Example: Delivery to Mobile Application
+
+The APIs in these two-step flows are typically implemented in the following process flow to display card details in a mobile app. This process allows you to securely deliver a PAN to a customer mobile app while authenticating against an external non-PCI system. All interactions with the customer mobile app are protected in transit via https / TLSv1.2.
+
+1. Customer App authenticates with the client-hosted non-PCI system as account XXXXXX.
+2. Customer App requests a display of the card details.
+3. Customer Management Service requests a one-time token from the E6 PCI system for account XXXXXX.
+4. E6 PCI System generates a one-time token with a 120-second lifetime attached to account XXXXXX and stores it in Cardholder Database.
+5. E6 PCI System returns the one-time token and E6 API URL to Customer Management Service.
+6. Customer Management Service delivers the one-time token and E6 API URL to Customer App.
+7. Customer App presents the PAN request token to E6 API.
+8. E6 PCI System validates the token and marks it as used in DB.
+9. E6 PCI System generates a JSON containing secure card details and delivers it via HTTPS to Customer App.
+
+The process flow in the following diagram can be used to retrieve card details for a virtual or a physical card.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/sequence/e6_dev_portal_sequence_virtual_cards.svg'}
+    caption={'Process flow for retrieving card details using a generated token'}
+/>

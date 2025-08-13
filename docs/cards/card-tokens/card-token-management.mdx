@@ -1,0 +1,46 @@
+---
+title: "Card token management"
+menu: Cards
+route: /docs/cards/card-token-management
+excerpt: Managing a card token throughout its lifecycle once one has been provisioned.
+types: 
+  - guide
+_tags:
+  - token management
+  - card token management
+  - token lifecycle
+  - card token lifecycle
+  - suspend token
+  - unsuspend token
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Card token management
+
+Card tokens have the ability to undergo various changes during their lifecycle. This can include temporarily suspending the token, un-suspending the token, updating the token details, and ultimately deleting a token. Cardholders are often given the ability to self-manage these features so that they can control token-based access to their card.
+
+## What we do
+
+Episode Six (E6) provides you the ability to retrieve a list of card tokens per card and take action on those tokens. E6 card token lifecycle management APIs wrap the equivalent APIs from each token service provider (TSP) which ultimately manages the card token. When a call is made to E6 for a token lifecycle update using a card identifier and a token identifier, E6 passes the call along to the appropriate TSP based on the details of the card for processing.
+
+## Prerequisites
+
+Before a token can have a lifecycle action taken on it, the token must first be [provisioned](/docs/cards/token-provisioning).
+
+## Actions
+
+A list of card tokens for a particular card can be returned by calling the [Retrieve Card Tokens API](/tech-specs/cards/card-token-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardTokenManagementAPI_searchTokens_GET). Once a card token record has been obtained, additional data such as the card token comment, status, and transaction histories can be returned and lifecycle actions can be taken for that token using the [Card Token Management APIs](/tech-specs/cards/card-token-management).
+
+<Callout
+    calloutType={'warning'}
+>
+    Card network TSPs have varying card token lifecycle management capabilities and API specifications, so some variations may exist when using these APIs across different underlying TSPs.
+</Callout>
+
+## What's next
+
+If a token has been suspended, then the token will be blocked when a [card payment](/docs/cards/card-payments) request is made using that card token.

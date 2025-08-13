@@ -1,0 +1,40 @@
+---
+title: "Cancellation"
+menu: Term deposits
+route: /docs/term-deposits/cancellation
+excerpt: Cancellation of a term deposit account will stop any future interest accrual and send the original funds to a specified account.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - term deposit
+  - time deposit
+  - certificate of deposit
+  - CD
+  - cancellation
+containerWide: true
+showHeadingsNav: true
+---
+
+# Cancellation
+
+Cancellation of a term deposit account will stop any future interest accrual and send the original funds to a specified account. Triggering a cancellation can also cause a fee to be applied to the account balance before the funds are transferred.
+
+## What we do
+
+Episode Six (E6) provides the ability to cancel any active term deposit account. E6 also provides the ability to configure a cancellation fee that will be applied to the term deposit balance before funds are transferred to the sweep customer.
+
+## Prerequisites
+
+Cancellation can only be performed on term deposit customers that have been [configured](/docs/term-deposits/customer-configuration).
+
+If there is a `closed` or `termination` block on a customer account, then term deposit cancellation cannot be performed. For more information, see [customer blocks](/docs/blocks/customer-blocks).
+
+## Actions
+
+Cancellation can be triggered by calling the [Cancel Term Deposit API](/tech-specs/term-deposits/customers/api?#operation/cancelTermDeposit). This will cause any future interest accrual to be cancelled, a cancellation fee being applied if configured, and the funds being sent to a target sweep account. If a target sweep account other than the one specified in the term deposit account configuration, a different one can be specified in the request.
+
+## What's next
+
+After a term deposit customer account has been cancelled, the account data including [transactions](/docs/transactions/transactions) can still be viewed, but the account will have a `closed` block placed on it which will stop processing and future payments.

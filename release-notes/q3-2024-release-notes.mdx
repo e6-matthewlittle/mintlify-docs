@@ -1,0 +1,250 @@
+---
+title: "Q3 2024 release notes"
+menu: Release
+route: /docs/release/q3-2024-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "08-30-2024"
+
+---
+# Q3 2024 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## September
+
+### New Features
+
+**Interest-Bearing Deposits - Added new tax withholding fee type** <br/>
+Added new partner fee for `interest` type transactions. This can be used to withhold tax as a fee when an `interest` transaction occurs for a customer. The fee will debit the customer and credit the specified partner.
+
+**Term Deposits - Implemented new term deposit product** <br/>
+Added the ability to offer term deposit products. Programs and customer can have `termDeposit` configured as an offering type using the Offering APIs. Term deposit customers can pull funds from another E6 account, earn simple interest for a fixed period of time, and then reinvest, hold, or sweep the funds.
+
+### Enhancements
+
+**Notifications - Implemented notification resend timing filter** <br/>
+Updated event notification resend processing to prevent stale notifications from being resent if they were previously held without sending.
+
+**Passwords - E6 support can now update user passwords** <br/>
+Added a new API which allows the E6 support team to update a user password for client users if needed in case the old password cannot be remembered.
+
+**Rewards - Added MCC and merchant restrictions in Dashboard** <br/>
+Updated Dashboard to include the ability to set reward earn rule MCC and merchant restrictions.
+
+**Dashboard - Adjusted component visibility for linked partners** <br/>
+Updated the component visibility rules on the partner details page so that an error does not occur due to attempting to call APIs for linked partners for which the user cannot call certain APIs.
+
+**Reports - Added new installments delinquency report** <br/>
+Implemented new installments delinquency report which provides a summary of delinquent installment customers on a daily basis. Fields include `parentCustomerNumber`, `customerNumber` (loan number), `totalDue`, and `daysDelinquent`. Each report row is for an individual loan. The report is generated per installment program.
+
+**Network Messages - Added cleansed Field 55 to raw network message** <br/>
+Visa network messages will now include a cleansed form of Field 55 in the `rawMessage` portion in binary form. Clients need to decode data from the binary format to process if needed.
+
+**Installments - Corrected offering not found error in Dashboard** <br/>
+Updated Dashboard offering map to prevent offering not found errors from occurring for installment offering customers.
+
+**Card Profiles - Enabled multiple BIN/IIN segments to be set per card profile** <br/>
+Card profiles can now support multiple BIN/IIN segments for the assigned BIN/IIN. 
+
+**Authentication - Added support for MFA using TOTP** <br/>
+Implemented new APIs to support multi-factor authentication (MFA) using time-based one-time passwords (TOTPs). Partner users in the TRITIUM platform with this enabled will be required to setup TOTP and provide as part of login requests. Clients must specify a TOTP provider as part of setup if this is to be enabled.
+
+**Revolving Credit - Corrected unpaidMinimumPayments to ensure proper count is returned** <br/>
+Updated the query logic for `unpaidMinimumPayments` returned in the revolving credit customer summary so that it returns the expected count of unpaid period minimum payments.
+
+**Interest-Bearing Deposits - Added customer account simulator** <br/>
+Added new interest-bearing deposit customer account simulator. Request includes the `interestTierName`, `programName`, `startTime`, and `endTime`. The simulation will process the account using the program configurations. `startTime` and `endTime` must be in the past.
+
+**Loan on Revolving Credit - Added the ability to adjustment revolving credit loans in Dashboard** <br/>
+Users can now make adjustments to upcoming loan periods for `loanOnRC` customer accounts using Dashboard through the financial sub-page for that customer.
+
+**Loan on Revolving Credit - Added the ability to configure loan contribution to minimum due** <br/>
+Loan contribution to revolving credit customer period min due can now be configured either by total billed installment principal amount or by the incremental billed installment principal amount.
+
+**Card Payments - Updated Visa response code processing - AI14099** <br/>
+Updated Visa response code processing to use `62` instead of `57` where retries are allowed within a set limit.
+
+**Corporate Controls - Added new debit_amount_30d control** <br/>
+Implemented new `debit_amount_30d` control type which can be enforced as part of corporate control framework. Control can be automatically set at all customer levels when the corporate controls framework is in place. The control measure net debit position on the customer account as a sum of all money movement for that customer and all child customers.
+
+**Automatic Load - Corrected automatic load failure due to multiple rules present** <br/>
+Implemented new logic to ensure that customers which have multiple automatic load rules setup have the expected rule executed at the point of direct debit extraction.
+
+**Adjustments - Added ability to pass transaction attributes in request** <br/>
+Adjustment request can now include a list of `attributes` in the request that will be saved as transaction attributes to the final `adjustment` transaction which is created.
+
+**FX Wallet Transfer - Added ability to pass transaction attributes in request** <br/>
+FX wallet transfer request can now include a list of `attributes` in the request that will be saved as transaction attributes to the final `walletTransfer` transaction which is created.
+
+**Controls - Implemented new controls for Mastercard fraud decisioning** <br/>
+Added two new controls which can be used to manage card payments which are populated with Mastercard fraud data from the Master Decision Intelligence product. `frm_fraud_score_threshold` allows a value from 000-999 to be set below which authorization will be blocked based on the value provided in `DE48.75.01`. `frm_block_reason_codes` allows for a comma-separated list of reason codes to be set which will block the associated card based on the value provided in `DE48.75.02`. Values from the data fields will be stored as an ISO8583 attribute named `FRAUD_SCORE_AND_CODE`.
+
+**Controls - Added new moto_limit** <br/>
+Implemented new `moto_limit` for one-time transaction value limit of mail order / telephone order (MOTO) card payments.
+
+**Memo Templates - cardAcceptorCountryCode can now be set in memo templates** <br/>
+Memo templates can now utilize a new `cardAcceptorCountryCode` variable in the memo template definition.
+
+**Payments - Can now specify different P2P payment sender and receiver memos** <br/>
+P2P payment requests can now support different memo values for the sender and receiver by using the `senderMemo` and `recieverMemo` fields respectively.
+
+**Adjustments - Customer facing memo can be specified for adjustments** <br/>
+Adjustment request can now intake `memo` to set a customer facing memo along with the existing `internalMemo` field.
+
+**Revolving Credit - Corrected delinquency report query logic** <br/>
+Corrected revolving credit delinquency report query logic to ensure that all periods are included in the data summary as expected.
+
+**Loan on Revolving Credit - Added interest accrual for loan on revolving credit owed principal** <br/>
+Interest accrual can now be configured for loan on revolving credit using the standard interest configurations. Loan on revolving credit interest accrual will occur using the same methodology as other draw types except it will only occur on billed principal. The loan on revolving credit sub-balance is included in the repayment hierarchy in line with other sub-balances per the repayment configuration.
+
+**Controls - Added to pre_auth_limit rule** <br/>
+Implemented new `pre_auth_limit` control rule to limit the one-time maximum amount for pre-authorizations.
+
+**Dashboard - Correct password change failure issue** <br/>
+Corrected data validation logic on password change screen page in Dashboard to ensure acceptable passwords were not rejected.
+
+**Controls - Added new pos_international_purchase_limit** <br/>
+Implemented new `pos_international_purchase_limit` control to limit one-time purchase value for international purchases made at a POS.
+
+**Dashboard - Improved error modal display and details** <br/>
+Updated the error modal to ensure that backend error reason codes and messages are clearly displayed for users to understand what went wrong.
+
+**Revolving Credit - Corrected account simulation timeout error** <br/>
+Corrected issue which was causing 504 - gateway timeout errors for revolving credit customer account simulation requests.
+
+**Card Controls - Enabled allowed countries and allowed merchants rule for card controls** <br/>
+The `allowed_countries` and the `allowed_acquirers_merchants` controls can now be set as card level controls.
+
+**Term Deposits - Enabled term deposit customer account simulation** <br/>
+Term deposit customer account behaviors can now be simulated in test environments including account creation, cancellation, and summary events. The simulation will process the account using the program configurations. `startTime` and `endTime` must be in the past.
+
+**Revolving Credit - Corrected data validation issue in Dashboard for min due threshold** <br/>
+Minimum due threshold value in Dashboard can be set to any integer value as expected. Previously data validation did not allow a value above `100`.
+
+## August 2024
+
+### Enhancements
+
+**Notifications - Deprecated unused transactionId from some CustomerNotificationWebhookDTO notifications** <br/>
+Removed `transactionId` from the base DTO of customer notifications as it was not applicable to all customer notifications. If relevant to the notification type, will now appear in the `eventFields` object.
+
+**Dashboard - Added new program custodial accounts tab** <br/>
+Added a new custodial accounts tab in the program details page for better visibility into program balances where the program has multiple currencies.
+
+**Transactions - Added new OutOfWalletOnline transaction type** <br/>
+New `OutOfWalletOnline` transaction type was added in support of card payment transactions where the payment is not an atm transaction or the card is not present and the transaction is out of wallet (not a supported customer account currency).
+
+**3DS - Added new static passcode verification method** <br/>
+Added new 3DS ACS `VerificationMethodType` of `STATIC_PASSCODE`. This passcode can be set at the partner level as the `3DSStaticPasscode` partner attribute within the E6 TRITIUM platform. The linked partner will need to be specified as part of 3DS ACS setup.
+
+**Controls - Added new merchant whitelist control** <br/>
+Merchant whitelisting by `acquirerId` and `merchantId` is now available as a standard control to be set as part of a program control level, a customer control rule, or a card control rule. The rule name is `allowed_acquirers_merchants` and inputs should be provided in a format of `ACQID|MERCHANTID` where multiple `MERCHANTID` entries can be provided and separated by a comma. Multiple `ACQID` groups can be provided by adding another `|` character after the `MERCHANTID` list. Example: `1234567890|1234567890, 1111111111, |2222222222` - allow merchants with IDs of `1234567890` and `1111111111`for acquirer with ID of `1234567890` and allow all merchants for acquirer with ID of `2222222222`.
+
+**Dashboard - Removed invalid filter for declined transactions** <br/>
+Removed the transaction type dropdown filter for customer declined transactions in Dashboard as it is not supported by the API.
+
+**Revolving Credit - Added over limit allowance to customer summary** <br/>
+Added the calculated `overLimitAllowance` to the revolving credit customer summary API to remove the need for front end applications from having to perform the calculations based on program and customer configurations.
+
+**Dashboard - Added contactless no PIN limit rule to available controls** <br/>
+The new `purchase_cvm_no_pin_limit` control is now available to be set in Dashboard as a program control level rule or a customer control rule.
+
+**Cooperative Authorization - Added list of performed verifications for authorizations** <br/>
+Added a new `verificationList` field to the cooperative authorization model for card payment authorizations. This field will include a comma separated list of checks that were performed prior to the cooperative authorization request being made. Available verifications that can be included are `AVS_STREET`, `AVS_ZIP`, `ARQC`, `CVV`, `ONLINE_PIN`, `OFFLINE_PIN`, and `THREE_DS`.
+
+**Revolving Credit - Corrected display format of percentages in Dashboard** <br/>
+Updated minimum due percentages to display as percentages as expected.
+
+**Controls - Enhanced the flexibility of corporate controls** <br/>
+Corporate spend management controls can now be more flexibly implemented using different customer hierarchy structures. Anywhere from one level (single root customer with cards) to five levels of parent-child customer relationships can now be established within the corporate control framework.
+
+**Automatic Load - Enabled automatic load negative response processing to be configured** <br/>
+Automatic load can now be configured when using negative response processing to reduce the amount of time between extraction and clearing. This can be set as a `releaseHoursPrior` automatic load attribute for the automatic load partner.
+
+**Notifications - Corrected transaction type issue in transaction notifications** <br/>
+Corrected data mapping for transaction notification to ensure that transaction source and transaction type are populated as expected.
+
+**Automatic Load - Corrected partner autoload attribute button accessibility in Dashboard** <br/>
+Corrected issue where users with correct permissions could not access the edit partner autoload attribute button in Dashboard as expected.
+
+**Revolving Credit - Corrected customer sub-balance visibility issue in Dashboard** <br/>
+Corrected issue where revolving credit customer sub-balances tab did not appear upon first page load in Dashboard.
+
+**Revolving Credit - Corrected gateway timeout for account simulation** <br/>
+Implemented fix for gateway timeout error which was occurring when attempting to run revolving credit account simulation.
+
+**Dashboard - Added edit option for program control levels** <br/>
+Control rules set up as part of a program control level in Dashboard can now be edited by using the ellipses for the individual control rule and selecting Edit.
+
+**Dashboard - Corrected missing adjustment change order internal memo** <br/>
+Corrected data mapping issue which caused `internalMemo` to not be saved as expected for adjustments raised through change orders.
+
+
+## July 2024
+
+### New Features 
+
+**Reports - Loan creation report** <br/>
+Added new loan creation report that provides a summary of all new loans created on a daily basis. The report includes the new loan `customerNumber`, the `parentCustomerNumber` and the details of the loan configurations and amount.
+
+### Enhancements
+
+**Dashboard - Enhanced session auto-time out experience** <br/>
+Updated the Dashboard behavior for session management so that users will receive an alert when their access token will expire in 5 minutes. When the user access token expires, the user will be returned to the login screen.
+
+**Revolving Credit - Added option to not block customer at the end of simulation** <br/>
+When making a revolving credit customer simulation request, the account can be left to continue processing after simulation by setting `stopSimulationWhenOver` to `false`. This will ensure that the customer continues to experience the standard revolving credit events such as interest accrual, billing, etc. after simulation has been performed.
+
+**Automatic Load - Autoload partner settings can now be setup in Dashboard** <br/>
+Added the ability to set partner attributes for managing automatic load configurations. The new configurations include `daysOffset` and `shiftSetting`.
+
+**Revolving Credit - Simplified delinquency action configuration in Dashboard** <br/>
+Updated design of delinquency actions for revolving credit programs to ensure a consistent experience regardless of delinquency action type.
+
+**Rewards - Updated product configuration experience in Dashboard** <br/>
+Enhanced and simplified the rewards enablement and configuration experience for product programs in Dashboard.
+
+**Card Payments - Added the ability to unmask PANs in Visa BASE II files** <br/>
+Clients who issue with Visa and are PCI compliant are now able to receive Base II files with PANs unmasked.
+
+**Rewards - Added MCC exclusion for reward plans** <br/>
+Clients can now added excluded MCCs at the reward plan level. If a card payment with an excluded MCC is processed on a product account that is assigned to that plan then the transaction will not earn rewards.
+
+**FX - Corrected currency margin dropdown in Dashboard** <br/>
+Corrected blank currency dropdown issue in Dashboard currency margin side drawer.
+
+**Card Payments - Added new logic check for customer not associated with card** <br/>
+Added new logic as part of card payment processing to check whether the customer is attached to an issued card. This can occur of the customer fails to be associated with a card due to the card not yet being activated. If a customer not associated scenario occurs during authorization, then response code `14` will be returned. 
+
+**Revolving Credit - Enhanced account simulator processing** <br/>
+Refactored revolving credit account simulator to ensure stability and reliability in response to various issues related to new features impacting the availability of the simulator.
+
+**Rewards - Enhanced customer summary view in Dashboard** <br/>
+Enhanced the ability to understand the current state of product customer rewards earnings and configurations in Dashboard.
+
+**Dashboard - Corrected issue with non-responsive password reset page** <br/>
+Updated data validation logic for password reset page in Dashboard to stop an invalid data validation from causing the page not to work as expected.
+
+**Customers - Added customer search by phone and email** <br/>
+Introduced a new customer search endpoints for searching by phone number or email address. Search by phone can be performed by calling `POST /customers/search/phone` and passing in `phoneNumber` in the customer cursor DTO. Country code should not be included in the phone number. Similarly search by email address can be performed by calling `POST /customers/search/email` and passing in `email` in the customer cursor DTO.
+
+**Notifications - Added support for X-API-KEY** <br/>
+Event notifications API calls can now be authenticated using X-API-KEY instead of bearer authorization token.
+
+**Notifications - Added new fields to declined authorization notification** <br/>
+Added `errorCode` and `message` fields to the declined authorization event notification model to support debugging of declined authorizations.
+
+**Dashboard - Corrected reverted program controls tab** <br/>
+Corrected issue where program controls tab in Dashboard was reverted to an older version.
+
+**Reports - Enhanced revolving credit repayment report to include other credits** <br/>
+Revolving credit repayment report now includes row records for any credit applied to the account which impacts account sub-balances.
+
+**Revolving Credit - Updated load reversal processing logic** <br/>
+Load reversals will now use current account balance and load reversal amount to estimate the actual amount that can be applied to sub-balances. Min due repayments and sub-balances will now be reversed based the original transaction entries without sending the account beyond the allowed limits.

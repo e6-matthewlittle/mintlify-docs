@@ -1,0 +1,40 @@
+---
+title: "User controls"
+menu: Users
+route: /docs/users/user-controls
+excerpt: User controls allow for restrictions and rules related to how users access a system to be enforced.
+_tags:
+  - user controls
+  - access controls
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+User controls allow for restrictions and rules related to how users access a system to be enforced. Restrictions and rules can include length of access, password complexity requirements, and password change requirements.
+
+## What we do
+
+Episode Six (E6) provides the ability to set up user access controls for each partner of an E6 tenant. These controls limit how partner users are able to access the E6 platform and manage their identities.
+
+## Prerequisites
+
+To use partner user controls, you must first create a partner. To learn more about creating partners, see [Partners](/docs/platform-access/partners). An initial partner control level will be created once the user is created.
+
+## Actions
+
+You can create additional partner control levels by calling the [Create Partner Risk Level API](/tech-specs/controls/partner-control-levels/api#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerRiskAPI_createRiskLevel_POST). Rules can be added to an existing partner control level by calling the [Create or Update Partner Security Level Rule API](/tech-specs/controls/partner-control-levels/api#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerRiskAPI_createUpdateRiskConfig_POST). The following table shows the available controls which can be set for a partner user.
+
+| Parameter | Type | Description |
+| -- | -- | -- |
+| `partner_password_reset_time_limit` | Long | Amount of time the partner user has to reset a password (in minutes). |
+| `partner_password_history_count` | Integer | Number of previous passwords which new passwords cannot match. |
+| `partner_inactivity_period_limit` | Long | Time limit of inactivity allowed for partner user, in seconds. |
+| `partner_password_expiration_time_limit` | Long | Time limit on partner user password expiration, in seconds. |
+| `partner_reset_password_on_first_login` | Boolean | Determines if partner user resets password on first login.  |
+| `partner_user_forgot_password_frequency_limit` | Long | Frequency limit for partner user forgetting password, in minutes. |
+
+## What's next
+
+After setting partner user controls, you can view and update the controls using the [Partner Controls APIs](/tech-specs/controls/partner-control-levels). When creating a new user or updating an existing user, the new security level can be assigned. For more information, see [Users](/docs/users/users).
+

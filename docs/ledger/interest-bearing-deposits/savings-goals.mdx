@@ -1,0 +1,35 @@
+---
+title: "Savings goals"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/savings-goals
+excerpt: Savings goals allow an interest-bearing deposit customer to subdivide their interest-bearing account.
+types: 
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - savings account
+  - savings goals
+containerWide: true
+showHeadingsNav: true
+---
+
+# Savings goals
+
+Savings goals allow an interest-bearing deposit customer to subdivide their interest-bearing account. Dividing the account up allows for different goals to be managed and tracked including accumulation of funds and interest accrual.
+
+## What we do
+
+Episode Six (E6) provides the ability to add savings goals to an interest-bearing deposit account as child accounts. Once setup, the savings goals can have money movements performed to and from the parent interest-bearing deposit account. Savings goals earn interest using the same configurations as the parent account.
+
+## Prerequisites
+
+To create a savings goal account, an interest-bearing deposit customer account is required. To create a customer interest-bearing account, see [interest-bearing deposits customer configuration](/docs/interest-bearing-deposits/customer-configuration).
+
+## Actions
+
+To open a savings goal account, call the [Create Savings Goal API](tech-specs/interest-bearing-deposits/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.ibd.InterestBearingDepositAPI_createSavingsGoal_POST). An `amount` must be specified in the request. This amount will automatically be debited from the parent interest-bearing deposit account and credited to the savings goal account. Customers can also give the savings goal an account nickname or target amount by using the `customerAttributes`.
+
+## What's next
+
+Customers can add additional funds to their savings goal account by calling the [Process Savings Goal Funding API](tech-specs/interest-bearing-deposits/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.ibd.InterestBearingDepositAPI_savingsGoalLoad_POST). The parent interest-bearing deposit account will be debited for the amount of the load. Customers can withdraw funds from savings goal account by calling the [Process Savings Goal Withdrawal API](ech-specs/interest-bearing-deposits/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.ibd.InterestBearingDepositAPI_savingsGoalWithdraw_POST). The parent interest-bearing deposit account will be credited for the amount of the withdrawal.

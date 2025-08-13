@@ -1,0 +1,46 @@
+---
+title: "Customer configuration"
+menu: Term deposits
+route: /docs/term-deposits/customer-configuration
+excerpt: Setting up an term deposit product for a customer.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - term deposit
+  - time deposit
+  - certificate of deposit
+  - CD
+  - customer setup
+containerWide: true
+showHeadingsNav: true
+---
+
+# Customer configuration
+
+Customer-level term deposit configurations are settings that apply to a customer account opened under a term deposit program. These configurations apply only to the customer account for which they are set including interest rate, maturity action, term length, funding source, and funds destination.
+
+## What we do
+
+Episode Six (E6) provides the ability to add term deposit configurations to a customer. When term deposit configurations are added to a customer, the customer is updated to support term deposit behavior. Customer configurations are specific to the customer account.
+
+## Prerequisites
+
+To create a term deposit customer account, a term deposit program is required. To create a term deposit program, see [program configuration](/docs/term-deposits/program-configuration).
+
+Before configuring a term deposit customer, a parent customer account is required. This customer should be part of a non-term deposit program. To create a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+The first step is to create the term deposit customer account as a child customer to the base account. The new customer must be created under the term deposit program. To create a child customer, call the [Create Child Customer API](/tech-specs/customers/customer-relationships/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createChildCustomer_POST).
+
+Once a customer account has been opened, the customer offering can be created and configured. This allows for interest behavior to be defined for the customer, relative to options made available by the program offering configuration. The following fields must be provided as part of the [Create Term Deposit Customer Offering API](/tech-specs/term-deposits/customers/api?#operation/createTermDepositCustomer). Each request should include the `annualRate`, `maturityAction`, `reinvestInterestPreference`, `reinvestAmountpreference`,  funding `amount`, `term` in number of days, `fundingPortfolioId` using the `id` from the funding customer, and `sweepCustomerIdentifier` using the `customerNumber` from the sweep customer.
+
+Upon successful setup of a term deposit configuration, the term deposit customer will have the funding customer set as a parent account. Funds will be drawn for the specified amount from the funding customer, and the account will be locked until maturity. If the funding customer is not able to fund the term deposit customer, then the request will be rejected.
+
+## What’s next
+
+After a term deposit customer has been configured and funded, the account will proceed towards term [maturity](/docs/term-deposits/maturity).
+
+Call the [Term Deposit Customer APIs](/tech-specs/term-deposits/customers) to view and update the customer offering information including configurations and balances.

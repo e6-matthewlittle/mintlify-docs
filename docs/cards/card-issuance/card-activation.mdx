@@ -1,0 +1,64 @@
+---
+title: "Card activation"
+menu: Cards
+route: /docs/cards/card-activation
+excerpt: Card activation is the process of enabling a card to be used for card payments.
+types: 
+  - guide
+_tags:
+  - cards
+  - card states
+  - activation
+  - card activation
+  - card order
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Card activation
+
+Card activation is the process of enabling a card to be used for card payments or other functions. When a customer receives a new physical card, the card must be activated before it can be used. Card activation ensures that the card cannot be used until the cardholder completes the card issuance process. Prior to a card being activated, the card data can still be used for non-payment processes. These processes include retrieving card details for statements and tokenizing the card.
+
+## What we do
+
+Episode Six (E6) provides multiple methods to activate a [physical card](/docs/cards/physical-cards). After a card has been created by placing a card order, the card can be activated at any time. Once the card is activated, it can be used to make card payments. For security reasons, a physical card cannot be moved from `created` to `activated`. Instead, it can only be `activated` after it is in a `sold` or `shipped` state.
+
+## Prerequisites
+
+Before a physical card can be activated, the card must first be [issued](/docs/cards/issuance-overview). As soon as a card is issued, it will be defaulted to the `created` state. Then the card state is changed to `shipped` once the card’s embossing file is sent to the manufacturer. A physical card must be in the `shipped` state before activation can occur.
+
+<Callout
+    calloutType={"info"}
+>
+    Virtual only cards do not require activation.
+</Callout>
+
+## Actions
+
+Cards can be activated through one of the following methods.
+
+### Card state API
+
+To activate a card by changing its card state, call the [Update Card State API](/tech-specs/cards/card-state-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_changeCardState_PUT). In the request, set `state` to `activated`.  A physical card that is manually set to `shipped` for testing purposes will not be created with a PIN. To set a PIN for these cards, call the [Set Card PIN Without Activation API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPinNoActivation_POST).
+
+<Callout
+    calloutType={'warning'}
+>
+    Activating a card by changing the card state removes any customer activation blocks that are associated with the card. For more information, see
+    <a href="/docs/blocks/customer-blocks"> Customer blocks</a>.
+</Callout>
+
+### Set card PIN
+
+Setting a Personal Identification Number (PIN) on a card that has not yet been activated will activate the card. Card activation will only occur if the card was in a `shipped` state and not if it is only in a `created` state. To set a card PIN, call the [Set Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPin_POST). For more information about card PINs, see [PIN management](/docs/cards/pin-management).
+
+### Use card PIN 
+
+Successfully using the PIN for the first time for a card that has not yet been activated will activate the card. Card activation during PIN use will only occur if the card was in a `shipped` state. Activation will occur whether the PIN is used online or offline.
+
+## What's next
+
+After activating a card, its state can be updated. For more information, see [Card state management](/docs/cards/card-state-management). An activated card can be used to perform payments and other card-based functions. For more information, see [Card payments](/docs/cards/card-payments).

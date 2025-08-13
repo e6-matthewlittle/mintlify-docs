@@ -1,0 +1,50 @@
+---
+title: "Chargebacks"
+menu: Cards
+route: /docs/cards/chargebacks
+excerpt: A chargeback is a transaction that is returned to a customer account after a dispute.
+types: 
+  - guide
+_tags:
+  - chargeback
+  - dispute
+  - transaction chain
+  - reverse
+  - reversal
+  - retrieve
+containerWide: true
+showHeadingsNav: true
+date: "01-26-2023"
+---
+
+# Chargebacks
+
+A chargeback is a payment back to a cardholder by a merchant in the event that the original card payment was invalid. Typically, a chargeback occurs after a dispute is raised by a cardholder to their issuer. Reasons for disputes can include fraud, duplicate payments, a lost order, or other accepted reasons.
+
+## What we do
+
+Episode Six (E6) processes transactions as they are received as part of card issuer processing. When a chargeback is required, E6 can locate the original transaction identifier, which is used to initiate a chargeback in network-connected case management tools.
+
+## Prerequisites
+
+Before E6 is able to process card payments for live customers, E6 must first be [certified](docs/cards/certification) as the issuer processor for any required [IINs](/docs/cards/iin-procurement).
+
+For chargebacks to be initiated, a card payment transaction must first have been cleared. For more information, see [Card payments](/docs/cards/card-payments).
+
+## Actions
+
+The following chargeback actions are supported by E6.
+
+### Locating the transaction 
+
+A transaction can be located by using the [Return the Transaction Chain for a Transaction API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_getTransactionChain_GET). Provide the customer's `customer-number` and the related E6 unique `transaction-id` in the path to locate all related transaction entries.
+
+### Adjusting the transaction
+
+To provide a customer with immediate credit relief before a chargeback result is processed, refer to the [Adjustments Guide](/docs/balances/adjustments) for instructions on adjusting a transaction.
+
+### Reversing chargebacks
+
+Once the chargeback has been processed, it can no longer be cancelled. If you need to undo a chargeback after it is processed, you can reverse it. A chargeback reversal retrieves the designated funds from the customer account and returns them to the merchant.
+
+To reverse a chargeback, all the [Reverse a received Chargeback API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_reverseChargeback_PUT). Include a unique `customer-identifier` and `chargeback-id` in the request to specify which chargeback to reverse.

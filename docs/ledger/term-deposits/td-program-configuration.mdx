@@ -1,0 +1,50 @@
+---
+title: "Program configuration"
+menu: Term deposits
+route: /docs/term-deposits/program-configuration
+excerpt: Setting up a term deposit product for a program.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - term deposit
+  - time deposit
+  - certificate of deposit
+  - CD
+  - program setup
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Program configuration
+
+Program-level term product configurations are shared configurations that apply to all customer accounts created under the program. These configurations include interest accrual settings and a default interest rate.
+
+## What we do
+
+Episode Six (E6) provides the ability to configure a term deposit product for an existing program in TRITIUM. When term deposit configurations are added to a program, the program is updated to support term deposit behavior. After setting up the term deposit product, the program product configurations can be viewed and updated in real time.
+
+## Prerequisites
+
+E6 must enable access to the term deposit product.
+
+<Callout
+    calloutType={'info'}
+>
+    Contact your E6 representative to ensure that access to this feature is available.
+</Callout>
+
+Before adding term configurations to a program, a program must first be created. For more information, see [Programs](/docs/programs/programs).
+
+## Actions
+
+Term deposit configurations can be added to a program by calling the [Create Term Deposit Program API](/tech-specs/term-deposits/programs/api?#operation/createTermDepositProgramConfiguration). Common interest accrual settings including `daysPerYear`, `leapYearDaysPerYear`, and the `defaultInterestRate`.
+
+## What's next
+
+When a program is set up with term configurations, customer offering accounts can be opened under the program. To create a term offering customer, see [Term deposit customer configuration](/docs/term-deposits/customer-configuration).
+
+The program configurations can be retrieved and updated by using the [Term Deposit Program APIs](/tech-specs/term-deposits/programs).

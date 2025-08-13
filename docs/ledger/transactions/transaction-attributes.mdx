@@ -1,0 +1,36 @@
+---
+title: "Transaction attributes"
+route: /docs/transactions/transaction-attributes
+excerpt: A transaction attribute allows for additional transaction metadata to be managed.
+types: 
+  - guide
+_tags:
+  - attributes
+  - transactions
+  - transaction attributes
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Transaction attributes
+
+A transaction attribute is a piece of information that defines a transaction within a data model. Systems define transactions differently across their data models. Inherently, each data model definition in a system remains relatively static. Static definitions cause issues when trying to customize the definition of a transaction or migrate transactions between systems. To overcome the problem of static definitions, customizable transaction attributes are needed.
+
+## What we do
+
+Episode Six (E6) provides the ability for custom transaction attributes to be added to and maintained for a transaction. A transaction attribute is defined by the `name` and `value` of the attribute. Transaction attributes can be retrieved for a transaction or consumed as part of downstream processing.
+
+## Prerequisites
+
+Before a transaction attribute can be added for a transaction, the transaction must have been created. For more information, including a list of transaction types, see [Transactions](/docs/transactions/transactions).
+
+## Actions
+
+A transaction attribute can be added by calling the API for that transaction type and defining the `name` and `value` for the attribute. For example, you can create a purchase transaction by first calling the [Purchase API](/tech-specs/payments/purchase/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_purchase_POST) and then defining the `name` and `value` attribute for the call. Attributes should be uniquely named to ensure that transaction attributes follow a key-value pair model.
+
+With your external payment gateways, you can also create transaction attributes that E6 can retrieve.
+
+## What's next
+
+After setting transaction attributes, you can retrieve them by calling the [Transaction Attributes APIs](/tech-specs/transactions/transaction-attributes).

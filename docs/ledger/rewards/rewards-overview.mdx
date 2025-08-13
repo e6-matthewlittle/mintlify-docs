@@ -1,0 +1,99 @@
+---
+title: "Rewards overview"
+sidebarTitle: "Overview"
+menu: Rewards
+route: /docs/rewards/rewards-overview
+excerpt: Rewards are incentives provided to customers to encourage different types of activities including spend.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+  
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2024"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Rewards overview
+
+Rewards are incentives provided to customers to encourage different types of activities including spend. Often times, the incentive is in the form of cashback on an account, loyalty points, or rebates. These incentives can be used to drive product competitive advantage, drive new account openings through promotions, and increase spend volume on accounts.
+
+## What we do
+
+Episode Six (E6) provides the ability to enable rewards for any product programs in the TRITIUM platform. Rewards features supported by E6 include:
+
+- Enabling rewards for a product program
+- Establishing product reward plans and their underlying rules
+- Assigning and changing reward plans for customers
+- Setting up merchant category or merchant-specific constraints for rewards earn
+- Accruing rewards earn
+- Distributing earned rewards
+- Automatic or manual rewards redemption
+- Adjust rewards balances
+
+## How it works
+
+Rewards are enabled by creating a rewards processing program and customers within the program to manage earned rewards until distribution of the rewards. The rewards program also maintains the reward plan and rule configurations for each product program in an "engine" type structure. Each product program can have multiple plans. Each plan can have multiple earn rules within it. Rules can be tailored as needed with transaction type, rate, and merchant category or merchant qualification rules.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/context/e6-context-rewards.svg'}
+    caption={'Rewards domain context'}
+/>
+
+You can add rewards to your product by establishing a program for rewards processing, onboarding your product programs with plans, and then enrolling customers.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/process/e6-process-rewards.svg'}
+    caption={'Rewards enablement process'}
+/>
+
+## Further reading
+
+The below pages provide additional detail on the process of how to enable rewards and how it is processed for customers.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+        linkPath="/docs/rewards/rewards-setup"
+        title={"Rewards enablement"}
+        body={"Rewards in Tritium are units of value given to customers to incentivize different types of spend behaviors."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/rewards/product-rewards"
+        title={"Product rewards setup"}
+        body={"Flexible configurations for earn, distribution, and redemption are required in order to enable the product needs."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/rewards/customer-enrollment"
+        title={"Enrollment"}
+        body={"Customers can have rewards enabled with assignment to a rewards plan to enable earn, distribution, and redemption."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/rewards/rewards-earn"
+        title={"Earn"}
+        body={"Rewards earn is the process of calculating the amount of pending rewards to be issued based on the trigger action and the configured earn rules."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/rewards/rewards-distribution"
+        title={"Distribution"}
+        body={"Rewards distribution is the process of transferring pending rewards to a customer account for spend."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/rewards/rewards-redemption"
+        title={"Redemption"}
+        body={"Rewards redemption is the process of spending or utilizing distributing rewards."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>
+

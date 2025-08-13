@@ -1,0 +1,115 @@
+---
+title: "Token authorization"
+menu: Cards
+route: /docs/cards/token-authorization
+excerpt: The process of providing issuer authorization for a token provisioning request.
+types:
+  - guide
+_tags:
+  - token activation
+  - token authorization
+  - token activation methods
+  - authorization methods
+  - activation methods
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+# Token activation
+
+Provisioning requests may need to be authorized by the issuer. When the token service provider (TSP) receives the request from the digital wallet, the TSP will reach out to the issuer for decisioning. The provisioning request can be approved, rejected, or additional cardholder authentication can be requested to. Once the TSP has received approval from the issuer, the card token is activated if already generated and shared with the digital wallet or provided to the digital wallet in an activated state.
+
+If step up is required for token authorization, then the issuer is expected to return a list of available cardholder verification methods to the TSP. In turn, the TSP will provide the available methods to the digital wallet to present to the user for them to select a preferred method. Multiple forms of cardholder verification methods are available when step up authentication is needed. Issuers can offer one or more options for cardholders to authenticate themselves. Typically, cardholder verification methods for token authorization include:
+
+| Method | Description |
+| ---------- | ------------------- |
+| SMS | A text message is sent to the user’s phone number with a one-time password (OTP) to enter into the digital wallet experience. |
+| Email | An email is sent to the user's email address with an OTP to enter into the digital wallet experience. |
+| Website | A user is authenticated with the experience of an issuer-provided website. |
+| Mobile app | A user is authenticated with the experience of an issuer-provided mobile application. |
+| Call center | A phone number, automated or person-managed, is provided to the customer, who is then authenticated by calling the number. |
+| Callback | The cardholder will reach out to the cardholder via the provided phone number to verify the provisioning request. |
+
+## What we do
+
+Episode Six (E6) manages token authorization requests for you as part of its integration with the card network TSPs. This starts with the initial request for authorization of the provisioning request where a decision is made by E6. The digital wallets provide information to help inform this decision including their judgement of the device risk. You can work with E6 to configure your provisioning authorization strategies as needed, though most clients use our standard strategy.
+
+If step up is required, E6 returns the list of available cardholder verification methods and relevant information such as phone number to the TSP as needed. Once the digital wallet user selects on verification method, E6 enables you to complete the verification using different approaches as needed for each method.
+
+## Prerequisites
+
+You must determine which cardholder verification methods you want to support for token authorization.
+
+Once you have determined which methods you want to use, you must configure the methods at the [card profile](/docs/cards/card-profiles) level of your programs. Some methods require additional information to be provided in this configuration using the `value` field.
+
+## Actions
+
+Depending on the type of cardholder verification methods being supported for token authorization, you will need to take different actions including integrations with E6. Each of the below processes assumes that the activation method has already been chosen by the user in the digital wallet experience after E6 has provided the available cardholder verification methods.
+
+### SMS
+
+SMS-based cardholder verification requires you to receive an OTP from E6 and then deliver an SMS text to the cardholder as needed. SMS cardholder verification follows the following steps.
+
+1. TSP informs E6 that the SMS verification method was chosen
+2. E6 sends you a `CardExternalTokenDeliverTokenActivationCode` notification event with the OTP as the `activationCode`, cardholder contact details, and an `activationMethod` of `SMS`
+3. ACTION REQUIRED: You must send an SMS text to the cardholder using the details from the notification event
+4. Cardholder enters the OTP into the digital wallet
+5. Digital wallet works with TSP and E6 to verify the OTP
+6. Once OTP has been verified, the TSP activates the token
+
+### Email
+
+Email-based cardholder verification requires you to receive an OTP from E6 and then deliver an email to the cardholder as needed. Email cardholder verification follows the following steps.
+
+1. TSP informs E6 that the email verification method was chosen
+2. E6 sends you a `CardExternalTokenDeliverTokenActivationCode` notification event with the OTP as the `activationCode`, cardholder contact details, and an `activationMethod` of `EMAIL`
+3. ACTION REQUIRED: You must email the cardholder using the details from the notification event
+4. Cardholder enters the OTP into the digital wallet
+5. Digital wallet works with TSP and E6 to verify the OTP
+6. Once OTP has been verified, the TSP activates the token
+
+### Website
+
+Website-based cardholder verification requires you to host a web application that allows the cardholder to authenticate themselves using your standard methods before informing E6 of an approved provisioning request. The website URL must be provided to E6 as the `value` when the token authorization method is added to a [Card profile](/docs/cards/card-profiles).
+
+1. Digital wallet redirects the user to the provided website URL in their web browser
+2. ACTION REQUIRED: You are responsible for authenticating the cardholder using your available standard customer user authentication methods
+3. ACTION REQUIRED: Once the cardholder has been authenticated, you should call the [Activate Card Token API](/tech-specs/cards/card-token-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardTokenManagementAPI_activateToken_PUT) to notify E6 that the provisioning request has been authorized by the cardholder
+4. E6 informs the TSP that the token provisioning has been authorized and the token should be activated
+5. TSP activates the card token
+
+### Mobile App
+
+Mobile app-based cardholder verification requires you to have an app-store certified application that allows the cardholder to authenticate themselves using your standard methods before informing E6 of an approved provisioning request. Application identifier must be provided to E6 as the `value` when the token authorization method is added to a [Card profile](/docs/cards/card-profiles).
+
+1. Digital wallet redirects the user to the listed application using the provided application identifier
+2. ACTION REQUIRED: You are responsible for authenticating the cardholder using your available standard customer user authentication methods
+3. ACTION REQUIRED: Once the cardholder has been authenticated, you should call the [Activate Card Token API](/tech-specs/cards/card-token-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardTokenManagementAPI_activateToken_PUT) to notify E6 that the provisioning request has been authorized by the cardholder
+4. E6 informs the TSP that the token provisioning has been authorized and the token should be activated
+5. TSP activates the card token
+
+### Call center
+
+Call center-based cardholder verification requires you to have a phone number available which can field cardholder verification requests. The phone number can be managed by an automated system or call center employees. You should use your standard phone-based cardholder authentication methods as part of this call. The call center number must be provided to E6 as the `value` when the token authorization method is added to a [Card profile](/docs/cards/card-profiles).
+
+1. Digital wallet redirects the user to the listed application using the provided application identifier
+2. ACTION REQUIRED: You are responsible for authenticating the cardholder using your available standard customer user authentication methods
+3. ACTION REQUIRED: Once the cardholder has been authenticated, you should call the [Activate Card Token API](/tech-specs/cards/card-token-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardTokenManagementAPI_activateToken_PUT) to notify E6 that the provisioning request has been authorized by the cardholder
+4. E6 informs the TSP that the token provisioning has been authorized and the token should be activated
+5. TSP activates the card token
+
+### Callback
+
+Callback-based cardholder verification requires you to call the cardholder at their provided contact number when you receive the notification from E6.
+
+1. TSP informs E6 that the callback verification method was chosen
+2. E6 sends you a `CardExternalTokenDeliverTokenActivationCode` notification event with the cardholder contact details and an `activationMethod` of `CALLBACK`
+3. ACTION REQUIRED: You must call the cardholder at the provided number and verify the caller identity using your standard phone-based cardholder authentication methods
+4. ACTION REQUIRED: Once the cardholder has been authenticated, you should call the [Activate Card Token API](/tech-specs/cards/card-token-management/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardTokenManagementAPI_activateToken_PUT) to notify E6 that the provisioning request has been authorized by the cardholder
+5. E6 informs the TSP that the token provisioning has been authorized and the token should be activated
+6. TSP activates the card token
+
+## What's next
+
+Once the token has been activated by the TSP, the TSP informs the digital wallet and E6 that the card token has been activated through an asynchronous notification. E6 will generate and send a `CardExternalTokenUpdatedNotification` once the TSP notifies E6 of the activation. At this point, the card token is available to use in [card payments](/docs/cards/card-payments).

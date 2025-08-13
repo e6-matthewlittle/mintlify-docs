@@ -1,0 +1,46 @@
+---
+title: "Clients"
+menu: Administration
+route: /docs/platform-access/clients
+excerpt: A client is the root entity representing you in the E6 platform.
+types: 
+  - guide
+_tags:
+  - banks
+  - bank
+  - tenant
+  - tenants
+  - multi-tenancy
+  - client
+  - clients
+  - administration
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+A client, or tenant, is the root entity representing a client of the platform. Platforms which support multiple clients, particularly in the cloud, require the ability to manage multiple tenants in a single instance.
+
+## What we do
+
+Episode Six (E6) onboards clients as clients, or banks, in their target instance of th E6 platform. While E6 may refer to a client as a "bank", you do not have to be a licensed bank to be an E6 client. A key part of what is E6 manages in association with you as a client entity are your currencies. A currency must be tied to the client before any associated entities have access to processing that currency.
+
+## Prerequisites
+
+An instance of TRITIUM, either hosted yourself or in E6 Cloud, should be specified based on your processing and data residency requirements. E6 representatives will help you understand the best hosting option for your needs.
+
+Details of you as an entity, including required currencies, will be drafted by an E6 representative and confirmed with you prior to E6 creating your bank.
+
+## Actions
+
+E6 will configure you as a client in the initial setup script so that any environment that you access will have your tenancy established. No action is required on your part for client setup.
+
+<Callout calloutType={'warning'}>
+    Once you are created as a client in the E6 platform, you cannot the details of the client entity yourself.
+</Callout>
+
+## What's next
+
+Once a bank has been created, parties of the bank tenant can then be added as [Partners](/docs/platform-access/partners).
+
+If any additional currencies are required after the initial setup, they can be added by a `PlatformManager` user using the [Bank currency APIs](/tech-specs/banks/bank-currencies).

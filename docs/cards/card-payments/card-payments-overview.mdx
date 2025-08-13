@@ -1,0 +1,44 @@
+---
+title: "Card payments"
+menu: Cards
+route: /docs/cards/card-payments
+excerpt: How E6 processes card payments on your behalf for issued cards.
+types:
+  - guide
+_tags:
+  - card payment
+  - card payment processing
+  - ISO8583
+  - network message
+containerWide: true
+showHeadingsNav: true
+date: "01-31-2023"
+---
+
+# Card payments
+
+Card payments are requests for funds made over a card network where card details have been given to a payee to initiate the payment request. The card network acts as an intermediary for the payments between the payer bank, the issuer, and the payee bank, the acquirer. Issuer processors act on behalf of the issuer and are responsible for technical connectivity with card networks for card payment processing.
+
+Card networks support two main payment types, purchases and cash withdrawals. A purchase is when a consumer pays a merchant in exchange for goods or services. Purchases can be done in person or online. A cash withdrawal is when a consumer receives cash from an automated teller machine (ATM) in return for having funds withdrawn from their bank account. In this case, the ATM acts similar to a merchant and the consumer is essentially paying the ATM operator in return for receiving cash.
+
+Card payments are performed using the following types of card payment events.
+
+- **Authorization** - A request from a payee to perform decisioning or validation using card payment rails. These are synchronous requests made over the card network online processing endpoint. Most often used for purchase authorization in the dual message approach but can also be used for other card payment types such as account inquiry, balance inquiry, etc.
+- **Financial Transaction** - A request from a payee to post a card payment to a cardholder account. Can be made using the dual-message or single message approach. Includes various transaction types such as purchases, cash withdrawals, refunds, etc.
+- **Reversal** - A request to "undo" a previously processed authorization or financial transaction. This can include payer initiated reversals such as authorization reversals, purchase reversals, etc. and payee initiated reversals such as chargebacks.
+
+## What we do
+
+Episode Six (E6) provides a complete set of issuer processing capabilities for all card payment events. This includes technical integration with the card networks, processing of card payment requests, decisioning of request, generation of card payment responses, processing of financial transaction requests, and generation of reports of card payment activities to help drive settlement and reconciliation.
+
+## How it works
+
+To learn more about how E6 manages card payments for you, read through the following documentation.
+
+- [**Virtual card access**](/docs/cards/virtual-card-access) - Virtual card access is a method for exposing card details to a cardholder or merchant when required to make a card payment through a digital interface.
+- [**Card payment decisioning**](/docs/cards/card-payment-decisioning) - Processing of various card payment requests including authorizations, clearings, refunds, and reversals
+- [**Card payment processing**](/docs/cards/card-payment-processing) - Processing of various card payment requests including authorizations, clearings, refunds, and reversals
+- [**Card payment simulation**](/docs/cards/card-payment-simulation) - Simulating card payments to ensure that all issuer processing use cases are processing as expected including controls, fees, and account product behaviors
+- [**3DS**](/docs/cards/3DS) - Supporting cardholder verification for card not present payments
+- [**Cooperative authorization**](/docs/cards/cooperative-authorization) - Integrated additional parties and systems in the card payment processing flow
+- [**Network messages**](/docs/cards/network-messages) - Historical records of all card payment requests and responses made through card networks

@@ -1,0 +1,40 @@
+---
+title: "Overview"
+route: /docs/users/users-overview
+excerpt:
+_tags:
+  - docs
+  - Users
+  - Overview
+  - roles
+containerWide: true
+showHeadingsNav: true
+date: "09-16-2022"
+---
+
+Access to interfaces and data is determined using identity and access management (IAM). IAM is the process of ensuring that the right external system entities or people can access the system, but only in the prescribed manner and scope.
+
+When a person or system wants to request access, the requestor is assigned an identity within the identity provider. The requestor's identity is registered in the platform and given a unique identifier, such as email, username, or phone number. Data access is then determined by the roles and permissions assigned to the requestor. The requestor is unable to access any data not explicitly allowed by the requestor's roles and permissions.
+
+## What we do
+
+Episode Six (E6) provides IAM through a managed identity, authentication, and authorization capability. Identities are registered as users within the E6 platform in association with a given partner. E6 manages the following functions related to users:
+
+- Creating users in association with a partner
+- Managing permissions for defined roles
+- Assigning roles to users
+- Scoping data access to the partner so that each partner's data is logically separated
+- Defining data linkages between partners and programs so that data can be accessed by other partners if they are not the data/s owning partner
+
+## Uses
+
+Users allow E6 clients to manage data access in their platform, across both internal and external entities. Common uses for users include:
+
+1. Giving internal teams access to the system, such as product managers and customer support teams, with roles defined by their business function
+2. Giving systems access to the platform, such as orchestration layers, user interfaces, or external third-party systems
+
+## How it works
+
+Each user is created under a partner entity and the user’s data access is tied to that partner. Each user is assigned a username as its unique identifier and is given a set of roles and permissions. A user can have one or more roles assigned to it. In the E6 system, a role is a specific set of permissions, and permissions are lists of APIs that a user with a given role can call.
+
+When the user is onboarded into the platform, the user will only be able to access data associated with its connected partner. Information that exists under any other partners in the platform will not be accessible to the user. Optionally, other partners or programs can be linked to the user's partner, allowing that user to access additional data.

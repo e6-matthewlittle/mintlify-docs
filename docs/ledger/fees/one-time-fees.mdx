@@ -1,0 +1,38 @@
+---
+title: "One time fees"
+menu: Fees
+route: /docs/fees/one-time-fees
+excerpt: A one-time fee is a fee charged independently of established fee rules.
+types: 
+  - guide
+_tags:
+  - fees
+  - customer
+  - accounts
+  - add
+  - create
+  - update
+containerWide: true
+showHeadingsNav: true
+date: "02-15-2023"
+---
+
+# One time fees
+
+Manually charging a fee to a customer allows a one-time fee to be charged independently of established fee rules. One-time fees can be used to charge fees when the fee rule system cannot enable the desired scheduling or fee qualification criteria.
+
+## What we do
+
+Episode Six (E6) enables you to manually charge one-time fees to a customer account. Upon successful processing, the customer account is debited and the program operating account is credited for the fee amount.
+
+## Prerequisites
+
+To manually charge a one-time fee to a customer account, you must first create a customer. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+Manually charge a one-time fee to a customer account by calling the [Charge Fee API](/tech-specs/fees/one-time-fees/api#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_fee_POST). In the request body, you can specify a customer-facing memo in the `memo` field. The `internalMemo` in the response will reflect the fee type. For each fee type, the `transactionTypeCode` will be set to `28` for fee.
+
+## What's next
+
+After charging a fee to the customer account, you can view the updated [Customer balances APIs](/tech-specs/balances/customer-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getWallets_GET) and [transactions](/tech-specs/transactions/transaction-entries/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listTransactionEntries_GET) for the customer.

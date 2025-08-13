@@ -1,0 +1,75 @@
+---
+title: "Authorization holds"
+route: /docs/transactions/authorization-holds
+excerpt: An authorization hold is a temporary debit placed on an account.
+types: 
+  - guide
+_tags:
+  - funding
+  - accounts
+  - customer identifier
+  - account balances
+  - authorization
+  - payment release
+  - expiration
+  - hold release
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Authorization holds
+
+An authorization hold is a temporary debit placed on an account which is kept until the payment has cleared, the hold is released, or the hold has expired. Authorization holds are most commonly used during card purchases so that a merchant is able to complete a purchase. An authorization hold lowers the available balance so that funds due to a payment cannot be spent again.
+
+## What we do
+
+Episode Six (E6) provides the ability to generate and manage authorization holds across a number of payment flows. Once an authorization hold has been generated, E6 allows for tracking and actioning of the authorization hold through manual releases, automated payment flow processing, or expiration. E6 also manages the available balance for the account and the adjustment of the available balance as authorization holds are created and removed.
+
+## Prerequisites
+
+Authorization holds are generated through one of two categories of payments - card and non-card.
+For card payments, an authorization is automatically generated when making a purchase through a card. For more information, see [Card payments](/docs/cards/card-payments).
+
+For non-card payments, an authorization hold can be generated for any of the following payment flows.
+
+| Payment flow | Description |
+| ---------- | ------------------- |
+| [Load](/docs/payments/account-funding) | Movement of funds into an E6 managed account from an external account. |
+| [Withdraw](/docs/payments/withdraw) | Movement of funds from an E6 managed account to an external account. |
+| [Purchase](/docs/payments/purchase) | Movement of funds from an E6 managed consumer to an E6 managed merchant. |
+
+## Actions
+
+Once an authorization hold has been generated, it can be retrieved and managed across its lifecycle. This includes automatic or manual releasing of the authorization hold.
+
+### Authorization hold retrieval
+
+Depending on the use case, authorizations can be retrieved in different patterns. The most basic form of authorization retrieval is to call the [Retrieve Active Customer Authorizations API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getAuthorizations_GET).
+
+To retrieve all authorizations, regardless of status, call the [Generate Customer Authorization List API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listAuthorizations_POST). This API uses standard E6 [pagination](/tech-specs/getting-started/pagination).
+
+For end customer experiences which need to show authorization holds and transactions in a single list, use the [Retrieve Customer Auth Holds and Transactions API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listAuthorizationsAndTransactions_GET). This API returns both authorization holds for the specified customer based on the input filter options such as `transaction-source`, `transaction-type`, and `currency`. Returned records are sorted by original authorization time. If the record has an `authorizationStatus` of `CLEARED` or `NOT_AUTHORIZATION` then the record is a fully posted transaction and the `transactionEntryDetailDTO` can be used to display the transaction details.
+
+To retrieve a detailed list of customer authorization holds, including related ISO messages, transaction details, and attributes, use the [Retrieve list of detailed Customer Authorization Holds API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listAuthorizationsWithDetails_POST). 
+
+To retrieve a list of detailed authorization holds by cards, including related ISO messages, transaction details, and attributes, use the [Retrieve list of detailed Authorization Holds by Cards API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchAuthorizationHoldsByCardNumbers_POST). 
+
+### Authorization hold release
+
+Authorizations will be automatically released as part of the process for completing a payment flow.
+For card payments, the authorization will be released once a clearing file has been processed which accounts for the clearing transaction. For non-card payments, the authorization will be released once a call to the same payment flow API is made with an `authCode` included in the request. Authorization holds will also be released automatically through a timeout of the authorization hold. By default, this is set to three days from the point of authorization hold generation.
+
+<Callout
+    calloutType={'info'}
+>
+    Authorization hold expirations are configured by E6. You can contact your E6 representative to change the default expiration configuration.
+</Callout>
+
+An authorization hold can be manually released if no longer needed. This is done by calling the [Release Auth Hold API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_releaseAuthorizationWithMemo_PUT). A memo as to why the authorization hold was released can optionally be provided. Once the authorization hold is released, the available balance for the account will automatically update to include the released funds.
+
+## What’s next
+
+Once an authorization hold has been generated or released, the customer’s available balance is automatically updated to show the funds available in the customer’s account for future payments. For more information, see [Customer balances](/docs/balances/customer-balances).

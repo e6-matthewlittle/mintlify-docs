@@ -1,0 +1,311 @@
+---
+title: "Revolving credit program configuration"
+menu: Revolving credit
+route: /docs/revolving-credit/revolving-credit-program-configuration
+excerpt: Shared configurations that apply to all customer accounts created under the program.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - configuration
+  - program
+  - create
+  - credit limits
+  - credit draw types
+  - interest accrual
+  - interest rate tiers
+  - repayment hierarchy
+  - over limit
+  - overdraft
+  - late payment fee
+  - minimum payment
+  - default fees
+  - interest forgiveness 
+  - repayment requirement
+  - grace interest forgiveness
+  - mode
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Revolving credit program configuration
+
+Program-level revolving credit configurations are shared configurations that apply to all customer accounts created under the program. Credit program configurations can define default behavior for functions like credit draw balance tracking, interest accrual, and repayment processing.
+
+## What we do
+
+Episode Six (E6) provides the ability to add revolving credit configurations to a program. When revolving credit configurations are added to a program, the program is updated to support credit behavior. After setting up the revolving credit configurations, configurations can be viewed and updated in real time.
+
+## Prerequisites
+
+Before adding revolving credit configurations to a program, a program must first be created. For more information, see [Programs](/docs/programs/programs).
+
+## Actions
+
+Add revolving credit configurations to a program by calling the [Create Revolving Credit Program API](/tech-specs/revolving-credit/revolving-credit-programs/api?#operation/createRevolvingCreditProgramConfiguration). In the request, define the following revolving credit program configurations:
+
+### Credit draw types
+
+A revolving credit program can track different types of credit draw balances. Each draw balance can support varying interest accrual rules and behavior. Draw types can be added to a program as items in the `drawTypes` array.
+
+The base credit draw types that can be enabled or disabled for a revolving credit product include:
+
+| Draw type       | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `PURCHASE`      | Payments made over a card network to a merchant.                 |
+| `CASH_ADVANCE`  | Cash withdrawals made at an ATM or other access point.           |
+| `FEE`           | Fees to be charged based on customer activity.                   |
+| `FUND_TRANSFER` | Funds transferred from a credit card account to another account. |
+
+<Callout
+    calloutType={'info'}
+>
+    All debits must be assigned to a draw balance. Debit transactions with a sourceCode and typeCode that do not fit into the specified draw types will default to the purchase balance.
+</Callout>
+
+### Credit limits
+
+Credit limits determine how much a customer is able to borrow in total across all credit draw types. Configure a credit limit range using the `minSpendLimit` and `maxSpendLimit` attributes to set a minimum and maximum credit limit for all customers in the program.
+
+For example, if a credit program has a minimum credit limit of $100 and maximum credit limit of $1,000, then a customer under that program cannot have a credit limit lower than $100 or higher than $1,000.
+
+<Callout
+    calloutType={'info'}
+> 
+    A limit on the proportion of the customer's credit limit that can be used for cash advance can be defined using the <tt>withdraw_percentage_limit</tt> program control. For more information, see <a href="/docs/controls/program-controls"> Program controls</a>.
+</Callout>
+
+### Over limit 
+
+In some exception cases, revolving credit customers can be allowed to exceed their nominal credit limit. You can configure how your program handles over limit allowances using [Program controls](/docs/controls/program-controls). Revolving credit customers that are assigned to a program control level with defined over limit parameters will be eligible to exceed their credit limit. Over limit parameters include `overdraft_strategy`, `overdraft_fixed_amount` and `overdraft_percentage_limit`. To establish over limit configurations for a revolving credit program, add a control to a program control level with paramName `overdraft_strategy`. The `value` of the overdraft_strategy will determine how subsequently provided paramNames `overdraft_fixed_amount` and `overdraft_percentage_limit` affect the customer's credit limit. The possible configurations for `overdraft_strategy` are:
+
+| Value | Description |
+| - | - |
+| `FlatStrategy` | The flat amount defined in the `overdraft_fixed_amount` is used as the maximum over limit amount. |
+| `PercentageStrategy` | The percentage amount defined in the `overdraft_percentage_limit` is used to calculate the maximum over limit amount. | 
+| `GreaterOfStrategy` | The larger amount between the `overdraft_fixed_amount` and `overdraft_percentage_limit` calculated value is used as the customer's maximum over limit amount. For example, if the paramName `overdraft_fixed_amount` is set to value 100.00, the paramName `overdraft_percentage_limit` is set to 50, and the customer's overall credit limit is 1000.00, then the customer's maximum over limit amount is 500.00. |
+| `LesserOfStrategy` | The lesser amount between the `overdraft_fixed_amount` and `overdraft_percentage_limit` calculated value is used as the customer's maximum over limit amount. For example, if the paramName `overdraft_fixed_amount` is set to value 100.00, the paramName `overdraft_percentage_limit` is set to 50, and the customer's overall credit limit is 1000.00, then the customer's maximum over limit amount is 100.00. |
+
+Over limit allowance can also be managed for each customer using [Customer controls](/docs/controls/customer-controls). This is not recommended however as it reduces the ability of a provider to effectively manage consistent over limit configurations across a portfolio of customers.
+
+By default, customers do not support over limit behavior upon account opening. Over limit capability can be manually enabled or disabled at the customer level using the `overCreditLimitEnabled` toggle. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+#### Over limit fee 
+
+A fee may be charged against customers who exceed their credit limit at least once within a billing period. This serves to discourage customers from surpassing their credit limits. The fee can be configured in fee plans using a `transactionSourceCode` of `8` and a `transactionTypeCode` of `40`. It is applied at the close of the billing period to any customer who has exceeded their credit limit during that period. For more details on how fees are structured and applied, see [Fee Rules](/docs/fees/fee-rules).
+
+### Interest accrual
+
+Interest is accrued on credit balances to monetize customer account activity. Accrual occurs daily on end-of-day balances for each credit draw type. 
+
+A program's interest accrual behavior can be configured using the `interestConfig` object. This object includes an array of interest configurations for each of the program's enabled balance types. Minimum, maximum, and default annual interest rates can be defined for each balance type. The interest calculation method for a given balance type can be set using the `interestMode` attribute. The following calculation methods are supported: 
+
+| Method | Description |
+| ------ | ----------- |
+| `SIMPLE` | Interest is accrued by multiplying the principal balance by the daily interest rate. |
+| `COMPOUND` | Interest is accrued by multiplying the sum of the principal balance and its accumulated interest balance by the daily interest rate. |
+| `HYBRID` | Current and previous period interest is accrued using simple interest calculations, while owed period interest is accrued using compound interest calculations. |
+| `NONE` | Interest does not accrue on the draw balance. |
+
+A `daysPerYear` integer can also be provided. This field sets the number of days per year to use in interest calculation. Each balance's daily interest rate is calculated by dividing the balance's annual interest rate by the `daysPerYear` value. For a credit card, `daysPerYear` is typically set to `365`.
+
+To support interest calculation for leap years, the `leapYearDaysPerYear` integer can be provided. The `leapYearDaysPerYear` integer sets the number of days in a leap year used to calculate daily interest accrual. For a credit card, leapYearDaysPerYear is usually set to 366.
+
+### Interest rate tiers
+
+An interest rate tier is a predefined set of interest rates for each draw type configured at the program level. As customers are created and administered within a program, they can be assigned one of the program’s interest rate tiers and its corresponding interest rates. Interest rate tiers are useful for maintaining large portfolios of customers by segmenting customers into designated groups.
+
+Interest tiers can be defined using the `interestTiers` attribute. This attribute accepts an array of objects for each interest tier defined for the program. Any number of tiers can be set up in a given program. Each interest tier defines an interest rate for each of the program's configured draw types. Each tier name must be unique.
+
+<Callout
+    calloutType={'warning'}
+>
+    Interest rate tiers cannot be deleted once they are saved as part of a program. If changes are necessary after an interest rate tier has been created, the tier can be updated or a new tier can be created.
+</Callout>
+
+### Minimum payments
+
+Minimum payment calculations and rules can be set using balance ratios. These ratios determine how much each customer needs to repay at the close of the customer's billing period. Minimum payment requirements are used to determine the delinquency of a customer and can be used to drive penalization actions. The minimum payment is used as part of calculating a customer's annual percentage rate (APR).
+
+Minimum payment ratios are captured as part of a minimum payment due profile. Revolving credit customers are then assigned a profile. The minimum payment profile is configured using the following values:
+
+| Value | Description |
+| ---------- | ------------------- |
+| Standard Threshold | An amount that will be set as the minimum payment owed if the new balance is greater than the minimum standard threshold. If the overall balance is lower than the minimum standard threshold, the overall balance value will be the minimum payment owed. This threshold is set using the `minimumPaymentStandardThreshold` attribute. |
+| Sub-Balance Ratios | Ratios to be applied to each sub-balance type. Ratios include the age of the given balance and the principal and interest makeup of that balance. Each sub-balance is multiplied by the applicable sub-balance ratio to create an array of amounts to be summed for use in the overall balance ratio application. These ratios are configured for each sub-balance in an array in the `minimumPaymentPercentages` attribute. |
+| Overall Balance Ratio | Ratio of the total payment due to be required in the minimum payment owed. Once the sub-balance ratios have been applied and totaled, the overall balance ratio will be applied to that total amount to calculate a final applicable balance amount for use in minimum payment owed calculation. This ratio can be configured in the `minimumPaymentOverallBalancePercentage` attribute. |
+| Minimum due on new interest | Minimum payment ratios can be configured for new interest balances using the  `minimumPaymentAmountAccruedCurrentPeriodPercentages` object. All interest billed in the current period uses the ratios in this object to calculate their contribution to the minimum payment. Interest billed in any other period will use the ratios in the `minimumPaymentPercentages` object to calculate the minimum payment. For example: If a customer already has $50 of owed billed interest and $25 was accrued to owed billed interest in the current period, the $50 would use the ratio in the `minimumPaymentPercentages` object and the $25 would use the ratio in the `minimumPaymentAmountAccruedCurrentPeriodPercentages` object. |
+| Over limit amount percentage | Percentage of the customer's over limit balance to be included in the minimum payment. The customer's over limit balance is multiplied by this value to determine the amount that is added to the minimum payment amount. This percentage is provided using the `overLimitMinDuePercentage` in the `minimumPaymentProfiles` object. To prevent double counting, if a customer has missed previous minimum payments, a formula ensures that only the necessary over limit amount is included in subsequent minimum payments without compounding the due amount. |
+
+<Callout
+    calloutType={'warning'}
+>
+    The over limit amount percentage is only applied if the customer is over their stated credit limit at billing period close. If the customer exceeds their credit limit during the billing period but makes a repayment and is under their credit limit by billing period close, the minimum payment amount is calculated as normal without using the over limit percentage.
+</Callout>
+
+### Dispute processing
+
+The `disputeProcessing` flag is a program level configuration that governs how disputed revolving credit transactions are handled. When a transaction is disputed, this setting will determine if the transaction is excluded from interest accrual and minimum due calculations.  When set to `true`, disputed transactions principal amounts will no longer be included in the calculation of interest accrual or contribute to minimum due calculations. Pre-dispute associated interest however will not be retrospectively adjusted. When the `disputeProcessing` flag is set to `false`, disputed transactions continue to accrue interest like normal and are treated like regular, undisputed transactions for minimum payment calculations. If no `disputeProcessing` flag is provided during creation, programs default to `false`. 
+
+### Statement preference 
+
+At the end of each revolving credit customer's billing period, E6 generates a statement file. Customers receive their statements as physical paper statements or as digital e-statements. The program's default statement delivery method can be set using the `statementPreference` field. This field accepts the following values: 
+
+| Value             | Description |
+| ----------------- | ------------|
+| `paperStatements` | Customers receive paper statements that are delivered by mail. |
+| `eStatements`     | Customers receive digital statements that are delivered by email. |
+
+The `statementPreference` field sets a default delivery method for all customers under a program. If needed, an individual customer's statement preference can be manually overridden to a different delivery method. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+The customer's statement preference is displayed in the Account section of the customer's statement file. For more information, see [Statement file](/docs/revolving-credit/statement-file).
+
+### Repayment period due dates
+
+A repayment period is the timeframe in which a customer is expected to pay back their balance that was calculated at the close of the last billing period. The customer’s minimum payment is due at the end of the repayment period.
+
+A default repayment period length can be set at the program level in the `repaymentPeriodLength` attribute. This attribute specifies the number of days between a customer's billing period end date and the customer's repayment due date. The `repaymentPeriodLength` value can be a minimum of one day up to 28 days long. For example, if a customer's billing period ends on January 1 and the program's `repaymentPeriodLength` is set to `21`, the repayment due date is set to January 22.
+
+If the repayment period end date falls on a non-processing day, such as a weekend or holiday, the due date can be shifted to a business day.  Use the `repaymentDueShiftSetting` attribute to determine how due dates are shifted for non-processing days. This attribute accepts the following values: 
+
+| Value  | Description |
+| ------ | ----------- |
+| `NONE` | The repayment period end date occurs on the non-processing day as normal. |
+| `BACKWARD` | The repayment period end date is shifted to occur on the first business day before the non-processing day. For example, if a repayment period end date falls on a Sunday, the due date is shifted to the preceding Friday. |
+| `FORWARD` | The repayment period end date is shifted to occur on the first business day following the non-processing day. For example, if a repayment period end date falls on a Sunday, the due date is shifted to the following Monday. |
+
+<Callout
+    calloutType={'info'}
+>
+    A calendar of non-processing days for your region should be provided to E6 during initial product setup. For more information, see <a href="/docs/payments/payment-partner-integration/#non-processing-days"> Payment partner integration.</a>
+</Callout>
+
+### Grace period 
+
+A grace period is a set number of days after a customer's published payment due date during which the customer will not be penalized. Customer repayment assessment is performed at grace period end and determines if late fees or interest forgiveness loss will be applied to a customer. Late fees are charged at grace period end if triggered.
+
+The length of the program's grace period can be determined using the `gracePeriodMode` attribute. This attribute accepts the following values:
+
+| Value     | Description |
+| --------- | ------------|
+| `REPAYMENT_PERIOD_CLOSE` | Grace ends at the customer's repayment period close. This value provides no additional grace for customers after the repayment period close. |
+| `CUSTOM` | Grace ends a certain number of days after repayment period close. If this option is selected, an additional `graceOffsetDays` attribute must also be provided to define the number of extra grace days. |
+
+<Callout
+    calloutType={'warning'}
+>
+    If custom grace offset is selected, the combined length of the repayment period and grace days must not exceed 27 days.
+</Callout>
+
+### Repayment hierarchy
+
+Repayment hierarchy is the order in which a repayment or credit is applied to a customer's sub-balances. E6 manages repayments and credit allocation across all of a customer's sub-balances according to the balance ranking set at the program level. Repayment processing is performed according to the following flow:
+
+1. During repayment or credit allocation, the customer's current period and non-current period balances are split so that non-current period balances are paid first.
+2. Balances are ranked according to the program's balance order and balance type order configurations. These order configurations establish ranking and tie-breaking rules, so that if there is a tie between balances, then a final ranking can be determined. This ranking is applied to both the current and non-current period balances.
+3. Once the balances are ranked by balance and balance type, sub-balance order preference is used to determine which sub-balances, such as principal or interest, are paid off first.
+4. Repayment credits are used to pay off sub-balances until the credit funds run out.
+
+The balance order, balance type order, and sub-balance type order during repayment processing can be configured by establishing a balance ranking in the `repaymentDefinition` object. This object contains an array of three ranked lists:
+
+| Ranked List | Description |
+| ---------- | ------------------- |
+| Balance order | The `balanceOrder` list determines the order in which balances are repaid. This list orders balances by their interest rate, age, and draw type. For example, if `INTEREST_RATE` is ranked first in this list, then balances with the highest interest rate are paid off first. If any balances have the same interest rate or age, the tie will be broken by the draw type priority set in the `balanceTypeOrder` list. |
+| Balance type order | The `balanceTypeOrder` list determines the order in which draw type balances are repaid when breaking a tie in the balance order. For example, if `CASH_ADVANCE` is ranked first in the `balanceTypeOrder` list, then cash advance balances will be repaid first. |
+| Sub-balance order | Once the balance order and balance type order have been ranked, the `subBalanceTypeOrder` list determines the order in which sub-balances are repaid. For example, if `PRINCIPAL` is ranked first in the `subBalanceTypeOrder` list, then all principal balances are repaid before `BILLED_INTEREST` balances. |
+
+### Repayment requirement
+
+The repayment requirement determines how much a customer needs to repay each period to maintain interest forgiveness. If a customer is disqualified for interest forgiveness, meeting the repayment requirement can allow the customer to return to grace. When a customer returns to grace, interest forgiveness is enabled. The `repaymentAssessmentRequirement` attribute accepts the following values that determine the balances that must be repaid to maintain interest forgiveness: `MINIMUM_DUE`, `TOTAL_DUE`, and `STATEMENT_BALANCE`. E6 will process these values based on the lower of the real-time values or what was part of the last statement so that customers are never charged more than the amount that has been disclosed to them.
+
+### Delinquency actions
+
+Delinquency actions are program-level defined responses that can be enforced on customer accounts that have exceeded significant delinquency milestones. These actions are triggered when a customer has been delinquent for a certain number of periods. A customer is considered delinquent if the customer has at least one past due minimum payment. Customers are assessed for delinquency at the end of their grace period. If necessary, the appropriate delinquency actions are applied at billing period close.
+
+Delinquency actions can be configured using the `delinquencyActions` object. Multiple delinquency actions can be defined per program, each triggered by a different number of late minimum payments. For example, customers could be assigned a new interest tier after being delinquent for one period, a new control level after two delinquent periods, and blocked after a fourth delinquent period. Each action must be assigned a number of missed minimum payments for the action to take effect. In the object, the `action` attribute determines the action taken when the customer has been delinquent for a certain number of periods. Actions can take effect at the grace end when the assessment is performed or at the next billing period closed based on the `applyOn` setting passed in the field. The following delinquency actions are available:
+
+| Action     | Description |
+| --------- | ------------|
+| `BLOCK`   | The customer account is blocked. When a customer is blocked for a delinquency action, a `delinquency` block is created on the customer account. |
+| `CHANGE_RISK_LEVEL` | The customer's control level is changed. When `action` is set to `CHANGE_RISK_LEVEL`, the `riskLevel` attribute must also be included in the object. This attribute determines the customer's new control level. The selected control level must already exist for the program. |
+| `CHANGE_INTEREST_TIER` | The customer's interest tier is changed. When `action` is set to `CHANGE_INTEREST_TIER`, the `interestTierName` attribute must also be included in the object. This attribute identifies the customer's new interest tier. The selected interest tier must already exist for the program. |
+| `LATE_PAYMENT_FEE_EXEMPTION` | The customer's `latePaymentFeeExepmtion` flag is set to `true` and the customer will not have late payment fees charged to their account going forward. |
+| `PROCESSING_FLAG` | The customer's `processingFlag` is set to `false`, and the customer will no longer be included in interest processing, billing, statementing or have additional delinquency actions applied going forward. |
+| `CHANGE_MIN_DUE_PROFILE` | The customer’s minimum payment due profile is changed. When action is set to `CHANGE_MIN_DUE_PROFILE`, the minimum payment `profileName` attribute must also be included in the object. This attribute determines the customer's new minimum payment due profile. The selected profile must already exist for the program. |
+
+#### Delinquency return actions
+
+Certain delinquency actions can be configured so after a certain number of periods of good standing following an initial delinquency, the customer will return to their pre-delinquency or otherwise defined state. For `CHANGE_RISK_LEVEL`, `CHANGE_INTEREST_TIER`, and `CHANGE_MIN_DUE_PROFILE` actions, define the `returnAction` object to enable delinquency return actions.
+
+The object requires two parameters: `returnPeriod` and `returnValue`.
+
+- `returnPeriod` is the number of periods of good standing required before the action is reversed.
+- `returnValue` is the intended action state upon return. It doesn't necessarily have to match the customer's original pre-delinquency action state.
+
+For example, if a customer moves from the DEFAULT interest tier to the PENALTY tier for missing a payment, with `returnValue` set as DEFAULT and `returnPeriod` set as 2, two periods of good standing following the delinquency will restore the customer to the DEFAULT tier.
+
+### Late payment fee
+
+If a customer does not make their required minimum payment before grace end, a late payment fee can be applied. Late fees are assessed at the end of the grace period. The late payment fee can be charged as a flat fee or as a percentage of the customer's unpaid minimum due amount. Three attributes can be used to determine the amount of the late payment fee:
+
+| Attribute | Description |
+| --------- | ------------|
+| `latePaymentFee` | Flat amount that can be charged as a late payment fee. |
+| `latePaymentPercentageDue` | Percentage of the customer's unpaid minimum due amount that can be charged as a late payment fee. This value must be between `0` and `1`. |
+| `calculationMethod` | Numeric value used to select the late fee calculation method. If both `latePaymentFee` and `latePaymentPercentageDue` are defined, this attribute determines whether a customer is charged a flat amount or a minimum due percentage as their late payment fee. |
+
+The `calculationMethod` attribute accepts three numeric values, where each value corresponds to a different calculation method:
+
+| Value | Calculation method | Description |
+| - | - | - |
+| `0` | Flat Amount | The flat amount provided in the `latePaymentFee` attribute is charged. |
+| `1` | Greater Of | The fee amount is the greater of the flat `latePaymentFee` value or the percentage of the minimum due amount. For example, if the `latePaymentFee` is $50.00, the `latePaymentPercentageDue` is set to `0.8`, and the customer's unpaid minimum payment due amount is $100.00, then the late payment fee charged will be $80.00. |
+| `2` | Lesser Of | The fee amount is the lesser of the flat `latePaymentFee` value or the percentage of the minimum due amount. For example, if the `latePaymentFee` is $50.00, the `latePaymentPercentageDue` is set to `0.8`, and the customer's unpaid minimum payment due amount is $100.00, then the late payment fee charged will be $50.00. |
+
+### Default fees
+
+Optionally, default fees can be defined for a program. Default fees are fees that do not accumulate interest in the current or previous billing periods like other fee types. In the `defaultFees` array, provide a list of fee types that are to be configured as default fees for the program. Common examples of default fees include `LatePaymentFee` and `LoadReversalFee`.
+
+Default fees can begin accruing interest as determined by the `defaultFeeInterestAccrualTimeOffset` attribute. This attribute specifies the number of days following the close of the previous period on which to begin calculating interest on default fee balances. For example, if `defaultFeeInterestAccrualTimeOffset` is set to `14`, customers' default fee balances will begin accruing interest 14 days after the previous billing period close.
+
+### Interest forgiveness mode 
+
+If a customer meets the program's repayment assessment requirement by grace end, the customer is eligible for interest forgiveness and their unbilled interest is forgiven. The process in which a customer's interest is forgiven or posted to the account varies depending on local regulatory requirements. E6 offers two ways of setting the interest forgiveness processing behavior - a simplified mode and a custom configuraiton mode.
+
+To configure using a simplified, preconfigured mode, use the `interestForgiveness` attribute to determine the program’s processing behavior when a customer is eligible for interest forgiveness at grace end. This attribute accepts the following values:
+
+| Value         | Description |
+| ------------- | ------------|
+| `DEFERRED`    | Current unbilled interest is deferred to the next period, while previous and owed unbilled interest is forgiven. If the customer is regaining forgiveness in the current period after being ineligible in a previous period, then current unbilled interest is deferred to the next period, while previous and owed unbilled interest is billed. |
+| `FORGIVE_ALL` | All unbilled interest is forgiven and no interest is deferred. If the customer is regaining forgiveness in the current period after being ineligible in a previous period, then current unbilled interest is forgiven while previous and owed unbilled interest is billed. This setting can be used to prevent double-cycle billing in regions that prohibit it. |
+
+To process using a custom mode, use the `forgiveness` object in the program configuration. Using this mode, a customer is assigned to one of three interest forgiveness settings `FORGIVEN`, `UNFORGIVEN`, or `RETURNING`. Configurations for these modes are set at the program level with forgiveness actions set per sub-balance age including `CURRENT`, `PREVIOUS`, and `OWED`. Actions include:
+
+| Action         | Description |
+| ------------- | ------------|
+| `DEFER`    | Shift the unbilled interest sub-balance to the next period in full. |
+| `FORGIVE` | Set the unbilld interest sub-balance to 0 before balances are shifted. |
+| `BILL` | Move the unbilled interest sub-balance to billed interest before balances are shifted. |
+
+### Return to grace interest forgiveness
+
+Return to grace billing determines whether customers get some or none of their current period interest forgiven when meeting their repayment assessment requirement and returning to grace. The `currentPeriodGraceReturnBilling` attribute accepts the following values:
+
+| Value     | Description |
+| --------- | ------------|
+| `NONE`    | None of the purchases made in the current period's interest will be forgiven at period close. All current period interest will be eligible for forgiveness next period. |
+| `PARTIAL` | Interest on any purchase made before the customer returns to grace will be automatically billed, while all interest on purchases made after the payment that achieves forgiveness will be eligible for forgiveness next period. |
+
+Return to grace billing settings only apply to purchases made in the current period. All interest on purchases made prior to the current period will still be billed in the current period.
+
+## What's next
+
+When a program is set up with revolving credit configurations, credit customer accounts can be opened under the program. To create a revolving credit customer, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+After creating a revolving credit program, the program can be updated and retrieved calling the Revolving Credit API.
+
+- Update a revolving credit program by calling the [Update Revolving Credit Program API](/tech-specs/revolving-credit/revolving-credit-programs/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.OfferingAPI_updateOfferingProgramConfig_PUT). In the request, include new values for the attributes you want to update. This call requires the full request body to be passed in the request.
+- Retrieve a revolving credit program by calling the [Retrieve Revolving Credit Program API](/tech-specs/revolving-credit/revolving-credit-programs/api?#operation/retrieveRevolvingCreditProgramConfiguration).

@@ -1,0 +1,48 @@
+---
+title: "Rates"
+menu: FX
+route: /docs/fx/rates
+excerpt: Rates are the real-time pricing of currencies provided by the exchange provider.
+types: 
+  - guide
+_tags:
+  - exchange
+  - rates
+  - currency pair
+  - retrieve
+  - list
+  - fx
+  - push fix quote
+  - latest pair
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Rates
+
+Rates are the real-time pricing of currencies provided by the exchange provider. Rates are based on demand for each individual currency in the global currency market. Rates are used during exchanges to determine how much of the buy currency will be exchanged for the sell currency.
+
+## What we do
+
+Episode Six (E6) enables the management and real-time retrieval of foreign exchange rates. E6 supports FX, and integrates with exchange providers. E6 also manages rate tables, which list exchange rates for currencies. Rate tables are set by the client.
+
+<Callout
+    calloutType={'info'}
+>
+   If you are attempting to use a rate table that is not configurable, contact your E6 representative.
+</Callout>
+
+## Prerequisites
+
+To set rates, currencies must be established. The client must be connected to a currency exchange provider. For more information, see [Exchange providers](/docs/fx/exchange-providers).
+
+## Actions
+
+To retrieve a list of exchange rates for currency pairs, call the [List Exchange Rates for Currency Pairs API](/tech-specs/FX/fx/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getExchangeRates_POST). To push a fix quote, call the [Push Fix Quote API](/tech-specs/FX/fx/api?#operation/net.e6tech.h3.middletier.api.v1.partner.exchange.FixQuoteAPI_pushFixQuote_PUT). To retrieve the latest foreign exchange rates, call the [Retrieve Latest Rates API](/tech-specs/FX/fx/api?#operation/net.e6tech.h3.middletier.api.v1.partner.exchange.FixQuoteAPI_get_GET).
+
+## What's next
+
+You can perform FX transfers to exchange funds within a multicurrency deposit account. For more information, see [FX transfer](/docs/fx/fx-transfer). You can also use safe drafts to automatically withdraw funds in all supported currencies. For more information, see [Safe Drafts](/docs/fx/safe-drafts).

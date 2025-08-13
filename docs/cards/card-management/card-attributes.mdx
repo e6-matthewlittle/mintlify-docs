@@ -1,0 +1,37 @@
+---
+title: "Card attributes"
+menu: Cards
+route: /docs/cards/card-attributes
+excerpt: A card attribute is a piece of information that defines a card within a data model.
+types: 
+  - guide
+_tags:
+  - attributes
+  - cards
+  - card attributes
+  - create
+  - api
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Card attributes
+
+A card attribute is a piece of information that defines a card within a data model. Systems define cards differently across their data models. Inherently, each data model definition in a system remains relatively static. Static definitions cause issues when trying to customize the definition of a card or migrate cards between systems. To overcome the problem of static definitions, customizable card attributes are needed.
+
+## What we do
+
+Episode Six (E6) provides the ability for custom card attributes to be added to and maintained for a card. A card attribute is defined by the `name` and `value` of the attribute. Card attributes can be retrieved for a card or consumed as part of downstream processing.
+
+## Prerequisites
+
+Before a card attribute can be created, the card must be [issued](/docs/cards/issuance-overview).
+
+## Actions
+
+A card attribute can be added to a card by calling the [Create Card Attribute API](/tech-specs/cards/card-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_createCardAttribute_POST). Attributes should be uniquely named to ensure that card attributes follow a key-value pair model.
+
+## What's next
+
+After setting card attributes, you can manage them by calling the [Card Attributes APIs](/tech-specs/cards/card-attributes).

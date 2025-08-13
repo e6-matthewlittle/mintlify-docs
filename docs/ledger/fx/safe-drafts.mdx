@@ -1,0 +1,110 @@
+---
+title: "Safe drafts"
+menu: FX
+route: /docs/fx/safe-drafts
+excerpt: Funds are automatically drawn from additional customer wallets to complete a transaction.
+types: 
+  - guide
+_tags:
+  - safe draft
+  - in-progress transaction
+  - quick spend
+  - drawdown
+  - use
+  - update
+  - safe draft
+  - fx
+  - exchange
+  - multi currency wallet
+  - setting
+  - retrieve
+  - set
+  - set up
+  - properties
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Safe drafts
+
+With safe drafts (patent pending) in Tritium®, funds are automatically drawn from additional customer wallets to complete an in-progress transaction when the initial wallet does not contain sufficient funds. Safe drafts support fiat currencies (such as USD or HKD) and non-fiat currencies (such as loyalty points).
+
+You can configure safe draft settings for each of your customers, allowing you to specify spending and balance limits, supported currencies, and safe draft orders. You can configure your safe draft settings using the Tritium Dashboard or endpoints from the [Customer Balances API](/tech-specs/balances/customer-balances) and [Safe Draft API](/tech-specs/FX/safe-draft).
+
+## Using safe drafts
+
+Safe drafts includes two types of functionality: quick spend and drawdown. By activating quick spend on customer wallets, you can determine which wallets should be used to cover expenses first. By setting a drawdown order, you can specify which wallets to draw from after the designated quick spend wallet runs out of funds.
+
+For example, if a customer has wallets for USD, JPY, and HKD, you can activate quick spend on the USD wallet to set that wallet as the customer's default option for covering USD transactions. If this customer makes a $100 purchase but only has $50 in their USD wallet, you can designate the JPY and HKD wallets as drawdown wallets to be used to cover the remaining expenses and complete the transaction.
+
+You can call the following endpoints from the [Customer Balances API](/tech-specs/balances/customer-balances) and [Safe Draft API](/tech-specs/FX/safe-draft) to update safe drafts.
+
+## Retrieving a current safe draft order
+
+To retrieve a customer account's current safe draft order, use a `GET` call to the `/v1/customers/{customer-identifier}/wallets` endpoint. This call returns an array of **WalletDTOs** containing information about each of the account's supported currencies, including their balances, totals, and safe draft settings.
+
+> `GET /v1/customers/{customer-identifier}/wallets`
+
+The order of wallets returned in this array indicates their safe draft order. The first wallet in the array is the first wallet used to handle drawdown transactions, the second wallet is the second wallet to handle drawdown transactions, and so on.
+
+For more information about this call, see [Customer balances](/docs/balances/customer-balances).
+
+## Setting and updating a safe draft order
+
+If you want to set or update your safe draft settings for an array of customer wallets in a program, use a `POST` call to the `/v1/customer/safeDraft` endpoint. In your request, include an array of **SafeDraftDTOs** specifying each currency's safe draft support, quick spend status, and optional spending or balance limits.
+
+> `POST /v1/customers/{customer-identifier}/safeDraft/{currency}`
+
+Setting the `quickSpend` parameter to `true` activates quick spend for that currency, allowing it to be used by default for transactions of the same currency. The parameter `supported` is read-only and is always `supported:true`. Therefore, safe draft is always supported. Use the `safeDraftSpendLimit` and `safeDraftBalanceLimit` parameters to control whether a specific currency is used in the safe draft draw down. Setting `safeDraftSpendLimit` to `0` prevents that currency from being used in a draw down. Setting a value on `safeDraftBalanceLimit` ensures that the balance of that currency never goes below the threshold in cases of draw down.
+
+The order of **SafeDraftDTOs** in your request determines the safe draft order of the wallets.
+
+The following example shows a request to activate quick spend for a customer's USD and HKD wallets:
+
+```json
+[
+   {
+      "currency":"USD",
+      "supported":true,
+      "quickSpend":true,
+      "safeDraftSpendLimit":100,
+      "safeDraftSpendLimitText":"100",
+      "safeDraftBalanceLimit":0,
+      "safeDraftBalanceLimitText":""
+   },
+   {
+      "currency":"HKD",
+      "supported":true,
+      "quickSpend":true,
+      "safeDraftSpendLimit":0,
+      "safeDraftSpendLimitText":"",
+      "safeDraftBalanceLimit":0,
+      "safeDraftBalanceLimitText":""
+   }
+]
+```
+
+A successful request returns a 200 response code from the server. This call also sets the safe draft order. In this case, the USD wallet is used before HKD.
+
+## Updating the safe draft properties
+
+In addition to being able to set up safe draft settings for a full array of wallets, you can also update a wallet by using a `POST` call to the `/v1/customers/{customer-identifier}/safeDraft` endpoint. The `currency` identifies the wallet. This call does not change a wallet's order in the safe draft list, but it enables you to change the settings for a specified currency.
+
+> `POST /v1/customers/{customer-identifier}/safeDraft`
+
+The following example shows a request updating the customer's HKD wallet to control safe draft support. When a transaction is being processed and requires a safe draft, Tritium now passes over HKD in the list no matter where it is in the safe draft order.
+
+```json
+[
+   {
+   "currency":"HKD",
+   "supported":true,
+   "quickSpend":false,
+   "safeDraftSpendLimit":0,
+   "safeDraftSpendLimitText":"",
+   "safeDraftBalanceLimit":0,
+   "safeDraftBalanceLimitText":""
+   }
+]
+```

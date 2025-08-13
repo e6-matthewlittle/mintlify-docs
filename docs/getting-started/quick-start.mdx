@@ -1,0 +1,63 @@
+---
+title: "Quick start"
+menu: Getting Started
+route: /docs/getting-started/quick-start
+_tags:
+  - quick start
+  - first tasks
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+Episode Six (E6) wants to get you started as a partner as quickly as possible. To facilitate this, E6 provides you with several accelerators along the sales and delivery journeys.
+
+## Sandbox
+
+While you are evaluating E6 as a partner, and before we kick off a delivery project, E6 can provide you with a sandbox environment. The sandbox environment is a standard deployment of the E6 platform hosted in our [E6 Cloud](/docs/getting-started/e6-cloud). Sandbox access includes the ability to call our APIs and explore the [Dashboard](/docs/getting-started/dashboard). Within the sandbox, we establish you as a mock client and set up one or more off-the-shelf programs based on the use cases being discussed. Each of the created programs will typically have one or more mock customers already created.
+
+<Callout
+    calloutType={'info'}
+>
+    You must request access to an E6 sandbox before it will be provisioned. Once access is provided, details such as URLs, mock programs, mock customers, and users will be provided. To receive sandbox access, reach out to your E6 representative.
+</Callout>
+
+## Basic start
+
+Before testing out our different APIs, we recommend you perform the following actions to ensure connectivity and access. Use the sandbox environment details that were shared with you for the below actions. It is also recommended that you do the same actions in your test environment once that is provisioned.
+
+### Explore the Dashboard
+
+Log into the Dashboard of the sandbox environment. You will receive a URL for the Dashboard in your sandbox guide once access is provisioned. Be sure to use a user credential that does not just have the `system` role, otherwise you will not be able to access the Dashboard. Ideally, choose a user which has the `ProgramManager` and `CustomerAgent` roles.
+
+### Program lookup
+
+Once you are logged into the Dashboard, go to the "Programs" section to see a list of programs that have been configured for you. Most actions required for a program are performed via the Dashboard by human users. Subsequent actions such as creating a customer require a `programName`, so be sure to note this when you find the program you want to explore more using APIs.
+
+### Authentication
+
+To begin using our APIs, you must first generate a bearer token. Using [Postman](https://www.postman.com/) or a similar API testing tool, call the [Login API](/tech-specs/users/user-authentication/api?#operation/net.e6tech.h3.middletier.api.v1.partner.PartnerAuthAPI_login_POST) with your user credentials. The bearer token is returned in the response and the `tokenId` should be passed into the `Authorization` header of subsequent API calls. For more information, see [User authentication](/tech-specs/getting-started/authentication).
+
+### Customer account opening
+
+As customer account opening is the start of almost every customer experience, we recommend creating a customer account via API. You can open a customer account by calling the [Create Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomer_POST). Most subsequent API calls, including making payments or issuing a card, will require the `customerNumber` which is returned as part of the account opening operation.
+
+If you are offering a [revolving credit](/docs/revolving-credit/revolving-credit-overview), [installments](/docs/installments/installments-overview), [interest-bearing deposits](/docs/interest-bearing-deposits/overview), or [term deposit](https://dev.episodesix.com/docs/term-deposits/overview) product, then additional configuration is required. Customer product configuration can be done using the [Configure Customer Product API](/tech-specs/product/customer-product/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.OfferingAPI_setupOfferingCustomer_PUT). The `request` object of the request body will differ based on the type of product. Refer to the product documentation for more details.
+
+## What's next
+
+Depending on your use case, we recommend a few different options for what to do once you have a customer account opened.
+
+### Account funding
+
+If E6 is the system of record, and you have a deposit type product, such as a prepaid card, a debit card, or deposit account, often the first thing a customer needs to do is fund their newly opened account. To fund the account, call the [Create Load Payment API](/tech-specs/payments/fund/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_load_POST). In this call, specify the `customerNumber` in the request as well as the `partnerName` of the funding source. You can use the owning partner of the program.
+
+### Issue a card
+
+If your product has a card, the new account will need to have a card issued as well. The mock card program that was created for you should have one or more card profiles configured for you. These can be found in the "Card Profiles" section of the program details page of the Dashboard. To issue a card, call the [Issue Customer Card API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_load_POST). Within this request, provide the `customerNumber`, the `personId` of the target cardholder, and the `cardProfileName`. Once the card has been issued, card payments can be [simulated](/docs/cards/card-payment-simulation).
+
+### Customer account details
+
+Regardless of your use case, you'll likely need to integrate with APIs to show your customers their balances and transaction history. Customer balances can be retrieved by calling the [Retrieve Customer Balances API](/tech-specs/balances/customer-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getCurrencyList_GET). The customer transaction history can be retrieved using the [Generate Transaction List API](/tech-specs/transactions/transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listTransactions_POST). The `ID` of the customer should be passed in the `portfolioId` field of the request.

@@ -1,0 +1,190 @@
+---
+title: "Automatic load"
+menu: Payments
+route: /docs/payments/automatic-load
+excerpt: Automatic load is the ability to schedule recurring payments into an account.
+types: 
+  - guide
+_tags:
+  - Automatic load
+  - transactions
+  - payments
+  - load
+containerWide: true
+showHeadingsNav: true
+date: "02-15-23"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Automatic load
+
+Automatic load is the ability to schedule recurring payments into an account. When an automatic load rule is active for a customer, a pre-set amount is requested from the customer’s external bank account on each scheduled date. Automatic load removes the need for customers to make manual payments on a recurring basis. Common use cases for automatic load include:
+
+- Automatically paying off the statement balance of a credit card
+- Automatically paying installments of a loan
+- Contributing to a deposit account on a regular basis
+
+## What we do
+
+Episode Six (E6) provides the ability to set up automatic load rules for a customer account. Automatic load rules define the frequency, amount calculation, and external account used to make automatic load transactions. Automatic load can be enabled at the customer level for any product type, such as revolving credit, deposit, or installments. Revolving credit automatic load rules make it so that a specified amount of account balance or amount owed can be repaid each billing period.  Installments automatic load rules are set at the loan child customer level, so that repayment can be managed per loan. Once an automatic load rule is created, automatic loads will be performed on a regular schedule until the rule is updated or deleted.
+
+## Prerequisites
+
+Before automatic load can be enabled, a payment partner must be integrated in your environment. The partner must be configured to support automatic load. To configure your payment partner for automatic load processing, ask your E6 contact. To retrieve a list of partners in your system that support automatic load, call the [Find the external load partners under bank hierarchy API](/tech-specs/payments/fund/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_listAutoLoadPartners_GET).
+
+Automatic load settings including `daysOffset` and `shiftSetting` also need to be set for that partner. These settings can be set using the [Set Partner Autoload Settings](/tech-specs/payments/automatic-load/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_setAutoloadSettings_POST).
+
+<Callout
+  calloutType={'info'}
+>
+  Optionally, an automatic load cure period can be defined to determine when the customer's first automatic load can occur. For more information, see <a href="/docs/payments/payment-partner-integration"> Payment partner integration</a>.
+</Callout>
+
+To create an automatic load rule, a customer account must exist. To enable automatic load for revolving credit, the customer must have revolving credit configurations. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration). To enable automatic load for an installments product, the customer must have installments configurations and must have created at least one loan. For more information, see [Installments customer configuration](/docs/installments/installments-customer-configuration) and [Loan creation](/docs/installments/loan-creation).
+
+The customer's funding source bank account should be added as an external reference for the customer. The external reference number must be created using the automatic load payment partner. To create an external reference, see [External references](/docs/customers/external-references).
+
+## Actions
+
+Automatic load can be enabled for a customer by creating an automatic load rule. When creating an automatic load rule via API, provide an automatic load rule object that determines the funding source, amount, and schedule. In the `externalReferenceId` attribute of the request, provide the external reference number for the customer's bank account number. The load amount and schedule are configurable by product type through the `configClassName` and `config` attributes. Different settings can be enabled depending on whether the customer uses a revolving credit or installments product.
+
+<Callout
+    calloutType={'info'}
+>
+    All selected <tt>autoLoadStrategy</tt> options will check that a calculated automatic load amount is always greater than or equal to the outstanding minimum due and not greater than the statement ending balance. This is to ensure customers have the greatest chance to avoid delinquency and prevent over-repayment.
+</Callout>
+
+### Revolving credit automatic load rule setup
+
+To create an automatic load rule for a revolving credit customer, call the [Create Automatic Load Rule API](/tech-specs/payments/automatic-load/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_createAutoLoadRule_POST). A revovlving credit customer account may only have one automatic load rule active at a time. In the request, set `configClassName` to `CreditCardAutoloadConfig`. In the `config` object, provide a JSON object including the following credit-specific attributes:
+
+| Attribute          | Description   |
+| ------------------ | ------------- |
+| `frequency`        | Frequency of the automatic load. For a credit card, `frequency` must be set to `MONTHLY`.|
+| `autoLoadStrategy` | Method used to calculate the automatic load amount. The following options are available:<br/> `TOTAL_BALANCE`: An amount equal to the customer’s real-time total balance.<br/>`STATEMENT_BALANCE`: An amount equal to the lesser value of the customer’s statement balance from the last billing period close or the real-time sum of `principal` and `interest` sub-balances that have been billed.<br/> `MINIMUM_PAYMENT_OWED`: An amount equal to the lesser value of the customer's minimum due from the last billing period close or the real-time total due.<br/>`FIXED_AMOUNT`: A specific, fixed amount is loaded into the account with each automatic load. In cases where the customer has an outstanding minimum due greater than the fixed amount, the automatic load will exceed the fixed amount. |
+| `fixedAmount`      | The fixed amount to request in each automatic load when `autoLoadStrategy` is set to `FIXED_AMOUNT`. |
+| `percentage`       | Percentage applied to the automatic load amount preference. This value can be any decimal number between 0 and 1. When the automatic load amount is calculated using the selected `autoLoadStrategy` method, the amount is multiplied by the `percentage` value. The resulting amount will be loaded into the account. If the `percentage` attribute is not defined, the field defaults to `1`. |
+
+### Installments automatic load template setup
+
+You can automate the setup of installment loan automatic load rules by creating an automatic load template at the parent installments customer. This template will lead newly created loans to inherit an automatic load rule per the template.
+
+To create an automatic load template for an installments customer, call the [Create Automatic Load Template API](/tech-specs/payments/automatic-load-templates/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_createAutoLoadRuleTemplate_POST). In the request, set `configClassName` to `InstallmentsAutoloadConfigTemplate`. In the `config` object, provide the following installments-specific attributes:
+
+| Attribute            | Description   |
+| -------------------- | ------------- |
+| `autoLoadStrategy`   | Method used to calculate the automatic load amount. This attribute accepts the following values:<br/>`TOTAL_BALANCE`: Total amount that the customer owes across all upcoming payments is automatically loaded into the account.<br/>`PAYMENT_DUE`: Total amount of the customer's next payment due is automatically loaded into the account.<br/>`FIXED_AMOUNT`: A specific, fixed amount is automatically loaded into the account. In cases where the customer has an outstanding total due greater than the fixed amount, the automatic load will exceed the fixed amount. |
+| `fixedAmount`        | Fixed amount to request for each automatic load. This attribute is required only if `autoLoadStrategy` is set to `FIXED_AMOUNT`. |
+| `schedulingApproach` | Method used to schedule when automatic loads begin processing. This attribute accepts the following values: `NEXT_PAYMENT_DUE`: Automatic loads are processed at the next upcoming payment due date. `CUSTOM`: Automatic loads are processed on a custom date determined by the `frequency` and `dayOfPeriod` attributes. |
+| `frequency`          | Frequency of automatic loads. This attribute is required only if `schedulingApproach` is set to `CUSTOM`. This attribute accepts the following values: `MONTHLY`: Automatic loads are processed on the same day each month. `WEEKLY`: Automatic loads are processed on the same day each week. |
+| `dayOfPeriod`        | Day of the period determined by the `frequency` attribute for automatic loads to process. This attribute is required only if `schedulingApproach` is set to `CUSTOM`. For example, if `frequency` is set to `MONTHLY` and `dayOfPeriod` is set to `14`, automatic loads will be processed on the fourteenth day of each month. |
+| `cascade` | Apply to existing loans or not. Can be `true` or `false`. |
+
+### Installment loan automatic load rule setup
+
+Installment automatic load rules can be setup for a specific loan manually. To create an automatic load rule for an installment loan customer, call the [Create Automatic Load Rule API](/tech-specs/payments/automatic-load/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_createAutoLoadRule_POST). In the path, provide the loan parent customer number. In the request, set `configClassName` to `InstallmentsAutoloadConfig`. In the `config` object, provide the following installments-specific attributes:
+
+| Attribute            | Description   |
+| -------------------- | ------------- |
+| `autoLoadStrategy`   | Method used to calculate the automatic load amount. This attribute accepts the following values:<br/>`TOTAL_BALANCE`: Total amount that the customer owes across all upcoming payments is automatically loaded into the account.<br/>`PAYMENT_DUE`: Total amount of the customer's next payment due is automatically loaded into the account. <br/>`FIXED_AMOUNT`: A specific, fixed amount is automatically loaded into the account. In cases where the customer has an outstanding total due greater than the fixed amount, the automatic load will exceed the fixed amount. |
+| `fixedAmount`        | Fixed amount to request for each automatic load. This attribute is required only if `autoLoadStrategy` is set to `FIXED_AMOUNT`. |
+| `schedulingApproach` | Method used to schedule when automatic loads begin processing. This attribute accepts the following values: `NEXT_PAYMENT_DUE`: Automatic loads are processed at the next upcoming payment due date. `CUSTOM`: Automatic loads are processed on a custom date determined by the `frequency` and `dayOfPeriod` attributes. |
+| `frequency`          | Frequency of automatic loads. This attribute is required only if `schedulingApproach` is set to `CUSTOM`. This attribute accepts the following values: `MONTHLY`: Automatic loads are processed on the same day each month. `WEEKLY`: Automatic loads are processed on the same day each week. |
+| `dayOfPeriod`        | Day of the period determined by the `frequency` attribute for automatic loads to process. This attribute is required only if `schedulingApproach` is set to `CUSTOM`. For example, if `frequency` is set to `MONTHLY` and `dayOfPeriod` is set to `14`, automatic loads will be processed on the fourteenth day of each month. |
+| `loanCustomerNumber` | Loan child customer number to which the loan is repaid. |
+
+When an automatic load rule is created, updated, or deleted, an [AutoLoadChangeNotification](/docs/notifications/standard-notifications/#autoloadchangenotification) is triggered with information about the automatic load rule.
+
+### Automatic load processing
+
+When the automatic load rule is triggered on the scheduled date, a payment request is extracted and a pending transaction for the automatic load amount is created. Extraction is the process of calculating the automatic load amount and requesting payment from the customer’s bank. The extraction date is scheduled according to the `daysOffset` value defined for the payment partner. For example, if the customer's payment due date is July 30 and the payment partner's `daysOffset` attribute is set to `5`, then the extraction date is July 25. Additionally, the `shiftSetting` will allow the calculated date to be moved left or right in the calendar to avoid triggering extraction on a non-processing day.
+
+<Callout
+  calloutType={'info'}
+>
+  Manual payments made on the customer account will reduce the amount that is requested. Manual payments must be made before the extraction date. For information about manually loading funds into an account, see <a href="/docs/payments/account-funding"> Load</a>.
+</Callout>
+
+The pending automatic load transaction is created at 2:30 AM local time on the extraction date. In addition, an [AutoLoadExtractionNotification](/docs/notifications/standard-notifications/#autoloadextractionnotification) is sent at 11:30 PM in the program's local timezone.
+
+On the payment due date at 11:30 PM local time for the program, a load transaction is triggered for the customer account. Automatic load processing will be performed according to whether the automatic load partner is configured for positive or negative response settings:
+
+- **Positive response:** The pending automatic load transaction will need to be manually cleared. To clear the transaction, call the [Create a load transaction for the customer API](/tech-specs/payments/fund/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_load_POST). In the request, set `auth` to `false` and provide the transaction ID for the pending automatic load transaction. This call clears the transaction and posts the payment to the account, making the funds available.
+- **Negative response:** The pending automatic load transaction will be automatically cleared and posted to the account. The funds will be immediately available upon clearing. If a payment failure occurs, then the payment will need to be reversed.
+
+<Callout
+    calloutType={'warning'}
+>
+    If the automatic load amount at the point of extraction is 0, then the value of the paymentType field in the revolving credit <a href="/docs/revolving-credit/statement-file">Statement file</a> will revert to manual.
+</Callout>
+
+<Callout
+    calloutType={'warning'}
+>
+    When an installments customer is using Autoload, the funding partner’s offset days need to be less than period length and `firstPaymentDaysOffset`. If this condition is not met, there may be intermittent funding failures.
+</Callout>
+
+## What's next
+
+After an automatic load transaction has occurred, the next automatic load is automatically scheduled according to the automatic load rules. You can retrieve, update, or delete automatic load rules calling the [Automatic Load APIs](/tech-specs/payments/automatic-load). Any updated rules will take effect for the next upcoming extraction date.
+
+Automatic load templates can also be managed using the [Automatic Load Template APIs](/tech-specs/payments/automatic-load-templates).
+
+### Pending transactions
+
+Pending automatic load transactions can be retrieved by calling the [Retrieve Automatic Load Pending Transactions API](/tech-specs/payments/automatic-load/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_getAutoloadPendingTransactions_GET). This includes `Pending`, `Submitted`, and `Cancelled` transactions.
+
+### Automatic load cancellation
+
+When a pending automatic load transaction has been created, that pending transaction can be cancelled by calling the [Cancel Pending Automatic Load Transaction API](/tech-specs/payments/automatic-load/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_cancelPendingAutoLoadRule_PUT). Provide the ID of the pending transaction in the `pending-transaction-id` path parameter.
+
+## Appendix: Automatic load extraction file
+
+If file-based automatic load processing is required, E6 generates an automatic load extraction file in JSON format when extraction occurs. The file contains information about upcoming automatic load transactions. The file is delivered to your S3 or SFTP servers, depending on your requirements. The file is produced at 11:30 PM in the program’s timezone on the extraction date. One extraction file is generated per day. A notification is generated and sent to the client at the same time as the file is created. Each file includes payment request details for all customers whose extraction date falls on the day the file is generated.
+
+The file contains the following fields:
+
+| Attribute              | Description     |
+| ---------------------- | --------------- |
+| `autoPayOption`        | Automatic load strategy used to calculate the load amount. |
+| `paymentDueDate`       | Payment due date in UNIX Epoch time. |
+| `paymentDueDateTime`   | Payment due date in the program's local timezone. The format is `yyyy-MM-dd'T'HH:mm:ss.SSSZ`, in which `Z` identifies the timezone by the UTC offset. |
+| `customerDetails`      | Customer personal details. Attributes in this object include the E6 `customerNumber`, `title`, `givenName`, `middleName`, `familyName`, `secondFamilyName`, and `suffix`. |
+| `cards`                | Array of the customer's cards. Each card is identified by its E6-generated internal `cardNumber`. |
+| `amountDue`            | Amount to be collected from the customer's bank in the upcoming automatic load. This object contains the `amount` and `currency`. |
+| `transactionReference` | A generated universally unique identifier (UUID) for the pending automatic load transaction. |
+| `externalReferences`   | Array of objects containing external references for the automatic load partner, such as the customer's bank account number and automatic load mandate ID. Each object in the array contains the reference's `identifierCode` and `referenceNumber`. |
+
+Here is an example of an automatic load extraction file:
+
+```json
+[
+    {
+        "autoPayOption": "TOTAL_BALANCE",
+        "paymentDueDate": "1670522400000",
+        "paymentDueDateTime": "2022-12-09T02:00:00.000+0800",
+        "customerDetails": {
+            "customerNumber": "10000010040978",
+            "title": null,
+            "givenName": "Joe",
+            "middleName": null,
+            "familyName": "Test",
+            "secondFamilyName": null,
+            "suffix": null
+        },
+        "cards": [],
+        "amountDue": {
+            "amount": 223.00000,
+            "currency": "USD"
+        },
+        "transactionReference": "4aa0f192-882b-4353-9e79-5bc1acc5f655",
+        "externalReferences": [
+            {
+                "identifierCode": "1234",
+                "referenceNumber": "751381618577128426"
+            }
+        ]
+    }
+]
+```

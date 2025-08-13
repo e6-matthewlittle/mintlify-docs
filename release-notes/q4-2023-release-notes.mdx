@@ -1,0 +1,135 @@
+---
+title: "Q4 2023 release notes"
+menu: Release
+route: /docs/release/q4-2023-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "12-18-2023"
+---
+# Q4 2023 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## December 2023 
+
+### New Features
+- Implemented improved experience for viewing fee rules affecting a customer in the Dashboard which shows fee rules from fee plan and customer-level fee rules along with values and source
+- Added the ability to view annual statement summaries in Dashboard for revolving credit customers
+- Implemented the ability to add a currency wallet to a customer and store default Safe Draft configurations at the program level
+- Enabled the discovery of Directory Server Transaction ID [DSTransactionId] from Mastercard ISO messages from DE 48 SE 66 sf2 when present. This is viewable in Dashboard in the ISO8583 Network Message side drawer under Additional Attributes.
+- Implemented improved fee plan management experience in Dashboard which makes it easier to view fee rules within a plan and manage those rules
+- Implemented change order integration with maker/checker pattern for offering program configuration changes including revolving credit and installment programs
+- Implemented change order integration with maker/checker pattern for offering customer configuration updates including revolving credit and installment customers
+- Implemented change order integration with maker/checker pattern for revolving credit customer adjustments
+- Added the ability to support account name validation via cooperative authorization
+- Implemented new error handling experience in Dashboard which manages finite component errors rather than causing a page break. Users can now also download console log information to share with E6 support in case of errors
+- Added change order integration in the Dashboard for revolving credit customer product configuration changes
+- Implemented required Visa Tokenization Services (VTS) mandates around device binding and step up authentication for tokenization
+- Implemented new partner transaction detail report which shows all transactions for a given partner
+- Implemented the ability to add a currency wallet to a customer and store default Safe Draft configurations at the program level
+- Added ability to enroll card in Visa In-App Provisioning which will return the vCardID
+- Implemented the ability to view and manage card profiles attributes in the Dashboard
+- Implemented custom PAN generation plugin to generate PANs which are unpredictable and cause no collision
+- Implemented new option and logic for generation of an authentication code which can be used to securely retrieve virtual card details
+- Added change order integration for revolving credit program configuration updates in Dashboard
+- Added pagination to customer adjustments table in Dashboard
+- Added the ability to configure days per year for interest accrual differently for leap years
+- Added additional API for releasing customer blocks which allows release of one or more blocks based on the request
+- Added change order integration for revolving credit customer sub-balance adjustments in Dashboard
+
+### Enhancements 
+- Corrected issue where standard repayment hierarchy was not used for payment which would return customer from delinquency
+- Enhanced revolving credit interest display in Dashboard so unbilled interest is now displayed to three decimal places beyond currency default
+- Updated delinquency tracking report logic to not include customers who had become delinquent the day of the report generation
+- Corrected issue which caused some customer records to not appear as expected in the revolving credit statement file
+- Updated block release confirmation message in Dashboard to clarify the type of block released
+- Corrected issue where customer risk exceptions could not be added in Dashboard in some cases
+- Updated US non-processing calendars for 2024
+- Corrected issue where set pin endpoint was failing to validate the CVV in some cases 
+- Corrected issue where refund reversal was not tracked in revolving credit sub-balance
+- Updated interest accrual logic to accrue interest up to 3 decimal places past the given currency decimal place configuration
+- Consolidated interest charges displayed on customer statements into a single transaction. Decomposition of source of interest per sub-balance can be found in transaction attributes for that transaction. 
+- Updated cash advance control for revolving credit to take impending fees into account on top of the base cash advance amount
+- Corrected issue in Dashboard where error response for credit limit boundaries in revolving credit program configuration did not display the full message
+- Improved balance summary for customers in Dashboard to better account for multiple currencies when applicable
+- Corrected issue where customer block report did not include the expected data records
+- Corrected issue where certain countries were not displaying correctly from common countries API
+- Corrected issue where interest rate settings module was hanging in the Dashboard for revolving credit customers
+- Corrected the display of revolving credit configurations which are percentage based. These will now be displayed as percentages during entry in the Dashboard.
+- Corrected issue where cash advance was left in a positive balance state after a refund instead of the excess funds going into the common credit balance
+- Corrected issue where some card transactions were not declined despite cooperative authorization timeout 
+
+## November 2023
+
+### New Features
+- Added new late presentment report for card payments
+- Implemented new common credit balance for revolving credit customers which can be used to pay off future debits of any kind on the account rather than applying credits to draw type sub-balances
+- Added the ability to configure allowable over limit in Dashboard for revolving credit programs
+- Created new delinquency tracking report for revolving credit customers which is run daily and includes details of missed repayment dates and amounts
+- Added pagination to adjustments table in Dashboard
+- Added the ability to support multiple clearing messages on Mastercard
+- Implemented the ability to cancel only the next automatic load for a customer account without shutting off future automatic loads. This must be done before extraction date in order to take effect on the target automatic load.
+- Added the ability to simulate fixed amount automatic payments as part of revolving credit customer simulation
+- Implemented new customer account detail file for revolving credit which includes all detailed information about the revolving credit customer
+- Implemented delivery of transaction data into SAP in the form of a new report to support settlement activities
+
+### Enhancements
+- Updated non-processing day calendars as needed for 2024
+- Corrected issue where AVS result was not returned properly in ISO8583 message for some Mastercard transactions
+- Disabled the ability to add the platform manager role to users unless the platform manager role is present for the user making the change or creating the user
+- Enhanced billing period close summarization of past due for revolving credit customers
+- Corrected issue where human-readable times in the Transaction Detail Report did not match with Dashboard times
+- Updated automatic load / direct debit logic to correct the amount when a fixed amount amount strategy is configured for an automatic load rule. The amount will now be at most the remaining statement balance and at least the remaining total due when the extraction date occurs.
+- Corrected issue where password reset for users wasn't triggering an email
+- Corrected issue where paymentToAvoidInterest in revolving credit statement file was being set as positive amount instead of 0 in cases of excess credit
+- Enhanced QMR with Card Feature Details for virtual card programs, including total counts of Total Virtual, Non-Reloadable Prepaid, and Full Metal Body   
+- Corrected issue where automatic load extraction file timing was incorrectly set
+
+## October 2023
+
+### New Features
+- October 10th, 2023: Implemented the ability to unblock a PIN via an ATM if it has been blocked due to failed PIN entry
+- Launched new customer summary section in Dashboard to provide more relevant information for customer servicing agents at the top of the customer page. This includes a redesigned account holder summary which allows users to view different account holders more easily, a balance summary view, a control breach summary, and an updated customer segment summary.
+- Added the ability to view the new consolidated excess credit balance in Dashboard for revolving credit customers
+- Moved automatic load to a new standalone tab for customers in Dashboard
+- Added the ability to support multiple clearing messages on Visa
+- Added the ability to set a card PIN via API with an encrypted card PIN
+- Implemented new change order views in the Dashboard, including separation by customer, program, and partner 
+- Added additional risk measurements in the risk measurement API including purchase limit for 1 year, reward limit for 1 day, reward limit for 7 days, reward limit for 30 days
+- Added new logic to support retry for Mastercard ABU file upload
+- Added new product code to card profile object in support of mandated card scheme quarterly reporting
+- Added new APIs and events supporting delivery of annual statement details for revolving credit customers
+- Added new partner control rule to limit the number of password reset attempts for a user
+- Added the ability to configure grace periods for revolving credit programs. Penalization assessment and delinquency actions will take place at the configured grace end date for each customer.
+
+### Enhancements
+- October 30th, 2023: Corrected issue where sum of revolving credit sub-balances did not match total balance in some cases
+- October 24th, 2023: Corrected issue where previous period late fee was incorrectly included in latest period min due
+- October 11th, 2023: Corrected issue which caused excess credit balance was not used to offset billed interest upon posting leading to interest accrual post clearing of principal balance in some cases
+- October 4th, 2023: Corrected issue where revolving credit statement file contained duplicate transactions
+- Corrected issue where the "Product" tab was not showing for revolving credit customers in Dashboard
+- Updated the logic for card block source dates and times to only allow for past dates and times when adding the value in Dashboard
+- Enhanced billing period close summarization of past due for revolving credit customers
+- Corrected issue where customer search by PAN was not displaying returned results
+- Implemented new risk rule to allow for specification of allowed countries instead of blocked countries
+- Updated message mapping. Interchange names will be set in AuthorizationErrorNotification going forward. 012x or 042x messages (force posted auths and auth reversals) mapping will no longer incorrectly return AuthorizationErrorNotification to clients.
+- Expanded address object field line1 to allow up to 150 characters compared to 50 
+- Updated revolving credit customer minimum due history view in Dashboard to show grace period end
+- Corrected issue where large decimal place transaction caused revolving credit account simulation to fail
+- Corrected issue which caused billing period close operation failed for certain customers
+- Corrected issue which caused Dashboard to display an intermittent error when viewing transaction histories
+- Corrected issue where scheduling of a risk level creation caused an error to be thrown in Dashboard
+- Corrected issue where past due amount for revolving credit customers was displayed incorrectly in Dashboard
+- Corrected issue where card order button in Dashboard caused multiple orders to be placed in some browsers
+- Updated change order view in Dashboard to increase visibility into approved change order history
+- Corrected issue where physical card ordered in test environment became invalid a day after being ordered
+- Updated side drawers in Dashboard to have buttons anchored to the bottom of the screen to avoid excessive scrolling
+- Corrected issue which caused transactions to be approved with amount value to be higher than complianceAmount
+- Updated timezone display logic in Dashboard to automatically refresh data display when a new timezone is selected
+- Corrected issue where custodial balance API and customer balance report did not sum up to the same values
+- Updated change order view in Dashboard to increase visibility into approved change order history 

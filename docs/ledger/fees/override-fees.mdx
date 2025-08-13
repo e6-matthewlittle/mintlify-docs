@@ -1,0 +1,35 @@
+---
+title: "Override fees"
+menu: Fees
+route: /docs/fees/override-fees
+excerpt: A one-time fee is a fee charged as part of a payment request regardless of established fee rules.
+types: 
+  - guide
+_tags:
+  - fees
+  - override
+  - one-time
+containerWide: true
+showHeadingsNav: true
+date: "02-15-2023"
+---
+
+# Override fees
+
+Charging an override fee to a customer allows a one-time fee to be charged independently of established fee rules as part of a payment. Override fees can be used to charge fees when fees are variable or cannot be modeled using the fee rule construct.
+
+## What we do
+
+Episode Six (E6) enables you to charge one-time override fees to a customer account when calling payment APIs. Upon successful payment processing, the customer account is debited and the program operating account is credited for the fee amount.
+
+## Prerequisites
+
+To manually charge a one-time fee to a customer account, you must first create a customer. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+When initiating a payment such as a [Load](/docs/payments/account-funding), [Withdraw](/docs/payments/withdraw), [P2P](/docs/payments/p2p-transfer), or [Purchase](/docs/payments/purchase) payment, a one-time, override fee can be charged to the customer. In the request body, set the `overrideFee` field with the fee amount to be charged.
+
+## What's next
+
+After charging an override fee to the customer account, you can view the updated [Customer balances APIs](/tech-specs/balances/customer-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getWallets_GET) and [transactions](/tech-specs/transactions/transaction-entries/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listTransactionEntries_GET) for the customer.

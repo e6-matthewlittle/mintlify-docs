@@ -1,0 +1,48 @@
+---
+title: "Interest accrual"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/interest-accrual
+excerpt: How interest is accrued on deposited customer balances.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - interest accrual
+  - daily balance method
+  - savings account
+  - customer setup
+containerWide: true
+showHeadingsNav: true
+---
+
+# Interest accrual
+
+Interest accrual is the process of calculating pending interest based on the customer account balance. The interest accrual process is performed daily using end of day balances from the previous day.
+
+## What we do
+
+Episode Six (E6) provides daily calculation of accrued interest. Pending interest is accrued into a non-posted balance for each interest-bearing deposit customer account. Interest accrual will be calculated to 3 decimal places beyond the decimal point precision of the balance currency. The interest accrual process is performed based on the following aspects:
+
+* Customer account balances - principal and unposted interest from the end of the previous day
+* Customer annual interest rate - based on assigned interest rate tier
+* Program days per year - leap year or non-leap year, based on the prior day
+* Program calculation method - simple (principal only) or compound (principal and unposted interest)
+
+## Prerequisites
+
+Interest accrual will only be processed on interest-bearing deposit customers that have been [configured](/docs/interest-bearing-deposits/customer-configuration).
+
+If there is a `closed` or `termination` block on a customer account, then interest accrual will not be performed on that customer account. For more information, see [customer blocks](/docs/blocks/customer-blocks).
+
+## Actions
+
+Interest accrual is done automatically on a daily basis and no action is needed by a user. This process is run prior to any interest posting for the day.
+
+If multiple balance bands have been configured in the customer's assigned interest rate tier, then the interest accrual calculation will be performed multiple times as needed on the customer account balance.
+
+## What's next
+
+The total pending interest balances for a customer can be viewed in the `unpostedInterestBalances` array returned from the [Retrieve Interest-Bearing Deposit Customer API](/tech-specs/interest-bearing-deposits/customers/api?#operation/retrieveInterestBearingDepositsCustomer).
+
+Pending interest will be posted to customer accounts based on the posting configurations of the program For more information, see [Interest posting](/docs/interest-bearing-deposits/interest-posting). If a change to the accrued interest amount needs to be made, then an [adjustment](/docs/interest-bearing-deposits/accrued-interest-adjustment) of the accrued interest balance can be performed.

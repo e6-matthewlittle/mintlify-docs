@@ -1,0 +1,46 @@
+---
+title: "Customer balances"
+route: /docs/balances/customer-balances
+excerpt: Management of customer currency accounts and balances.
+types: 
+  - guide
+_tags:
+  - account
+  - balance
+  - customer wallet
+  - wallet
+  - customer account
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+---
+
+# Customer balances
+
+Customer balances are balances which are held by an end customer for a given product account. Balances are updated as customers transact using an account and are used as a measure to authorize future payments.
+
+## What we do
+
+Episode Six (E6) fully manages customer balances in real-time as part of transaction processing. E6 allows deposit customers to hold one or more currency accounts under a single customer deposit account. Customer balances can be retrieved in real-time as needed. Separate balances, including actual and available, are tracked per currency account. When used for a multicurrency account, compliance balances are also returned using the utilized FX rates.
+
+## Prerequisites
+
+A customer must first be created before balances for that customer can be retrieved. Customer wallets will be created based on the configured program currencies at the point of customer creation. To learn more about creating a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+Customer account balances can be retrieved in real-time using the [Retrieve Customer Balances API](/tech-specs/balances/customer-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getWallets_GET). When a customer wallet is returned, it will include the following balance types:
+
+| Balance type | Description |
+| -- | -- |
+| **Balance** | The account's balance not taking into account authorization holds. |
+| **Available Balance** | The account's balance currently available for use. Authorization holds are counted. |
+| **Compliance Balance** | This is the balance in the compliance currency. For example, the value of the currency being reported in the record if it is transferred into the home currency of the account. |
+| **Compliance Available Balance** | This is the available balance in the compliance currency. For example, the value of the currency being reported in the record if it is transferred into the home currency of the account. |
+
+Customer wallet data also includes safe draft settings related to FX and multicurrency. For more information, see [Safe drafts](/docs/fx/safe-drafts).
+
+## What's next
+
+Additional currency wallets can be added to a customer deposit account using the [Create Customer Wallet API](/tech-specs/balances/customer-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addCurrencyWallet_POST). The new currency wallet must be one which exists within the customer's parent program but does not yet exist for the customer. For more information on managing program accounts, see [Program balances](/docs/balances/program-balances).

@@ -1,0 +1,53 @@
+---
+title: "Platform access"
+sidebarTitle: "Overview"
+menu: Platform access
+route: /docs/platform-access
+excerpt: How you, your parties, and your users are provisioned access to the E6 platform.
+types: 
+  - guide
+_tags:
+  - partners
+  - setup
+  - management
+  - use cases
+  - uses
+containerWide: true
+showHeadingsNav: true
+date: "10-21-2022"
+---
+
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+Platforms, particularly those offered in an "as-a-service" model, require the ability to manage multiple clients and their parties in parallel. Access must be provisioned to different clients without causing conflicts between client configurations and data. A single client tenancy can also consist of multiple accessing parties. Each party likely plays a different role within the client tenancy and party platform access needs to be restricted according to the role of the party. Each party is granted access to the platform through one or more identities which represent the accessing
+
+## What we do
+
+When you are onboarded to the E6 platform, E6 will configure you as a client. You may see the client entity called a *bank* in our system taxonomy, though a client does not have to be a licensed bank. The client entity acts as the root entity in our system under which all of your other platform access, data, and configurations exist.
+
+For each distinct party that needs access to the E6 platform as part of your E6 client tenancy, a party entity will be created. You may see the party entity called a *partner* in our system taxonomy, though a party may also represent both your internal and external parties. Parties can have different party-level features and APIs used based on your use of Cards and Ledger as well as the functional role being performed by the party. The most common party roles include product provider and payment counterparty.
+
+Secure access to the platform is granted to identities that are created in association with each party. E6 refers to these identities as users, though the user may be a natural person or another system/application. Users are granted one or more roles based on which functions they are expected to access. A user must authenticate with the E6 platform before the user can access APIs.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/context/e6_dev_portal_admin_context.svg'}
+    caption={'Administration context'}
+/>
+
+## What you can do
+
+While platform access is a standard feature for any platform, E6 allows you to do more with our framework such as the following use cases.
+
+- Enabling products to be offered in multiple regions or jurisdictions without comingling customers
+- Creating logical data separation for large clients into multiple business units without comingling customers
+- Enabling "as-a-service" models and reselling the E6 platform by adding your clients as parties/sub-clients under your client tenancy
+
+## What's next
+
+To learn more about how E6 platform access works, read through the following additional documentation.
+
+- [**Clients**](/docs/platform-access/clients) - A client is the root entity representing you in the E6 platform.
+- [**Partners**](/docs/platform-access/partners) - A partner is a party within a client tenancy which can play one or more party roles such as administrator, product provider, or payment rail.
+- [**Users**](/docs/users/users) - Users allow E6 clients to manage data access in their platform, across both internal and external entities.
+- [**Partner attributes**](/docs/platform-access/partner-attributes) - A partner attribute is an additional data field used to define a partner beyond the base data model, typically in support of party role-specific configurations.
+- [**Secret management**](/docs/platform-access/secret-management) - Encryption of system to system communication using public-key cryptography.

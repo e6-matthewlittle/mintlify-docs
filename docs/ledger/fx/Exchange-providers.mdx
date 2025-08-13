@@ -1,0 +1,45 @@
+---
+title: "Exchange providers"
+menu: FX
+route: /docs/fx/exchange-providers
+excerpt: An exchange provider offers liquidity for a currency by processing a currency trade.
+types: 
+  - guide
+_tags:
+  - exchange
+  - exchange providers
+  - fx
+  - currencies
+  - create
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Exchange providers
+
+A currency exchange provider is an entity that offers liquidity for a currency by processing a currency trade or foreign exchange (FX). The exchange provider offers buyers and sellers of various currencies a market for exchange. The exchange provider charges a fee or margin for the exchange.  
+
+## What we do
+
+Episode Six (E6) integrates with exchange providers as necessary to enable FX in the E6 system. Exchange providers are linked to the E6 system for the purpose of using E6 APIs. 
+
+<Callout
+    calloutType={'info'}
+>
+  To set up exchange providers, contact your E6 representative. 
+</Callout>
+
+## Prerequisites
+
+Select which exchange providers you want to work with depending on both which currencies they support and your preferred rates.
+
+## Actions
+
+To create an exchange provider, call the [Create an Exchange Provider API](/tech-specs/FX/exchange-providers/api?#operation/net.e6tech.h3.middletier.api.v1.admin.ExchangeProviderAPI_create_POST). 
+
+## What's next
+
+You can now set up currency pairs and exchange margins. For more information, see [Currency pairs](/docs/fx/currency-pairs)  and [Exchange margins](/docs/fx/exchange-margins).

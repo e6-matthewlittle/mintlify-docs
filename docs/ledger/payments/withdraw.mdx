@@ -1,0 +1,53 @@
+---
+title: "Withdraw"
+menu: Payments
+route: /docs/payments/withdraw
+excerpt: A withdrawal is a payment made from an account in one ledger to another ledger.
+types: 
+  - guide
+_tags:
+  - withdrawal
+  - payment
+  - record
+  - wire
+  - funds
+  - customer
+  - account
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Withdraw
+
+A withdrawal is a payment made from an account in one ledger or system of record (SOR) to an account held in a different SOR. The withdrawal reaches the target account through a connected payment processor that fulfills the funds transfer via automatic clearing house (ACH), wire, real-time payment (RTP), or other form of electronic funds transfer (EFT).
+
+## What we do
+
+Episode Six (E6) allows for the recording of a withdrawal from an E6 managed customer account. When a withdrawal is initiated, the customer account is debited and the target partner account is credited.
+
+## Prerequisites
+
+Before recording a withdrawal for a customer account, you must create a partner to represent a connected payment processor or payment rail. For more information, see [Partners](/docs/platform-access/partners).
+
+<Callout
+  calloutType={'info'}
+>
+This new partner must be setup to process withdrawals in the E6 system. To enable the partner to process withdrawals, contact your E6 representative so that they can perform this part of the setup.
+</Callout>
+
+A customer account must also be created. To create a customer account, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To record a withdrawal for an E6 customer account, call the [Withdraw API](/tech-specs/payments/withdraw). The `partnerName` of the request should be the payment processing partner.
+
+For all withdrawal requests, the transaction currency must be a currency available for the partner account and the customer account.
+
+Default fee rules can also be overridden as part of the payment request. In the case where specific fee amounts should override program or customer level fee rules, the `feeAmount` and `feeTypeCode` fields should be set as needed.
+
+## What's next
+
+After the withdrawal is recorded, the customer can view their updated account balance. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).

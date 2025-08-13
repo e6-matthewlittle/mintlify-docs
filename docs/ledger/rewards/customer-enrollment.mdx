@@ -1,0 +1,51 @@
+---
+title: "Rewards customer enrollment"
+menu: Rewards
+route: /docs/rewards/customer-enrollment
+excerpt: Customers can have rewards enabled with assignment to a rewards plan to enable earn, distribution, and redemption.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+containerWide: true
+showHeadingsNav: true
+date: "05-10-2024"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customer enrollment
+
+Customers can have rewards enabled with assignment to a rewards plan to enable earn, distribution, and redemption. Customers can be enrolled so that they earn rewards per product program or earn across all products into a consolidated rewards spend account.
+
+## What we do
+
+Episode Six (E6) provides the ability to enroll a customer product account for rewards. Enrollment can be achieved by creating a pending rewards earn customer and then linking that customer to the product customer account. Optionally this can be done automatically to reduce the number of API calls needed during customer onboarding.
+
+## Prerequisites 
+
+Before enrolling a product customer account in rewards, the product [customer account](/docs/customers/customers) must be created. The [rewards program](/docs/rewards/rewards-setup) must also already be configured with the [product program](/docs/rewards/product-rewards) enabled for rewards.
+
+<Callout
+    calloutType={'info'}
+>
+    If automatic customer onboarding has been setup for the product program then no further steps are required.
+</Callout>
+
+## Actions
+
+The first step in enrollment is to create a rewards customer account by calling the [Create Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomer_POST) with the `programName` set to the rewards program's name. Then, call the [Create Reward Customer API](/tech-specs/rewards/rewards-customers/api?#operation/createRewardCustomerConfiguration) with the `customerNumber` set to the just created rewards customer account. This will register the rewards customer account for rewards processes.
+
+Once the rewards customer has been setup, then it can be connected to the product customer account by calling the [Link Reward Earn Customer API](/tech-specs/rewards/rewards-customers/api?#operation/linkCustomersRewardsEarn). When making this call you need to include the `rewardGroupName` and `planName` as attribute objects including `name` and `value` pairs. Optionally an override `rewardOffset` can be set as an attribute object for a distribution schedule other than the default. Typically, this will be used for revolving credit products where statements might occur for different times of the month for different customers.
+
+Rewards distribution also needs to be enabled so that pending rewards can be made spendable for the customer. This can be done using the [Link Rewards Distribution Customer API](/tech-specs/rewards/rewards-customers/api?#operation/linkCustomerRewardsDistribution). For automated statement credits, set the `target-customer-number` in the path to the product customer account. Alternatively if you want rewards to be spent from a different account, you can set the `target-customer-number` to a customer account created under a deposit program.
+
+## What's next
+
+After a customer has been enrolled in rewards, you can modify or remove their assigned plan by calling the [Link Reward Earn Customer API](/tech-specs/rewards/rewards-customers/api?#operation/linkCustomersRewardsEarn). Linked earn and distribution customers can be retrieved using the [Get Outward Customer Graphs API](/tech-specs/customers/customer-graphs/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerGraphAPI_createInwardCustomerGraph_POST).
+
+As soon as the rewards graph linkages have been established, pending rewards will accrue per the reward program configurations. For more information, see [Rewards earn](/docs/rewards/rewards-earn).
+

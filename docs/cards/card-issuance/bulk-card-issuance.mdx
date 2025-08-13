@@ -1,0 +1,79 @@
+---
+title: "Bulk card issuance"
+menu: Cards
+route: /docs/cards/bulk-card-issuance
+excerpt: Bulk card issuance is the process of issuing multiple, unassociated cards in a single operation.
+types: 
+  - guide
+_tags:
+  - bulk
+  - orders
+  - anonymous cards
+  - anonymized cards
+  - card association
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Bulk card issuance
+
+Bulk card issuance is the process of issuing multiple, unassociated cards in a single operation. Unassociated cards are not tied to an account at the point of issuance and can later be associated with accounts as needed. Common use cases for bulk card issuance include:
+
+- Creating a set of anonymous cards for distribution such as gift cards or voucher cards
+- Establishing and managing physical card stocks at stores, branches, or other remote locations
+
+## What we do
+
+Episode Six (E6) provides the ability to issue one or more unassociated cards for a program using a single card profile. Once the card within a bulk issuance request has been generated, the card can either be attached to a new account or associated with an existing account within the E6 platform. When issuing physical cards in bulk, E6 also handles the creation of a card embossing file for your card manufacturer to facilitate bulk card production. Similar to issuance of an associated [customer card](/docs/cards/customer-card-issuance), the PAN is encrypted according to Payment Card Industry Data Security Standards (PCI DSS). E6 provides non-PAN card identifiers so that cards can be identified and managed by your system without concerns for PCI compliance.
+
+## Prerequisites
+
+To issue cards in bulk, a program with a card profile must be created. For more information, see [Card profiles.](/docs/cards/card-profiles)
+
+**Conditional:** A partnership with a card manufacturer is required if physical cards are going to be issued in bulk. For more information, see [Physical cards.](/docs/cards/physical-cards)
+
+## Actions
+
+To issued unassociated cards, call the [Issue Unassociated Cards API](/tech-specs/cards/bulk-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.StoreAPI_createCardOrder_POST). In the `count` attribute, provide the total number of cards to be created in the order. In the `shippingAddress` object, provide the geographical address for the shipping destination. Card order attributes and an external reference value can also be added to the bulk card request. Upon a successful request, the server returns a `cardOrderId`. If you have placed a bulk order of physical cards, Tritium will add the card order information to an embossing file and send it to your organization's card manufacturer to begin production.
+
+<Callout
+calloutType={'info'}
+>
+  By default, the maximum number of cards that can be ordered in a single API call is 10,000. If you need to change this limit, speak with your E6 contact. A partner attribute `BULK_CARD_ORDER_MAXIMUM_COUNT` can be provided to adjust the limit. For more information, see [Partner attributes](/docs/platform-access/partner-attributes).
+</Callout>
+
+After unassociated cards have been ordered, they can be associated with an existing customer account or a new customer account can be created during association.
+
+### Card association - new customer
+
+When a bulk card order has been successfully placed and the cards have been issued, you can begin assigning cards to customer accounts.
+
+To assign a card to a new customer account, call the [Attach Unassociated Card - New Customer API](/tech-specs/cards/bulk-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.StoreAPI_createNewAccount_POST). In the request, provide a card identifier object specifying the `type` and `id` number of the card identifier, a customer object defining the customer account to be created, and a load amounts object defining the `amount` and `currencyCode` of funds to load to the account.
+
+### Card association - existing customer
+
+If you want to associate a bulk-issued card with an existing customer, call the following APIs:
+
+1. Call the [Generate Card Association Approval Number API](/tech-specs/cards/bulk-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_attachCardApproval_POST) to retrieve a card `approvalNumber`. You will need to specify the target `customerNumber` and cardholder identifier using the `id` from the target person object associated with the customer.
+2. After retrieving the card approval number, you can associate the card with an existing customer by calling the [Attach Unassociated Card - Existing Customer API](/tech-specs/cards/bulk-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce.CommerceAPI_attachCardExistingPerson_POST) and passing in the `approvalNumber` in the path along with the target `customerNumber`.
+
+## What's next
+
+### Viewing card order details
+
+You can view information about the entire card order by calling the [Retrieve Card Order API](/tech-specs/cards/card-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getCardOrderByCardOrderId_GET). A list of cards generated as part of the order can be retrieved by calling the [Generate Card Order Card List API](/tech-specs/cards/card-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_listCardOrderCards_POST).
+
+When the bulk card order is first created, its state is listed as `queued`. The card order state is independent of the [card state](/docs/cards/card-state-management). Depending on how many cards are included in the order, it can take several minutes for the card state to change to `created` or `shipped`. If there is an issue with the card order, its state changes to `error`.
+
+Card orders include the following states:
+
+| State | Description |
+| -- | -- |
+| `queued` | The card order has been queued for production. When a bulk card order is created, it is set to `queued` by default. |
+| `created` | The queued cards in the card order have been created in the database. |
+| `shipped` | The card order has been shipped. |
+| `error` | An error has occurred with the card order. |
+| `migrated` | Skipped card order for migrated cards. |

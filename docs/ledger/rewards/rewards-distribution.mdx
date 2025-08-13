@@ -1,0 +1,46 @@
+---
+title: "Rewards distribution"
+menu: Rewards
+route: /docs/rewards/rewards-distribution
+excerpt: Rewards distribution is the process of transferring pending rewards to a customer account for spend.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+  - distribution
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2024"
+---
+
+# Distribution 
+
+Rewards distribution is the process of transferring pending rewards to a customer account for spend. Distribution can be back to a product account as an automated statement credit or to a separate account for manual spend by the customer. Once rewards have been distributed, the customer is free to spend the rewards as they wish.
+
+## What we do
+
+Episode Six (E6) provides the ability to automatically distribute pending rewards to the target destination customer account. Distribution is handled based on two factors, the assigned target customer number and the distribution frequency-offset combination.
+
+## Prerequisites
+
+Rewards distribution configurations including `rewardFrequency` and `offset`need to be set for the product program per the guidance in [Product rewards setup](/docs/rewards/product-rewards). The `rewardsOffset` can also be set at the customer as needed as part of [Customer enrollment](/docs/rewards/customer-enrollment).
+
+Rewards distribution processing will occur if a product customer account or rewards spend account has been associated with a pending rewards customer for distribution. For more information see [Customer enrollment](/docs/rewards/customer-enrollment).
+
+## Actions
+
+Processing of rewards distribution is done automatically and no action is needed by a user. Distribution results in a `rewards` type transaction from the pending rewards customer account to the target customer account for the balance of the pending rewards account at the time of distribution. Transactions are usually for a positive amount into the target customer account but can be negative in the case of refunds or reversals resulting in a net negative balance in the pending rewards account.
+
+## What's next
+
+Once rewards have been distributed, the customer is able to spend the rewards as they would any other owned value. For more information, see [Rewards redemption](/docs/rewards/rewards-redemption).
+
+Configurations for distribution for the program can be updated if needed using the [Enable Program Rewards API](/tech-specs/rewards/rewards-programs/api?#operation/enableProgramRewards) while customer level offset can be updated using the [Link Reward Earn Customer API](/tech-specs/rewards/rewards-customers/api?#operation/linkCustomersRewardsEarn).
+
+After receiving rewards, each customer can view their updated account balance. For more information, see [Customer balances](/docs/balances/customer-balances). Customers can also view a detailed history of reward transactions. For more information, see [Transactions](/docs/transactions/transactions).
+
+If the rewards have been used as an automated statement credit on a revolving credit customer account, then the amount credited to the revolving credit account can be seen in the `postedRewards` field in the summary section of the [statement file](/docs/revolving-credit/statement-file) and the [billing history](/docs/revolving-credit/billing-history).
+

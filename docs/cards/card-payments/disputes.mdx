@@ -1,0 +1,67 @@
+---
+title: "Disputes"
+menu: Cards
+route: /docs/cards/disputes
+excerpt: A dispute is a transaction that has been flagged as fraudulent, incorrect or invalid.
+types: 
+  - guide
+_tags:
+  - chargeback
+  - dispute
+  - transaction chain
+  - reverse
+  - reversal
+  - retrieve
+containerWide: true
+showHeadingsNav: true
+hidden: true
+---
+
+# Disputes
+
+A dispute can be raised by customers for transactions that appear fraudulent, incorrect, or invalid. A disputed transaction will generally be investigated by the issuer before a determination is made on its validity. For valid disputes, the issuer often raises a chargeback with the processing network or refunds the customer directly. For more information on chargebacks, see [Chargebacks](/docs/cards/chargebacks).
+
+## What we do
+
+Episode Six (E6) provides functionality to mark transactions as disputed, exclude them from credit processing, and correlate them with chargeback ISO messages.
+
+Endpoints from the [Dispute API](/tech-specs/cards/dispute) enable users to review transactions, raise and manage disputes and reverse chargebacks.
+
+## Prerequisites
+
+For disputes to be processed, a card payment transaction must first have been cleared. For more information, see [Card payments](/docs/cards/card-payments).
+
+Before E6 is able to process card payments for live customers, E6 must first be [certified](docs/cards/certification) as the issuer processor for any required [IINs](/docs/cards/iin-procurement).
+
+## Actions
+
+The following dispute actions are supported by E6.
+
+### Retrieving transaction chains
+
+When a customer wants to create a dispute on a transaction, you can begin reviewing the transaction by accessing the customer's transaction chain. A transaction chain contains an array of information about a transaction, such as its `amount`, `transactionSourceCode`, `transactionTypeCode`, and authorization status. To retrieve a transaction chain, call to the [Return the Transaction Chain for a Transaction API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_getTransactionChain_GET). Include a unique `customer-identifier` and `transaction-id` in the request to specify which customer and transaction information you want to review. You can use the information in this transaction chain to make a decision about the dispute. For example, the transaction chain can show whether this transaction has already been charged back or if it has reached a limit of chargebacks.
+
+### Raise a dispute
+
+To raise a dispute on the transaction call the [Create a Dispute API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_createChargeback_POST). Include the original clearing transactions `id` as the `isoMessageId`. The `chargebackAmount` should be only the amount that is in dispute and should not exceed the original transaction `amount`. 
+
+### Disputed processing 
+
+In some markets disputed transactions must be excluded from accruing interest and other credit actions. This can be configured for Revolving Credit programs by using the `disputeProcessing` flag. For more information, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+
+### Retrieve disputes
+
+A list of a customers disputed transactions can be retrieved by using the [Retrieve Disputes by Customer API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_getChargebacks_GET).
+
+To retrieve a specific dispute, call the [Retrieve a Dispute by ID API](/tech-specs/cards/disputes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_getChargeback_GET)
+
+### Cancelling a dispute
+
+Before a chargeback is processed, you have the option to cancel it. To cancel a chargeback, call the [Cancel a Chargeback by ID API](/tech-specs/cards/chargeback/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.ChargebackAPI_cancelChargeback_PUT). Include a unique `customer-identifier` and `chargeback-id` in the request to specify which chargeback you wish to cancel.
+
+## What's next
+
+If you determine that a chargeback is necessary after reviewing the transaction chain and creating the dispute, you can create a chargeback through your payment network (such as Mastercard or Visa). Consult your payment network's documentation to create and issue a chargeback. 
+
+If immediate customer relief is required for the disputed amount an adjustment should be made, see [Adjustments](/docs/balances/adjustments). When creating the adjustment the disputed transaction `isoMessageId` should be provided as the `originalExternalRef` value, this will ensure that later when the chargeback amount is received from the scheme that the customer is not credited twice.
+

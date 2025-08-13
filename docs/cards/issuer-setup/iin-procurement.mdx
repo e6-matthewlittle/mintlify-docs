@@ -1,0 +1,52 @@
+---
+title: "IIN procurement"
+menu: Cards
+route: /docs/cards/iin-procurement
+excerpt: Card networks use issuer identification numbers (IINs) or bank identification numbers (BINs) are used to identify the issuer bank of a card.
+types:
+  - guide
+_tags:
+  - bin
+  - iin
+  - bank identification number
+  - issuer identification number
+  - brand product
+  - APW
+  - CIQ
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+# IIN procurement
+
+Card networks use issuer identification numbers (IINs) or bank identification numbers (BINs) to identify the issuer bank of a card. When cards are issued, card primary account numbers (PANs) use the IIN as a prefix to the account identifier. As card payments come in, IINs allow card networks to route and track the card payment messages and other card activities to the issuer. Most IINs are six digits in length, but card networks also support eight digit IINs to allow for more control over card issuance.
+
+Card product providers can procure an IIN directly as a primary member of a card network or gain access through an issuer acting as an IIN sponsor. When working through an IIN sponsor, settlement with the card network is done by the IIN sponsor and then subsequent settlement occurs between the card product provider and the IIN sponsor for the scope of the card payment activity.
+
+## What we do
+
+Episode Six (E6) works with clients to ensure that card network projects are successfully initiated and IINs procured. This includes providing required information about E6 as an issuer processor and existing integrations with the card networks.
+
+## Prerequisites
+
+IINs are tied to an issuer by association with a unique [card network](/docs/cards/card-networks) member number. Any group looking to procure an IIN must first have a member number established. If it is the issuer's first IIN, this is part of the same card network onboarding process.
+
+## Actions
+
+You will need to initiate a project with the respective card network to procure an IIN. Your partner card network will work with you or your IIN sponsor to determine the best IIN configurations for your card product. Common factors that will be used to determine configurations include:
+
+* **Customer type - ** Will the customers of the cards be consumers or corporates?
+* **Funding source - ** Will card payments be funded by a prepaid account, a debit account, or a credit account?
+* **Number of cards - ** How many cards do you expect to issue?
+* **Interface method - ** How will card information be provided to point of sale systems?
+* **PIN requirements - ** Do PINs need to be used for cardholder verification? If so, how?
+* **Use case - ** Is the card intended for special use cases such as a fleet card?
+
+A decision should be made on how you want to use IIN segments. IIN segments allow you to use the same IIN across multiple card profiles without leading to conflicting PAN generation. Using IIN segments enable more optimal utilization of IINs by maximizing the number of PANs issued under a single IIN. By limiting the number of segments used to issue cards, IIN segments can be used to combat fraud attempts. For example, if you receive any transactions for PANs outside a configured segment, the transaction will be immediately declined.
+
+The BIN request format for Mastercard is a Parameter Worksheet (APW) while the IIN request format for Visa is a set of Customer Information Questionnaire (CIQ) forms. When procuring the IIN, E6 must be listed as the issuer processor. E6 will work with you to ensure accurate completion of the request including details of the existing E6 integration information.
+
+## What's next
+
+Once the IIN is procured, [certification](/docs/cards/certification) with E6 as the issuer processor can proceed. E6 works closely with clients during the certification process to ensure that all required test scenarios in both offline and online testing phases are covered.

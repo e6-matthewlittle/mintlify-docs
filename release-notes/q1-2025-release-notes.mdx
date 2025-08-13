@@ -1,0 +1,310 @@
+---
+title: "Q1 2025 release notes"
+menu: Release
+route: /docs/release/q1-2025-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "01-30-2025"
+
+---
+# Q1 2025 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## March
+
+### Enhancements
+
+**Transactions - Added ending balances in transaction model** <br/>
+Extended the `TransactionDTO` to include `balancesAfterTransaction` which is an array of balances per currency wallet for the customer account after the transaction has been cleared.
+
+**Term Deposits - Updated the ability to edit term deposit configurations in Dashboard** <br/>
+Term deposit account configurations including `MaturityAction`, `ReinvestInterestPreference` and `ReinvestmentAmountPreference` can now be updated in the Financials tab of a term deposit customer in Dashboard.
+
+**Term Deposits - Updated sweep processing to split different transactions out** <br/>
+When a term deposit customer account reaches maturity and a sweep occurs, differences balances will be swept to the target account in different transactions. Interest that is swept will have a transaction type of `INTEREST`, while principal that is swept will have a transaction type of `P2P`, and any cancellation fees that are swept will have a transaction type of `P2P`. 
+
+**Card Expiration - Added new card renewal summary report** <br/>
+New Card Renewals report was added which provides a summary of all cards that were reissued due to upcoming expiration. Report includes details of the cardholder, the previous card, and the replacement card. The report will be generated each time the upcoming card expiration process runs and is generated as a JSON file.
+
+**Reports - Added reversal flag to Card Clearing Messages Report** <br/>
+Entries in the Card Clearing Messages Report will now include a `reversal` boolean to identify if the record was a reversal. This removes the need for clients to interpret multiple fields to determine if the network message was for a reversal.
+
+**Card Expiration - Created upcoming card expiration notification** <br/>
+Added new process to generate a file containing details of cards that are expiring within a set upcoming window.
+
+**Fees - Added new consumption tax processing** <br/>
+A new `tax` type transaction entry will be created when a transaction triggers a fee which is subject to a configured consumption tax. This will be separate transaction entry from the original transaction and the fee.
+
+**Controls - Added new combined_purchase_30d rule** <br/>
+New control was added that limits the amount of in person and online purchases made in a 30d (or monthly depending on configuration) period accounting for both authorizations and cleared transactions.
+
+**Controls - Added new cash_in_limit control** <br/>
+Added new control that limits the amount of inbound money from funding type activities for an account. This includes `load` transactions as well as inbound `p2p` transactions from non-child accounts.
+
+**Card Tokenization - Enhanced tokenization authorization strategy fidelity** <br/>
+Card tokenization authorization can now be configured at a higher level of fidelity for in-app push provisioning and manual provisioning.
+
+**Dashboard - Updated person details page layout** <br/>
+Person details page in Dashboard was updated to the new standard page layout to allow for greater flexibility in feature expansion. Person detail now has a person summary section and sub-pages including person details, accounts, cards, person attributes, contact methods, official IDs, geographical addresses, security answers, and history.
+
+**Card Networks - Added support for MyDebit in Malaysia** <br/>
+Card payments received through the MyDebit card network in Malaysia can now be processed once configured.
+
+**Card Payments - Enhanced Mastercard 0120 message processing for FRM declines** <br/>
+When a 0120 message is received from Mastercard where a decline has occurred due to FRM decisioning, additional ISO8583 attributes will be populated from the network message including `ON_BEHALF_SERVICE` and `ADVICE_REASON_CODE`. A declined transaction notification will also be generated and distributed as if E6 had declined the transaction.
+
+**Controls - Update Mastercard fraud controls for 0120 messages** <br/>
+Updated the `frm_fraud_score_threshold` and `frm_block_reason_codes` controls to also support processing on 0120 messages so that actions can be taken on a customer account in the case a decline is received from Mastercard FRM.
+
+**Revolving Credit - Added estimated payoff disclosures for Canada** <br/>
+Add minimum payment disclosures for evolving credit programs based in Canada in alignment with regulatory requirements for statements.
+
+**Reports - Enhanced cutoff time configurations for card network message reports** <br/>
+Updated the fidelity of cutoff time configuration for the Card Authorization Message Report and the Card Clearing Message Report so that report scope can be aligned with certain settlement windows as needed.
+
+**3DS ACS - Extended VCAS support as 3DS ACS provider** <br/>
+Implemented additional portions of VCAS integration so that VCAS can be used as a 3DS ACS provider including the ability to configure the VCAS step up methods per client as needed.
+
+**Revolving Credit - Updated rounding for interest posting** <br/>
+When interest posting occurs as part of the billing process, the unbilled interest amount will be rounded up when greater than or equal to 5 in the last decimal place of the currency decimal point precision + 1 decimal place. Conversely, it will be rounded down when less that 5 in the last decimal place. This will allow minor portions of interest to be posted even when less than a full value of the decimal point precision of the currency.
+
+**Card Payments - Added Visa VAA/VRM field processing** <br/>
+Added support for Visa Advanced Authorization (VAA) fields including `62.21` and `62.22` in Visa card payment processing for authorizations. These fields will be available in the `rawMessage` portion of the `NetworkMessageDTO`. E6 will now also create declined transaction entries in the E6 platform if the authorization was declined by the VRM.
+
+**Dashboard - Corrected full page error on card details page** <br/>
+Updated processing of card token data in Dashboard so that missing value for card token expiration does not cause a full page error in the card details page.
+
+**Transactions - Updated transactions by card API input parameters** <br/>
+The Retrieve Card Transactions API was updated to use `transactionSourceCode` and `transactionTypeCode` instead of `transactionSource` and `transactionType` respectively.
+
+**Card Payments - Added authorization reversal for some Visa X120 messages when network STIP is used** <br/>
+When a Visa authorization message is received with an MTI of X120, checks will be performed to see if E6 should attempt to reverse an existing authorization. In some cases, an X120 message is sent to indicate that E6 took too long to respond when card network stand in processing (STIP) is being used. When received in these cases, E6 will release any associated authorization holds as needed.
+
+**Card Payments - Updated processing of multiple clearing for incremental authorizations** <br/>
+Updated authorization hold release logic for scenarios where an authorization has had multiple incremental authorizations added and then a later clearing attempts to clear only a particular incremental authorization. If a clearing is received where the amount matches a specific incremental authorization then E6 will attempt to release only that authorization hold, otherwise if no match is found the entire authorization will be released as previously performed.
+
+**Controls - Added new control to reject ecommerce purchases where 3DS has not been applied** <br/>
+New `reject_ecomm_no_3d` control is available for Mastercard card payments. When set to `true` then the control will reject ecommerce card purchases where 3DS authentication data is not received as part of the authorization request.
+
+## February
+
+### New Features
+
+**Installments - Added statement generation and billing history features** <br/>
+Installment customers can now have statements and billing history generated on a monthly basis. Statement file and billing history entries are generated per child loan account. 
+
+**Installments - Added new loan balance report** <br/>
+Installment programs will now have a loan sub-balance report run on a daily basis for all customers of the installment program. Fields include `parentCustomerNumber`*,* `customerNumber`, `balanceType`, `currencyCode`, and `value`. 
+
+**Installments - Added new loan repayment report** <br/>
+Installment programs will now have a loan repayment report run on a daily basis for all customers of the installment program where a repayment has been made to a loan to see how the repayment was applied to the sub-balances. Fields include  `customerNumber`, `originalTransactionId`, `repaymentAmount`, `balanceType`, `currencyCode`, `value`, `transactionSource`, `transactionType`, and `reversal`.
+
+**Installments - Added new installment summary report** <br/>
+Installment programs will now have an installment summary report run on a daily basis for all customers of the installment program to better understand overall credit exposure. Fields include `customerNumber`, `creditLimit`, `totalBalance`, `availableCredit`, and `activeLoanCount`. Only customers that have had a change in the data fields will appear in the report.
+
+**Installments - Added the ability to cancel loans** <br/>
+Loans can now be cancelled and have the balance sent to a different account. The target account can be managed at the installment customer using `cancellationCustomerNumber`. Cancellation can be performed manually or through setup of a cancellation type delinquency action. When triggered the delinquency action will cancel all active child loans for that customer.
+
+**Installments - Added the ability to support flat amortization interest accrual** <br/>
+Installment programs can now be configured to have loans accrue interest and bill using a flat amortization approach. Interest accrues and posts daily on each loan. Installment customers can be assigned an interest rate to be used for all loans.
+
+**Persons - Added Retrieve Person by Nickname API** <br/>
+Persons can now be retrieved using the person `nickname` field by calling `POST /persons/search/nickname`.
+
+**Customer-Person Relationships - Added the ability to manage customer-person relationships** <br/>
+Relationships between a customer and a person can now be managed outside of the basic `primaryPerson` and `secondaryPerson` framework for customers. Customer-person relationships include the ability to tag each relationship with an array of `relationshipTypes`.  Relationships can be created, updated, retrieved by customer, retrieved by person, and deleted.
+
+**Transactions - Added the ability to retrieve transactions by cards** <br/>
+Transactions can now be retrieved for a specific set of cards by calling the Generate Transactions by Cards List (`POST /csutomers{customer-identifier}/transactions/search-by-card-numbers`) API. The API uses standard E6 pagination and supports filters for `transactionType`, `transactionSource`, `startTime`, and `endTime` and an array of `encryptedCardIds`.
+
+**Authorization Holds - Added the ability to retrieve authorization holds by cards** <br/>
+Authorization holds can now be retrieved for a specific set of cards by calling the Generate Auth Holds by Cards List (`POST /csutomers{customer-identifier}/authorizations/search-by-card-numbers`) API. The API uses standard E6 pagination and supports filters for `transactionType`, `transactionSource`, `startTime`, and `endTime` and an array of `encryptedCardIds`.
+
+**Transactions - Added the ability to create and update transaction attributes** <br/>
+Transaction attributes can now be managed for a given transaction by calling the Create/Update Transaction Attribute API  (`PUT /customers/{customer-identifier}/transactions/{transaction-identifier}/attrs`) and Delete Transaction Attribute API (`DELETE /customers/{customer-identifier}/transactions/{transaction-identifier}/attr`).
+
+### Enhancements
+
+**Revolving Credit - Corrected Dashboard authentication error related to retrieving child programs** <br/>
+Updated the roles and permissions for retrieving child programs so that Dashboard users with the `customerAgent` role do not see an incorrect username error when viewing customer details.
+
+**Dashboard - Corrected issue where the security question was not properly displayed** <br/>
+Updated reference logic in Dashboard to correctly reference the security question label for display purposes when adding a security answer.
+
+**Dashboard - Corrected issue where risk level dropdown was empty** <br/>
+Corrected previous issue where the risk level dropdown was empty on the program details page of Dashboard.
+
+**Card Payments - Updated processing of partial refund authorization reversals** <br/>
+Corrected previous issue where the risk level dropdown was empty on the program details page of Dashboard.
+
+**Installments - Added the ability to toggle allowance of early repayment** <br/>
+Installment programs can now be configured to allow or disallow early repayment of loans using the `allowEarlyRepayment` field. This prevents repayments from being allocated to unbilled loan period amounts. Force post transactions and cancellations will still be applied to future unbilled loan periods.
+
+**Reports - Corrected issues with balance exception report** <br/>
+Updated balance exception report issues including incorrect file name and incorrect customer risk level being referenced.
+
+**Controls - Extended the allowed lengths for the paramValue field** <br/>
+Program controls can now accept `paramValue` fields up to 65535 characters long.
+
+**Controls - Added new cvv_fail_count and expiry_fail_count controls** <br/>
+Each time a CVV is entered incorrectly - a measure for failed cvv count will be incremented and stored as a customer attribute named “INVALID_CVV_COUNT". When this count reaches an established control for cvv_fail_count then the control will trigger including creating a block as needed. The counter will be reset after the correct CVV has been provided. Similarly, each time an expiry is entered incorrectly - a measure for failed expiry count will be incremented and stored as a customer attribute named "INVALID_EXPIRY_COUNT". When this count reaches an established control for expiry_fail_count then the control will trigger including creating a block as needed. The counter will be reset after the correct expiry has been provided.
+
+**Card Payments - Corrected missing originalTransactonId issue for incremental authorizations that were already cleared** <br/>
+Update incremental authorization logic so that any outstanding authorization holds in the transaction chain will be released if a clearing comes in with the matching `authCode` regardless of previous clearings. Previously if multiple incremental authorizations occurred after a clearing occurred, only the latest authorization would be cleared.
+
+**Dashboard - Improved layout and experience for audit page** <br/>
+Audit page in Dashboard was enhanced to increase usability and correct minor data mapping issue.
+
+**Card Tokenization - Corrected Google Pay cardholder authentication for secondary account members** <br/>
+When performing Visa tokenization for Google Pay, cardholder verification details will now align with the cardholder rather than the account primary person.
+
+**Card Profiles - Updated Dashboard to align with card profile API** <br/>
+Dashboard now requires product code to be populated when creating or updating a product code in alignment with a recent change to the API.
+
+**Controls - Corrected issue with disable_mag_stripe control** <br/>
+Updated processing for `disable_mag_stripe` so that the control is enforced as expected.
+
+**Account Holders - Added the ability to manage customer account holders with existing persons** <br/>
+An existing person can be added as a `secondaryPerson` for a customer by calling `PUT /customers/{customer-identifier}/persons/{person-id}`. Persons can also be removed by calling `DELETE /customers/{customer-identifier}/persons/{person-id}`. The person record will continue to exist after the relationship has been removed.
+
+**Authorization Holds - Added the ability to retrieve authorization holds with ISO8583 details** <br/>
+Customer authorization holds can now be retrieved with full ISO8583 details by calling the Generate Auth Holds with Details List (`POST {customer-identifier}/authholds/list-with-details`) API. The API uses standard E6 pagination and includes filters for `transactionType`, `transactionSource`, `startTime`, and `endTime`. 
+
+**Transactions - Generate Transaction List with ISO8583 now includes transaction attributes** <br/>
+Transaction data records returned in the Generate Transaction List with ISO8583 API will now also include an array of `attributes` that have been set for the transaction.
+
+**Revolving Credit - Corrected issue causing program change order to fail in Dashboard** <br/>
+Updated minimum due profile data validation to ensure that program configuration change order requests could be submitted as expected.
+
+**Revolving Credit - Sub-balance report now includes installment sub-balances** <br/>
+Corrected issue where installment sub-balances did not appear in the revolving credit sub-balance report as expected.
+
+**Dashboard - Spanish now available as a language** <br/>
+Dashboard can now be translated to Spanish along with English and Japanese.
+
+**Controls - Updated value lookup logic for card controls** <br/>
+Updated the processing of card controls so that cases where a control rule such as `combined_cashback_amount_30d` or `purchase_30d` is set at the card but not the program, that the card control will be enforced as expected.
+
+**Reports - Added new fields to the customer block report** <br/>
+Customer block report has been updated to include the block `memo` and `reason`.
+
+**Customer Relationships - Child customer list now includes customer attributes and secondary persons** <br/>
+When calling the Retrieve List of Child Customers API, the customer model will now include all customer attributes for the child customers along with any secondary persons associated with the child customers.
+
+**Card Payment Simulation - Corrected issue with Visa payment simulation referenceNumber** <br/>
+Visa card payment simulator was updated to provide the correct `referenceNumber` in the `paymentContext`. Previously this was returning the same value for every payment simulation.
+
+**Dashboard - Third party licenses and attributions can now be viewed** <br/>
+Third party licenses and attributions for those licenses used for the Dashboard can now be viewed by following the "Disclosures" link in the footer.
+
+**Dashboard - Corrected issue with shipping address in card details page** <br/>
+Card details page previously displayed the incorrect shipping address from the card order. Dashboard will now display the correct shipping address as expected.
+
+**Installments - Added new interest rate tier change delinquency action** <br/>
+Customers who trigger the interest rate tier delinquency action will have the installment customer, and all child loans, updated to the specified interest rate tier. This will also trigger reamortization of any loans with outstanding periods.
+
+**Card Payment Simulation - Corrected issue with blocked_countries control** <br/>
+Updated card payment simulator so that the `blocked_countries` control will be validated even when `acceptorAddress` is not provided.
+
+
+## January
+
+### New Features
+
+**Card Tokenization - Implemented card tokenization for Union Pay International** <br/>
+Added card tokenization support for Union Pay International (UPI) through the UnionPay International Mobile Payment Service (UPMS). This includes the ability to tokenize UPI issued cards for Apple Pay and Huawei Pay.
+
+### Enhancements
+
+**Dashboard - Added new card details page** <br/>
+Cards can now be managed holistically through a new card details page. The card details page will be loaded in place of the previous card details side drawer from the customer cards sub-page. All existing details of the card such as card information, order details, and card tokens can still be managed. Additionally other features including card attributes, card blocks, card security answers, card history, and card controls can now be accessed through this page.
+
+**Reports - Added new field to revolving credit repayment report** <br/>
+The revolving credit repayment allocation report has been updated with `transactionSource`, `transacitonType`, and `reversal` fields to enable clients to filter out transactions that they do not want to consume in downstream processing. This can be used to filter for true repayments only and other use cases.
+
+**Revolving Credit & Installment - Standardized account simulation processing and requests** <br/>
+Upgraded the revolving credit and installment account simulators to utilize the common product simulation framework including standard transaction events as part of the simulation request.
+
+**Dashboard - Corrected issue with customer sub-page nav tabs disappearing** <br/>
+Updated conditional display logic on the Dashboard customer details page so that all sub-page navigation tabs appear as expected across all product types.
+
+**Revolving Credit - Standardized order of sub-balances for customer in Dashboard** <br/>
+The sub-balances sub-page for revolving credit customers in Dashboard now uses a standard sorting pattern to bring draw types and ages into an expected order of rows in the sub-balances table.
+
+**Dashboard - Updated default pages based on roles** <br/>
+Upon authentication, users will now be taken to the most relevant page of Dashboard depending on the assigned user roles, particularly if the user has multiple functional roles.
+
+**Fees - Added fee waiver rules for customers in Fee sub-page of Dashboard** <br/>
+Dashboard users can now see fee waiver rules that have been set at the customer level in the fees sub-page.
+
+**Controls - Added new cross-customer hierarchy balance limit control** <br/>
+New `max_balance_limit_hierarchy` control was implemented which allows an overall balance limit to be enforced across customers linked through parent-child relationships.
+
+**Revolving Credit - Updated annual statement queries to ensure correct summarization** <br/>
+Queries for the revolving credit annual statement have been updated to ensure that the summarization of different draw type sub-balances are calculated correctly.
+
+**Revolving Credit - Updated data validation for interest rate tiers** <br/>
+Interest rate tiers set up during revolving credit program configuration now do not accept values over 100% in Dashboard.
+
+**Controls - Updated country list to include South Africa (SF)** <br/>
+Corrected issue where `allowed_countries` authorization control did not execute as expected for `SF` country code.
+
+**Card Issuance - Implemented automated card reissuance notification event** <br/>
+When an automated card reissuance occurs due to upcoming expiry, a notification event type of `CardReissueNotification` will be triggered and delivered to the specified webhook endpoint. This includes the `programName` and a list of `cardRecords` that occurred as part of the reissuance.
+
+**Revolving Credit - Updated Dashboard to show new delinquency fields** <br/>
+Dashboard users can now view all of the latest delinquency fields for revolving credit customers including Delinquent Periods and Unpaid Minimum Payments.
+
+**Reports - UPI tokenization data added to ISO8583 reports** <br/>
+Field 63 will now be saved into the `rawMessage` of UPI processed network messages and will be included in the ISO8583 Authorization and ISO8583 Settlement reports in the `rawMessage` field.
+
+**Card Issuance - Added externalReferences to Card Order File Created notification event** <br/>
+The Card Order File Created Notification event now includes an array of `externalReferences` that were provided as part of the card issuance order requests.
+
+**Card Token Management - Added UPI support for all card token lifecycle management APIs** <br/>
+All card token management APIs now include integration with UnionPay International Mobile Payment Service (UMPS) for end-to-end token management including token lookup, token updates, suspend token, unsuspend token, delete token, and activate token.
+
+**Customer Lookup - Added customer search by contact method in Dashboard** <br/>
+Customer search in Dashboard can now be performed by contact methods including phone numbers and email addresses.
+
+**Revolving Credit - Corrected min due field mappings in Dashboard** <br/>
+Updated the minimum due profile field mappings in Dashboard to ensure correct values are displayed and saved when performing revolving credit program configuration.
+
+**Fees - Added fee waivers to program details page in Dashboard** <br/>
+Fee waivers can now be managed in the Dashboard within different fee plans including view fee waiver rules, adding fee waiver rules, updating fee waiver rules, and deleting fee waiver rules.
+
+**Controls - Added new card lifetime limit control** <br/>
+New `card_debit_lifetime` control rule was added which manages the net money movement out from the card of the lifetime of the card based on the `creationTime` of the card after is has been issued.
+
+**Card Token Management - Updated value options for fields to Card External Token Updated event** <br/>
+The `tokenSuspendedBy` and `reasonCode` were updated in the Card External Token Updated event payload to include all available values for those fields as provided by the token service providers (TSPs).
+
+**Card PINs - Added new offline/online PIN sync status** <br/> 
+Added the ability to manage the offline/online pin sync status to avoid out-of-sync online/offline PINs from causing ATM transactions to fail. Sync status is now available to vie and update as part of `CardDTO` so that client can prompt the customers with specific directions for how to update their offline PIN. This will now be available as a card attribute with an attribute name of `PIN_IN_SYNC` and can be updated in the Set Card PIN API.
+
+**Card Payments - Added Visa VAA/VRM field processing** <br/>
+Added support for Visa Advanced Authorization (VAA) fields including `62.21` and `62.22` in Visa card payment processing for authorizations. These fields will be available in the `rawMessage` portion of the `NetworkMessageDTO`. E6 will now also create declined transaction entries in the E6 platform if the authorization was declined by the VRM.
+
+**Dashboard - Added data validation modal for side drawers** <br/>
+If required side drawer fields in Dashboard are not complete and the user attempts to submit the form, then a data validation modal will appear with details of the missing fields.
+
+**Controls - Added international_limit rule to instance where is was not enabled** <br/>
+Added `international_limit` control rule to impacted E6 Cloud instances so that the control is available to clients as needed.
+
+**Interest Bearing Deposits - Added ability to create and manage savings goals** <br/>
+Added three new functions for savings goals to allow for create and management of interest bearing deposit savings goals. This includes the ability to create a new savings goal, load funds into a savings goal from the root savings account, and withdraw funds from a savings goal to the root savings account. Savings goals are created as child customers and can be retrieved using the Child Relationship APIs.
+
+**Controls - Enhanced not_allowed_first_transaction_types to allow capital letters** <br/>
+The `not_allowed_first_transaction_types` control rule can now be provided `transactionType` value in an array using capital or lowercase letters to remove the need for exact enumeration mapping.
+
+**Installments - Corrected issue where delinquency action could not be added** <br/>
+Updated change order processing for installments to ensure all configuration changes can be processed as expected.
+
+**Card Profiles - Updated card profile data validation to prevent QOC issues** <br/>
+The `productCode` field of the `CardProfileDTO` has been updated to ensure that empty strings do not cause down stream issues with scheme quarterly reports.

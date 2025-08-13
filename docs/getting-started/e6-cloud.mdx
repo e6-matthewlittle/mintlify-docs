@@ -1,0 +1,60 @@
+---
+title: "E6 Cloud"
+menu: Getting Started
+route: /docs/getting-started/e6-cloud
+excerpt: E6 managed instances of its platform hosted in the cloud.
+types:
+  - guide
+_tags:
+  - AWS
+  - region
+  - availability zone
+  - performance
+  - security
+  - availability
+  - resiliency
+  - scalability
+  - cloud
+  - cloud native
+  - software-as-a-service
+  - SaaS
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+Episode Six (E6) provides a managed version of its platform in a software-as-a-service (SaaS) model through E6 Cloud. These instances of the platform are hosted using Amazon Web Services (AWS) [cloud services](https://aws.amazon.com/). E6 operates more than a dozen different instances of E6 Cloud around the globe to support your products wherever you need. You get the power of the E6 [platform](/docs/getting-started/platform-overview) all in a bank-grade cloud environment that's been designed alongside our platform for maximum performance. As part of the sales and delivery processes, E6 will work with you to ensure that we deploy you to the best E6 Cloud regions for your products.
+
+## Performance
+
+E6 understands that no matter what your product is, you want to ensure you can trust it to process your financial transactions without any issues even at your busiest points. The E6 platform has been tested at over 4000 transactions per second (TPS) on E6 Cloud. E6 API response times even at these peak loads are always measured in milliseconds (ms) and tend to be at or under 100 ms.
+
+## Availability
+
+Customers don't use your products according to your infrastructure maintenance schedule. With E6 Cloud, that's never an issue. We guarantee availability of the E6 platform with E6 Cloud at 99.95%. Even when we deploy new releases, we always ensure that processing is available and updates are done progressively through different containers of our services.
+
+## Scalability
+
+E6 Cloud has automated, elastic scaling built into its design to ensure cost-effective performance. E6 utilizes Kubernetes to orchestrate the deployment of the various containers of the E6 platform services. This ensures that we scale up and down without needing direct involvement from your team or ours.
+
+The use of stateless APIs in the E6 platform underpins our ability to scale horizontally. Stateless APIs do not utilize a "session" between API calls. This allows each API request and operation to be processed individually. A call to a RESTful API requires a self-contained request including authorization, parameters, and the request body as needed.
+
+## Resiliency
+
+We never want to be the reason that you can't process payments for your customers. This is why E6 has put resiliency at the heart of its cloud architecture. E6 operates an active-active model between AWS availability zones within a deployed region as part of our commitment to resilience. This means that no matter what happens with an AWS availability zone within a region, you'll have E6 operating for you.
+
+## Disaster recovery
+
+In the off chance that something goes wrong and your primary E6 Cloud region isn't available, E6 always has a designated disaster recovery (DR) region ready to go. We conduct regular dress rehearsals for disaster recovery to ensure your products don't become unavailable due to even the most unlikely of scenarios.
+
+## Releases
+
+As an E6 Cloud client, you get access to regular updates from E6. This includes new features and enhancements from our product roadmap. E6 deploys regularly scheduled updates to E6 Cloud on a monthly basis. New releases are first deployed into our managed test environments after our internal testing so that you can ensure new changes align with your regression tests. All changes made to the E6 platform are backwards-compatible to ensure we aren't disrupting your product operations with deployments of new releases. Prior to each release, E6 provides you with a list of changes made specifically for you as well as all other changes made to the platform.
+
+## Security, risk, and compliance
+
+We know that it's a big step to trust a SaaS partner, including creating a dependency for security, risk, and compliance. This is especially true in the heavily regulated banking and payment spaces. E6 supports your security, risk, and compliance needs by being a trusted partner with a trusted platform. Below are some of the key highlights from our security, risk, and compliance
+
+- E6 is SOC2 certified to ensure that your customer data is never at risk
+- E6 Cloud operates in over a dozen AWS regions around the globe to align with data residency requirements
+- E6 is PCI DSS Level 1 [certified](/docs/cards/pci-compliance) for clients who are operating a card product

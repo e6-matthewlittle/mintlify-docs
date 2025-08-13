@@ -1,0 +1,38 @@
+---
+title: "Installments customer summary"
+menu: Installments
+route: /docs/installments/installments-customer-summary
+excerpt: Real-time access to customer information, such as available credit and outstanding loans.
+types: 
+  - guide
+_tags:
+  - products
+  - customer
+  - installments
+  - summary
+  - credit limit
+  - loans
+  - retreieve
+containerWide: true
+showHeadingsNav: true
+---
+
+# Installments customer summary
+
+Managing installments customers requires real-time access to customer information, such as each customer's available credit, applicable loan preferences and outstanding loans. This data can help enable a positive digital experience for end customers and allow for effective customer servicing.
+
+## What we do
+
+Episode Six (E6) provides the ability to access a real-time summary of an installments customer. The installments customer summary contains a snapshot of the customer's overall credit limit at the time of retrieval as well as an array of the customer's outstanding loans and the customers applicable loan preferences.
+
+## Prerequisites
+
+Before retrieving an installments customer summary, an installments configuration must be added to a customer account. For more information, see [Installments customer configuration](/docs/installments/installments-customer-configuration).
+
+## Actions
+
+To retrieve an installments customer summary, call the [Retrieve Installments Customer API](/tech-specs/installments/installments-customers/api?#operation/retrieveInstallmentsCustomer). A successful request returns the customer’s installments summary. An array of all of the customer's loans will be returned in the `loans` object. Each loan will be identified by the `customerNumber` of the loan child customer account. 
+
+## What’s next
+
+After retrieving an installments summary, customer administration can be performed using the customer summary information. To retrieve more information about any of a customer's loans, the loan child customer account's `customerNumber` can be used to retrieve the loan summary. For more information, see [Loan summary](/docs/installments/loan-summary).

@@ -1,0 +1,78 @@
+---
+title: "Balances overview"
+sidebarTitle: "Overview"
+route: /docs/balances/overview
+excerpt: Balances are used to track the current amount held by an account.
+types: 
+  - guide
+_tags:
+  - product ledger
+  - ledger
+  - overview
+  - accounts
+  - balances
+  - transactions
+containerWide: true
+showHeadingsNav: true
+date: "01-31-2023"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# Balances overview
+
+A balance is the amount of funds held by an account at any given time. Account balances include total balance (the full amount held) and available balance (the amount the account can use).
+
+## Uses
+
+Balances are used to authorize future payments against the account. The account must have enough funds in the balance to make a requested payment. Use cases for viewing balances include:
+
+- Allowing a customer to view their balance in your customer mobile or web experience
+- Decisioning a payment or other action based on the amount of funds in an account
+- Allowing a customer service agent to see a customer's balance for customer inquiry support
+- Making adjustments to an account balance
+- Writing off an amount from a customer account balance
+
+## How it works
+
+Episode Six (E6) TRITIUM acts as a ledger and system of record for accounts managed by E6. This includes maintaining customer account balances and transaction histories which lead to the current balance.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+        linkPath="/docs/balances/customer-balances"
+        title={"Customer balances"}
+        body={"Management of customer currency accounts and balances."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/balances/program-balances"
+        title={"Program balances"}
+        body={"Management of program operating currency accounts and balances."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/balances/program-customer-balance-summary"
+        title={"Program customer balance summary"}
+        body={"Sum of all the customer balances across a program."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/balances/partner-balances"
+        title={"Partner balances"}
+        body={"Management of partner currency accounts and balances."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/balances/adjustments"
+        title={"Adjustments"}
+        body={"An adjustment is an action that manually credits or debits a customer's account balance."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/balances/chargeoffs"
+        title={"Chargeoffs"}
+        body={"Chargeoffs are used to write off a customer account balance."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

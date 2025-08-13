@@ -1,0 +1,84 @@
+---
+title: "Partner attributes"
+menu: Administration
+route: /docs/platform-access/partner-attributes
+excerpt: A partner attribute is an additional data field used to define a partner beyond the base data model, typically in support of party role-specific configurations.
+types: 
+  - guide
+_tags:
+  - attributes
+  - partners
+  - partner attributes
+  - pci
+  - pci compliance
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+A partner attribute is an additional data field used to define a partner beyond the base data model, typically in support of party role-specific configurations. Inherently, each data model definition in a system remains relatively static. Static definitions cause issues when trying to customize the definition of a partner or migrate partners between systems. To overcome the problem of static definitions, customizable partner attributes are needed.
+
+## What we do
+
+Episode Six (E6) provides the ability for custom partner attributes to be added to and maintained for a partner. A partner attribute is defined by the `name` and `value` of the attribute. Partner attributes can be retrieved for a partner or consumed as part of downstream processing.
+
+## Prerequisites
+
+Before a partner attribute can be created, the partner must be created. For more information, see [Partners](/docs/platform-access/partners).
+
+## Actions
+
+### Partner attribute creation
+
+A partner attribute can be added to a partner by calling the [Create or Update Partner Attribute API](/tech-specs/partners/partner-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_createOrUpdatePartnerAttributes_POST). Attributes should be uniquely named to ensure that partner attributes follow a key-value pair model.
+
+## What's next
+
+After setting partner attributes, you can manage them by calling the [Partner Attributes APIs](/tech-specs/partners/partner-attributes).
+
+## Appendix
+
+The following use cases are common examples of when partner attributes are required.
+
+### PCI-Compliant
+
+Some E6 APIs present data that require PCI compliance. To help users indicate if a partner is PCI compliant, add a `PCI-Compliant` attribute. As an authenticated user with access to partner details, you can view the PCI scope details configured for each partner entity.
+
+Follow these guidelines when setting the `PCI-Compliant` partner attribute for APIs:
+
+Call the [Create or Update Partner Attribute API](/tech-specs/partners/partner-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_createOrUpdatePartnerAttributes_POST) and use the **PartnerAttributeDTO** in the request body to set the `PCI-Compliant` attribute. Set the `name` as `PCI-Compliant` and the `value` as `true`.
+
+```json
+{
+   "name": "PCI-Compliant",
+   "value" : "true"
+}
+```
+
+| `PCI-Compliant` partner attribute in APIs | PCI-compliance status of the partner |
+| ------------------------- | -------------- |
+| Not set | Yes |
+| Set as `true`, empty string, or NULL | Yes |
+| If the attribute is any other value than `true`, empty string, or NULL | No |
+| Set as `false` | No |
+
+If the partner attribute is set and is `false`, access is denied to the following APIs:
+
+- [Retrieve Secure Card](/tech-specs/cards/virtual-card-access/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getSecure_GET)
+
+- [Retrieve Card PAN](/tech-specs/cards/virtual-card-access/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getPan_GET)
+
+### Bulk Card Order Limit
+
+By default, each partner has a maximum bulk card order limit of 10,000 cards per API call. For more information, see [Bulk card issuance](/docs/cards/bulk-card-issuance). To adjust this limit, you can set the partner attribute `BULK_CARD_ORDER_MAXIMUM_COUNT` with a desired value:
+
+```json
+{
+   "name": "BULK_CARD_ORDER_MAXIMUM_COUNT",
+   "value" : "20000"
+}
+```
+
+### Automatic Load / Direct Debit
+
+If a partner is being used to manage automatic load / direct debit, then configurations are required to be added as partner attributes. For more information, see [Payment partner integration](/docs/payments/payment-partner-integration).

@@ -1,0 +1,56 @@
+---
+title: "Card on file updaters"
+menu: Cards
+route: /docs/cards/card-on-file-updaters
+excerpt: Card on file updates allows remote card data such as cards held on file by merchants to receive push updates based on changes to the underlying card data.
+types: 
+  - guide
+_tags:
+  - card on file
+  - account billing updater
+  - ABU
+  - merchant card data
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Card on file updaters
+
+Card on file updaters allows remote card data such as cards held on file by merchants to receive push updates based on changes to the underlying card data without cardholder involvement. This process is provided as a service by the various card schemes which maintain connections between issuers and the acquirers / merchants. When an update to a card occurs such as a reissuance with an update to PAN or expiry, the update is sent by the issuer to the scheme, and the scheme then forwards it to all locations where the card has been saved on file. Card on file updates help reduce the amount of card-not-present (CNP) transaction declines. The lifecycle of card on file management starts with the initial enrollment of the card as well as notifications of updates to the card.
+
+## What we do
+
+Episode Six (E6) maintains integration with issuing card scheme platforms for card on file updaters. This includes Mastercard Automatic Billing Updater (ABU) as well as Visa Account Updater (VAU). If your BIN/IIN is enrollment in card on file updates, E6 can be configured to submit card events to the card on file updater systems automatically.
+
+## Prerequisites
+
+You must ensure that you have opted into card on file updates with the issuing card scheme. This will include the issuing card scheme setting up a location for SFTP file upload from E6.
+
+Card on file updates are only available for cards which have been [issued](/docs/cards/issuance-overview). When card on file updates are enabled, E6 will provide an initial load of cards that already existed at the point of enablement as well as each incremental card which is issued after the initial load.
+
+## Actions
+
+No action is required by clients for card on file updates. E6 will automatically notify the card on file updater systems once a day with the following post-issuance events:
+
+| Event | Description |
+| ---------- | ------------------- |
+| PAN Change | An existing card is reissued with a new PAN. |
+| Expiry Change | Card is reissued with a new expiry.|
+| Closure | An existing card account is closed. |
+| Opt Out | The customer has chosen to opt out of the ABU feature. |
+
+## What's next
+
+After a card on file event has been published by the scheme platform, the cardholder will automatically have their updated card details retrieved the next time they attempt to use the card as the subscribed merchant.
+
+A Mastercard card can be removed from future automatic billing updates calling the [Opt out from External Updates API](/tech-specs/cards/card-on-file-updaters/api#operation/net.e6tech.h3.middletier.api.v1.partner.mastercard.MastercardAPI_optCardOutOfBillingUpdate_POST). After opting a card out of ABU, the card’s data changes will no longer be sent to Mastercard. The card can be added back to receiving ABU updates by calling the same API.
+
+## Appendix - Mastercard Reports
+
+In addition to the card event reports that E6 sends to Mastercard, Mastercard also provides reports to E6. Mastercard generates two reports daily, and then E6 provides these reports to clients.
+
+| Report | Description |
+| ---------- | ------------------- |
+| Report T275 | Contains data from the previous day, including the number of entries processed, and the number of successes and failures. The details of each failure are listed in this file. |
+| Report T284 | Contains details of the accounts including PAN changes and expiry changes for the successfully processed reports. |

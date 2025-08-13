@@ -1,0 +1,39 @@
+---
+title: "Currency pairs"
+menu: FX
+route: /docs/fx/currency-pairs
+excerpt: A currency pair is a linkage of two currencies that allows them to be exchanged.
+types: 
+  - guide
+_tags:
+  - exchange
+  - fx
+  - currencies
+  - currency pairs
+  - create
+  - intermediate
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Currency pairs
+
+A currency pair is a linkage of two currencies that allows them to be exchanged. The values of each currency are compared for the purposes of buying and selling. Additionally, a margin is added to the pair.
+
+## What we do
+
+Episode Six (E6) enables you to create, update, and delete currency pairs for an exchange, including establishing buy/sell margins. Currency pairs can be assigned generally or to a specific operating program. Optionally, currency pairs can be assigned to a specific fee plan or program.
+
+
+## Prerequisites
+
+To exchange currency pairs, you must have exchange set up. Optionally, if the currency pair is intended to be assigned to a specific operating program, it must assigned. Currencies that are paired together must both be created for the E6 tenant.
+
+## Actions
+
+Call the [Create Currency Pair API](/tech-specs/FX/exchange-currency-pairs/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_insertOrUpdateExchangeCurrencyPairRate_POST) to create a currency pair. If currencies are not directly connected, you can use an intermediate currency to make an exchange. If you establish multiple currency pairs with an intermediate currency, set the intermediate currency for an exchange.
+
+## What's next
+
+You can perform FX transfers to exchange funds within a multicurrency deposit account. For more information, see [FX transfer](/docs/fx/fx-transfer). You can also use safe drafts to automatically withdraw funds in all supported currencies. For more information, see [Safe Drafts](/docs/fx/safe-drafts). Call the [Currency Pairs APIs](/tech-specs/FX/exchange-currency-pairs) to view, update and delete currency pairs.

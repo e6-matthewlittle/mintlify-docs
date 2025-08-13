@@ -1,0 +1,55 @@
+---
+title: "Revolving credit customer summary"
+menu: Revolving credit
+route: /docs/revolving-credit/revolving-credit-customer-summary
+excerpt: Customer account summaries such as a customer’s balances, unpaid minimums, and interest.
+types: 
+  - guide
+_tags:
+  - products
+  - customer
+  - revolving credit
+  - summary
+  - billing
+  - retrieve
+  - update
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Revolving credit customer summary
+
+Revolving credit customer administration requires tracking large amounts of information about each customer account, such as a customer’s current balances, unpaid minimums, and interest configurations. Real-time access to this data is needed to enable a positive customer digital experience and customer servicing.
+
+## What we do
+
+Episode Six (E6) provides the ability to access a real-time summary of a revolving credit customer. The revolving credit customer summary includes the following data points for any given credit customer:
+
+- Principal, billed interest, and unbilled interest balances across all configured draw types
+- Common credit balance due to excess credits on the account
+- Current billing period, repayment period, and grace period end dates
+- Overall credit limit, excess balance, over limit enablement flag, and available credit balance at time of retrieval
+- Payment details including minimum due, minimum payment total due, and total unpaid minimum due amounts
+- Product configurations including the billing day of month, interest modes, statement preferences, delinquency lock status, and annual interest rates
+
+<Callout
+    calloutType={'info'}
+>
+    Repayment period, billing period, and grace end times are displayed with a timestamp of midnight the next day when returned in the revolving credit customer summary. The customer's effective repayment due date is 11:59 PM on the day before the end date displayed in the summary. Datetimes are displayed in the program's local timezone using UNIX Epoch time format. To effectively display customers' billing period and repayment end dates in frontend apps, the dates should be shifted to the previous day.
+</Callout>
+
+## Prerequisites
+
+Before retrieving a revolving credit customer summary, a revolving credit configuration must be added to a customer account. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+## Actions
+
+To retrieve a revolving credit customer summary, call the [Retrieve Revolving Credit Customer Summary API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/retrieveRevolvingCreditCustomerConfiguration). Provide the customer number of the revolving credit customer in the `offering-customer-number` path parameter. A successful request returns the customer’s revolving credit summary. The summary reflects the state of the account at the time of retrieval.
+
+## What’s next
+
+After retrieving a revolving credit summary, customer administration can be performed using the customer summary information. If any of the customer’s balances are incorrect, sub-balance adjustments or payment reversals can be performed to correct the balance amounts.
+
+If any of the customer’s product configurations need to be updated, call the [Update Revolving Credit Customer API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/updateRevolvingCreditCustomerConfiguration).

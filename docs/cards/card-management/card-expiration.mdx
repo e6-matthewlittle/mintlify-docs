@@ -1,0 +1,37 @@
+---
+title: "Card expiration"
+menu: Cards
+route: /docs/cards/card-expiration
+excerpt: When a card reaches its expiry, it can either become inactive or be automatically reissued.
+types:
+  - guide
+_tags:
+  - cards
+  - card expiration
+  - reissuance
+  - automatic reissuance
+containerWide: true
+showHeadingsNav: true
+---
+
+# Card expiration
+
+When a card is issued, it is given an expiry typically in the form of a month-year combination. At midnight on the first day after the defined month-year, the card will no longer be available for use and will be cancelled. If cards should still be available for use after the expiry, the card needs to be automatically or manually reissued with a new expiry.
+
+## What we do
+
+Episode Six (E6) manages the end-of-life processes including cancellation of cards as they reach their expiry. E6 also allows for automatic card reissuance to be configured at various levels including tenant, party, and program as desired.
+
+## Prerequisites
+
+Before a card expiry processing and automatic reissuance can occur, the card must first be [issued](/docs/cards/issuance-overview).
+
+Automatic card renewal needs to be configured by E6. Please provide the number of months prior to expiration that you want cards to be reissued to your E6 representative.
+
+## Actions
+
+When a card reaches the day after its expiration month and year, the card will be moved to an `invalid` state automatically. This will mean the card can no longer be used for card payments. Cards can be reissued prior to expiration in order to keep the card usable throughout the expiration process.
+
+### Automatic Card Reissue
+
+No action is required for automatic expiry processing. E6 handles all activities, including the cancellation of expired cards and their reissuance. [Physical cards](/docs/cards/physical-cards) which are reissued automatically will be included in the next card order file following reissuance. The `reissueMonthsAhead` attribute determines how many months before expiration a card issued under a specific card profile will be automatically reissued. The value is provided as an integer representing the number of months, for more  information see [Card Profiles](/docs/cards/card-profiles). A card reissue notification will be generated one month before automatic reissuance. To manually reissue a card, see [Customer card issuance](/docs/cards/customer-card-issuance).

@@ -1,0 +1,76 @@
+---
+title: "Card profiles"
+menu: Cards
+route: /docs/cards/card-profiles
+excerpt: A card profile is a set of card issuance rules that determine how a card should be issued.
+types: 
+  - guide
+_tags:
+  - cards
+  - card issuance
+  - card profiles
+  - physical cards
+  - IIN segments
+containerWide: true
+showHeadingsNav: true
+date: "12-16-2022"
+---
+
+# Card profiles
+
+A card profile is a set of card issuance rules that determine how a card should be issued. When a card is ordered, rules need to be applied to ensure that the card meets your product expectations and restrictions. Common issuance rules used in card profiles include the Issuer Identification Number (IIN), Primary Account Number (PAN) length, expiry, and Personal Identification Number (PIN) length. For physical card production, card profiles align the issuer information required to manufacture cards. The card profile name is included in the card embossing file.
+
+## What we do
+
+Episode Six (E6) allows for card profile setup and administration. Card profiles are created for a specific program with all the details needed to issue cards. Once a card profile has been set up, the profile can be used to issue cards for any customer created under the program associated with the card profile. Card profiles can be updated as necessary if there are any changes in how cards should be issued. A program can have multiple card profiles set up in order to facilitate multiple types of card issuance within a single program.
+
+## Prerequisites
+
+A [program](/docs/programs/programs) must already exist before a card profile can be created.
+
+An IIN must be [procured](/docs/cards/iin-procurement) from a card network, either directly or via a sponsor.
+
+**Conditional:** If you plan to issue [physical cards](/docs/cards/physical-cards), an integration with a card manufacturer is also required. Any physical card profiles should align with the physical card details (such as card design and materials) that have been discussed with your manufacturer.
+
+## Actions
+
+To create a card profile, call the [Create or Update Card Profile API](/tech-specs/cards/card-profiles/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.CardProfileAPI_createCardProfile_POST). A program can have multiple card profiles as needed to differentiate types of cards issued for various reasons including different card art with a card manufacturer, separate virtual and physical card issuance on the same accounts, or in support of specific merchant partner cards. The types of card profile that can be set up. Card types supported through card profile setup include the following options.
+
+| Type | code | Description |
+| ---- | --- | ----------- |
+| Personalized | `phy` | Physical cards that are personalized with cardholder information. When a card order is placed using a physical card profile, the card order information is added to an E6 embossing file and sent to your card manufacturer to begin production. Cards will be created using details specified by the card profile. |
+| Virtual | `virtual` | Digital cards that do not have a physical component. When a card order is placed using a virtual card profile, no physical card will be produced. Instead, the card details will be generated and the card will be activated and ready to use. |
+| Temporary | `temp` | Temporary cards are not personalized with cardholder information. When a card is ordered with a temporary card profile, no customer account will be associated with the card at first. A customer account can be connected to the card later. |
+| One-time use | `one` | One-time use cards are designed to be used once. One-time use cards are typically used for virtual cards. When one-time use cards are ordered, they cannot be loaded with additional funds after issuance. After being used for a purchase, a one-time use card cannot be used again.  |
+| Router | `router` | Router cards can be used to map various account types to the Tritium card model by providing the account ID as the PAN.  |
+
+As required by card network quarterly reporting, some additional attributes on the card profile may need to be set such as `LOADING_TYPE` and `IS_METAL_BODY`. Loading type can be set to one of `CREDIT`, `RELOADABLE_PREPAID`, `NON_RELOADABLE_PREPAID`, while `IS_METAL_BODY` can be set to either `0` or `1`. To configure these card profile attributes, use the [Create Card Profile Attribute API](/tech-specs/cards/card-profile-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.CardProfileAPI_createOrUpdateCardProfileAttribute_POST).
+
+## What's next
+
+When you have created a card profile, you can start ordering cards using the profile. For more information, see [Card issuance](/docs/cards/issuance-overview).
+
+You can also update a card profile after it has been created by calling the [Create or Update Card Profile API](/tech-specs/cards/card-profiles/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.CardProfileAPI_createCardProfile_POST). In the request body, the `name` field should match the name of the card profile you want to update. Include the desired new values in the fields you want to update. When a card profile is updated, new cards will be issued according to the updated card profile details. Cards that have already been issued will remain unchanged.
+
+## Appendix
+
+### Service codes
+
+Common service codes for card types.
+
+| Service code | Description |
+| --- | ----------- |
+| 120 | International magnetic stripe card that requires the PIN to be entered. |
+| 121 | International magnetic stripe card that requires online authorization for all transactions. |
+| 201 | International chip card with no terminal restrictions. |
+| 220 | International chip card that requires online authorization for all transactions. PIN is required. |
+| 221 | International chip card that requires online authorization for all transactions. |
+
+### IIN maximum PANs
+
+The maximum amount of PANs that can be generated for an INN.
+
+| IIN length | Max number of cards |
+| ---------- | ------------------- |
+| Six-digit IIN | Total max cards = 999,999,999 cards |
+| Eight-digit IIN | Total max cards = 9,999,999 cards |

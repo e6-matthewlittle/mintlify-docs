@@ -1,0 +1,40 @@
+---
+title: "Maturity"
+menu: Term deposits
+route: /docs/term-deposits/maturity
+excerpt: Maturity of a term deposit occurs when the specified term has passed. Various maturity actions can occur based on customer account configurations.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - term deposit
+  - time deposit
+  - certificate of deposit
+  - CD
+  - maturity
+containerWide: true
+showHeadingsNav: true
+---
+
+# Maturity
+
+Maturity of a term deposit occurs when the specified term has passed. Various maturity actions can occur based on customer account configurations. A customer may choose to continue to reinvest the whole account balance, reinvest only the original principal, to leave the funds in the account, or to have the funds swept to another account. In the case of sweeping the funds, the term deposit account will be considered closed.
+
+## What we do
+
+Episode Six (E6) automatically processes term maturity for any active term deposit customer. Maturity processing is performed on a daily basis for any term deposit accounts that have a maturity date on that day. Processing is performed local to the program timezone that has been configured.
+
+## Prerequisites
+
+Term deposit maturity can only be performed on term deposit customers that have been [configured](/docs/term-deposits/customer-configuration).
+
+If there is a `closed` or `termination` block on a customer account, then term deposit maturity will not be performed. For more information, see [customer blocks](/docs/blocks/customer-blocks).
+
+## Actions
+
+Maturity will automatically be processed for an active term deposit account once the term end has been reached. Term length depends on the `term` configuration set as part of the customer configuration. Based on the `maturityAction` set in the same request, one of the following actions will occur:
+
+1. Funds sweeping (`SWEEP`) - The total account balance will be swept to the target customer account based on the `sweepCustomerIdentifier` and a `closed` block will be added to the term deposit account.
+2. Fund reinvestment (`REINVEST`) - At maturity funds are reinvested according to `reinvestmentAmountPreference` which can be set to either `ALL` for both principal and interest reinvestment or `PRINCIPAL_ONLY` for principal alone. This selected balance will be used to start a new term at maturity. The interest rate can be the same as the previous term or can be set to the current program default rate depending on the `reinvestInterestPreference` configuration.
+3. Funds holding (`KEEP`) - The total account balance will be held in the term deposit account, but no new term will be initiated. Funds can be manually moved out of the account as needed at a later time.

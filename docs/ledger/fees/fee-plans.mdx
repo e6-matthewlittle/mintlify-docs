@@ -1,0 +1,56 @@
+---
+title: "Fee plans"
+menu: Fees
+route: /docs/fees/fee-plans
+excerpt: A fee plan is a collection of fee rules by which a customer is charged fees.
+types: 
+  - guide
+_tags:
+  - fees
+  - program
+  - plans
+  - accounts
+  - free fees
+  - fee rules
+  - fee plans
+  - add
+  - create
+  - update
+containerWide: true
+showHeadingsNav: true
+date: "02-15-2023"
+---
+
+# Fee plans
+
+A fee plan is a collection of fee rules by which a customer is charged fees. Fee plans allow for a program's customers to be segmented by the fees that apply to them. This segmentation removes the need to create multiple products to handle different fee combinations, and enables customers to move between fee plans as needed due to longevity of the account, delinquency, and other factors.
+
+## What we do
+
+Episode Six (E6) enables you to add fee plans to a program. Programs can have one or more fee plans, which are then assignable to customer accounts. Once customers are associated with a fee plan, they are governed by individual fees under the fee plan, as well as any customer fees that have been established.
+
+## Prerequisites
+
+To create a fee plan, you must first have a program set up. You can learn more about setting up programs in [Programs](/docs/programs/programs).
+
+## Actions
+
+### Adding fee plans
+
+A default fee plan will be added when a program is created. If required, you can also add additional fee plans to a program. You can add a fee plan that can be assigned to customers calling the [Create a Program Fee Plan API](/tech-specs/fees/program-fee-plans/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingFeesAPI_createFeePlan_POST). In the API request, the fee plan name can be provided as a string in the `name` attribute. Names of fee plans should be unique.
+
+### Adding fees to fee plans
+
+You can add fees to fee plans calling the [Create or Update a Fee Plan by Program](/tech-specs/fees/program-fee-plans/api#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingFeesAPI_createOrUpdateFee_POST). For information about fee calculation methods and a list of available fees, see [Fee rules](/docs/fees/fee-rules).
+
+### Adding fee waivers
+
+You can call the [Program Fee Plans APIs](/tech-specs/fees/program-fee-plans) to configure fee waivers, for more information see [Fee Waivers](/docs/fees/fee-waivers). Optionally, you can also configure a minimum amount under which standard fees are not charged by entering an amount in the `triggerAmount` field in the API request body.
+
+## What's next
+
+You can create a new fee plan under a program calling the [Program Fee Plans API](/tech-specs/fees/program-fee-plans). In order to change a fee or fee plan, a change order request must be approved. For more information, see [Change orders](/docs/change-orders/program-change-orders).
+
+Customers can be created and allocated to a fee plan or later assigned to a fee plan. For more information, see [Customers](/docs/customers/customers).
+
+You can call the [Program Fee Plans APIs](/tech-specs/fees/program-fee-plans) to configure fee exceptions. E6 allows you to configure program fee exceptions at the program level. Optionally, you can configure a minimum amount under which fees are not charged by entering an amount in the `triggerAmount` field in the API request body.

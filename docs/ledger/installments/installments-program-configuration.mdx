@@ -1,0 +1,163 @@
+---
+title: "Installments program configuration"
+menu: Installments
+route: /docs/installments/installments-program-configuration
+excerpt: Shared configurations that apply to all customer accounts created under the program.
+types: 
+  - guide
+_tags:
+  - products
+  - installments
+  - loans
+  - loan rules
+  - values
+  - create
+  - credit
+  - credit limit
+  - minimum principal
+  - excess
+  - payment schedule repayment order
+  - cash
+  - payment
+  - grace days
+  - late
+  - delinquency
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Installments program configuration
+
+Program-level installments configurations are shared configurations that apply to all customer accounts created under the program. Installments program configurations can define default behavior for functions like period management, loan principal requirements, and repayment processing.
+
+## What we do
+
+Episode Six (E6) provides the ability to add installments configurations to a program. When installments configurations are added to a program, the program is updated to support installments behavior. After setting up the installments configurations, configurations can be viewed and updated in real time.
+
+## Prerequisites
+
+Before adding installments configurations to a program, a program must first be created. For more information, see [Programs](/docs/programs/programs).
+
+To enable money movements to or from customer accounts in case of excess credit and repayment, an external reference must be added to the customer. The external reference must be created for an external payments partner and include an `attributes` object with the `name` set to `defaultExternalPaymentsReference` and `value` to `true`. For more information, see [External references](/docs/customers/external-references).
+
+## Actions
+
+Add installments configurations to a program by calling the [Create Installments Program API](/tech-specs/installments/installments-programs/api?#operation/createInstallmentsProgramConfiguration). This call adds installments configurations to the program. In the request, define the following installments program configurations:
+
+### Preconfigured loan rules
+
+When a debit occurs on the parent account, a loan will be created according to the program's preconfigured loan rules. Preconfigured loan rules include the number of installment periods, period length, and the first payment offset.
+
+When a customer makes a transaction that meets the program's criteria for installments, the transaction is split into a number of smaller installments. The number of installments for each eligible transaction is determined by the `periodCount` attribute. For example, if `periodCount` is set to 6, then all eligible purchases are split into six installments.
+
+The length of each installments period can be configured using the `periodLength` attribute. The following values are eligible period lengths:
+
+- Day
+- Week
+- Fortnight
+- Month
+- Quarter
+- Year
+
+For example, if `periodLength` is set to `MONTH`, each installments period will be one month long.
+
+The due date of the first installment payment can be configured using the `firstPaymentDaysOffset` attribute. This attribute determines the number of days after a loan is created on which to set the first payment due date. Subsequent payment due dates are scheduled according to the `periodLength`.
+
+For example, if a loan is created on February 15th and the `firstPaymentDaysOffset` is set to 2, the first payment is due on February 17th. If `periodLength` is set to `MONTH`, the next payment will be due March 17th.
+
+### Allowed credit limits
+
+Credit limits determine how much a customer is able to borrow in total across all loans. Configure a credit limit range using the `minCreditLimit` and `maxCreditLimit` attributes to set a minimum and maximum credit limit for all customers in the program. When a customer account is opened under the program, the customer's `overallCreditLimit` must be within the minimum and maximum credit limit defined by the program.
+
+For example, if an installments program has a minimum credit limit of $100 and maximum credit limit of $1,000, then a customer under that program cannot have a credit limit lower than $100 or higher than $1,000.
+
+### Minimum principal
+
+The `minimumPrincipal` attribute determines the minimum amount a customer must spend for a transaction to be eligible for an installments loan. When a transaction amount meets or exceeds the minimum principal, a loan is created for the transaction according to the preconfigured loan rules.
+
+If the transaction amount is below the `minimumPrincipal` value, the transaction will be disqualified from being split into installments. Disqualified payments processing can be configured using the `disqualifiedDebitHandling` attribute. This attribute accepts two values:
+
+| Value     | Description |
+| --------- | ------------|
+| `DECLINE` | The disqualified payment is declined and the transaction is blocked. |
+| `DEFER`   | The disqualified payment is converted into a deferred payment. |
+
+If `disqualifiedDebitHandling` is set to `DEFER`, a `deferredPaymentOffset` attribute is required. This attribute sets the number of days after the disqualified payment on which to set the deferred payment due date. For example, if a disqualified payment occurs on June 1 and `deferredPaymentOffset` is set to 4, the deferred payment is set to June 5.
+
+### Loan Grouping Period Length
+
+The `loanGroupingPeriodLength` attribute determines the duration in days that transactions group before creating an installment loan.
+-   If set to 0, each transaction will create a single installment loan.
+-   For values of 1 or more, transactions are grouped for the specified number of days (based on `loanGroupingPeriodLength`). Once this grouping period concludes, an installment child loan is created, consolidating the sum of the grouped transaction values.
+
+Installment programs default to 0 if no `loanGroupingPeriodLength` is provided. 
+
+### Excess credit handling
+
+If a customer's repayment amount is larger than the total currently outstanding balance, the customer's account could hold excess credit. Excess credit occurs when an installments customer's account balance is greater than 0. To determine how excess credit should be handled, use the `excessCreditAction` attribute to specify whether excess credit is to be held or routed off the customer account. This attribute accepts the following values:
+
+| Value     | Description |
+| --------- | ------------|
+| `HOLD`    | Excess credit is held on the parent customer account. |
+| `ROUTE`   | Excess credit is routed off the customer to an external payment system. Each external payment system will be registered as a partner entity in the E6 platform. |
+
+Setting `excessCreditAction` to `ROUTE` requires configuring payment routing information for each installments customer.
+
+### Payment schedule repayment order
+
+The payment schedule repayment order is the order in which a customer's outstanding debt is repaid. Use the `paymentScheduleRepaymentOrder` attribute to schedule how a repayment is applied to a customer's debt. This attribute accepts two values: `SEQUENTIAL` and `TERM_SHORTENING`. If this attribute is set to `SEQUENTIAL`, then the customer's payment is used to repay the payment schedule outstanding balances in order from first payment to last until no credit remains. If this attribute is set to `TERM_SHORTENING`, then the customer's payment is used to repay the loan in the following order until no credit remains:
+
+1. **Outstanding payments due:** Payments with an unpaid balance whose due dates are older than the current date. Outstanding payments are repaid in the order of oldest to most recent.
+2. **Next payment due:** Next payment due after current date. Only the next immediate payment is repaid.
+3. **Last payment due:** Last payment due in the customer’s loan schedule. If the payment can be applied to multiple payments due, the funds will be applied working backwards from the last payment due in the payment schedule up to the current date.
+
+### Cash payment handling
+
+If an installments customer makes a cash withdrawal using their account, the customer's cash behavior can be determined using the `cashLeakHandling` attribute. This attribute accepts two values:
+
+| Value     | Description |
+| --------- | ------------|
+| `ALLOW`   | The cash transaction is allowed. If the transaction meets the program's minimum principal, a normal installments loan is created according to the preconfigured loan rules. If the transaction does not meet the minimum principal, the transaction is handled according to the `disqualifiedDebitHandling` attribute. |
+| `DEFER`   | The cash transaction is converted to a deferred payment. The deferred payment is due on the same day the deferred payment is created. |
+
+### Grace days
+
+Grace days give customers extra time to repay an overdue loan payment before penalties are enforced. Grace days can be added to an installments program by providing a value in the `graceDays` attribute. This attribute contains the number of days after a payment due date for a customer to repay their loan without being penalized. When a `graceDays` value is provided for a program, any repayment period end activities, such as late payment fee assessment, are shifted to occur after the end of the grace days. For example, if `graceDays` is set to `5`, then customers will have five days after their payment due dates to repay their loans before late fees are charged. If an overdue payment is not repaid by the end of the grace days, then penalties are assessed.
+
+### Late payment fee
+
+If a customer does not pay off an upcoming payment before the payment due date, a late payment fee can be applied. This fee can be configured using the `latePaymentFee` attribute. This attribute contains a flat amount that is charged when the customer misses an upcoming payment.
+
+<Callout
+    calloutType={'info'}
+>
+    Late payment fees are only charged on loans that are split into multiple installments. Late payment fees are not charged for loans with only one payment, such as deferred payments.
+</Callout>
+
+### Delinquency actions
+
+Delinquency actions are program-level defined responses that can be enforced on customer accounts that have exceeded significant delinquency milestones. These actions are triggered when a customer's payment has been late for a specified number of days.
+
+Delinquency actions can be configured using the `delinquencyActions` object. Multiple delinquency actions can be defined per program, each triggered by a different number of days late. For example, customers could be assigned a new control level after 14 days of delinquency and blocked after 60 days. Each action must be assigned a number of days late for the action to take effect. In the object, the `action` attribute determines the action taken when the customer has been delinquent for a certain number of days. This attribute accepts the following values:
+
+| Value     | Description |
+| --------- | ------------|
+| `BLOCK`   | The customer account is blocked. When a customer is blocked for a delinquency action, a `delinquency` block is created on the customer account. |
+| `CHANGE_RISK_LEVEL` | The customer's control level is changed. When `action` is set to `CHANGE_RISK_LEVEL`, the `riskLevel` attribute must also be included in the object. This attribute determines the customer's new control level. |
+
+<Callout
+    calloutType={'info'}
+>
+    If <tt>CHANGE_RISK_LEVEL</tt> is selected, the selected control level must already exist for the program.
+</Callout>
+
+## What's next
+
+When a program is set up with installments configurations, installments customer accounts can be opened under the program. To create an installments customer, see [Installments customer configuration](/docs/installments/installments-program-configuration).
+
+After creating an installments credit program, the program can be updated and retrieved calling the Installments API. 
+
+- Retrieve an installments program by calling the [Retrieve Installments Program API](/tech-specs/installments/installments-programs/api?#operation/retrieveInstallmentsProgramConfiguration).
+- Update an installments program by calling the [Update Installments Program API](/tech-specs/installments/installments-programs/api?#operation/updateInstallmentsProgramConfiguration). In the request, include new values for the attributes you want to update. This call requires the full request body to be passed in the request.

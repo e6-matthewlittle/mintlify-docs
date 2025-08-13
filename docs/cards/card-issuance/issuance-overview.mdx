@@ -1,0 +1,64 @@
+---
+title: "Card issuance overview"
+menu: Cards
+route: /docs/cards/issuance-overview
+excerpt: How E6 allows you to issue cards of any type.
+types:
+  - guide
+_tags:
+  - cards
+  - overview
+  - issuance
+containerWide: true
+showHeadingsNav: true
+date: "01-31-2023"
+---
+
+# Card issuance
+
+A card is a payment instrument that facilitates real-time payments through card networks. The card is connected to an underlying account which provides access to funds. Key aspects of a card that are used in card payments include the customer's primary account number (PAN), an optional personal identification number (PIN), cardholder details, the expiry, and a security code. Cards can be used to make purchases at merchants, withdraw cash at ATMs, card readers, retail apps, and other Points of Sale (POS). Issuance is the process of generating a new card.
+
+## What we do
+
+Episode Six (E6) provides real-time issuance capabilities for all card types and use cases. At the point of card issuance, E6 generates all card details like Primary Account Numbers (PANs), security codes, and expiry as needed. E6 securely stores the card details including PCI-controlled data, like a customer's PAN. The PAN is encrypted according to Payment Card Industry Data Security Standards (PCI DSS). E6 also provides non-PAN card identifiers so that cards can be identified and managed by your system without concerns for PCI compliance. Once a card has been issued and activated as needed, it can be used to make card payments.
+
+PANs are typically segmented as follows: `BBBB BBBB SSNN NNNC`, where `B` = the specified card IIN, `S` = an optional IIN segment, `N` = unique number differentiating the PAN, and `C` = a check digit to ensure the PAN is valid given the combined digits. E6 offers two approaches to how PANs are generated. When generating cards, E6 uses sequential PAN generation by default where the next PAN is incremented by 1 digit from the last issued PAN. E6 also supports randomized PAN generation where there is no set pattern to the next PAN which is generated. While random PAN generation is theoretically more secure, it can cause issues when trying to later repurpose an IIN. If you prefer randomized PAN generation, contact your E6 representative.
+
+## How it works
+
+To learn more about how you can issue cards with E6, read through the following documentation.
+
+- [**Card profiles**](/docs/cards/card-profiles) - Setting up a card issuance configuration profile for a program
+- [**Physical cards**](/docs/cards/physical-cards) - Integration with a card manufacturer to create physical instances of a card
+- [**Customer card issuance**](/docs/cards/customer-card-issuance) - Issuing or reissuing a single card for a specified customer account and cardholder
+- [**Bulk card issuance**](/docs/cards/bulk-card-issuance) - Issuing one or more cards that are not initially associated with a customer or cardholder
+- [**Card activation**](/docs/cards/card-activation) - Enabling use of a physical card once it has arrived and limiting use of the card before activation
+- [**Card on file updaters**](/docs/cards/card-on-file-updaters) - Informing holders of cards on file such as merchants of updates to the card details upon reissuance
+
+## Common terms
+
+Below is a list of common and important terms that you will see throughout the card issuance process.
+
+| Term | Definition | Other names |
+| -- | -- | -- |
+| **Card** | A payment instrument which gives access to funds for card payments via a card network. ||
+| **Cardholder** | The person associated who is named as the owner of the card against which owner validation will occur. ||
+| **Issuance** | The process of generating a new card. ||
+| **Unassociated card** | A card which has been generated but has not yet been tied to a customer account nor cardholder. | Anonymous card |
+| **Bulk issuance** | The process of generating one or more unassociated cards. ||
+| **Reissuance** | The process of generating a replacement card which can carry over some details of the original card. ||
+| **Primary account number (PAN)** | The unique identifier of a card used in financial actions when the card is presented. ||
+| **Personal identification number (PIN)** | A unique number of varying length which should only be known by the cardholder used to perform cardholder verification. ||
+| **Security code** | A unique number generated at the point of card issuance that is used to verify possession of a card. ||
+| **Expiry** | The month and year after which the card can no longer be used. ||
+| **Card profile** | A set of card issuance configurations tied to a program in the E6 platform which determines how card details are generated at the point of issuance. ||
+| **IIN segment** | A divider of an IIN that allows for more finite control of card issuance within an IIN. | BIN segment |
+| **One-time card** | A card which is only good for a single card payment before it will be deactivated automatically. | Single-use card |
+| **Physical card** | A card which has had its details added to a tangible instrument, typically made of plastic or metal, that can be used to share card details with in-person acceptance points. | Personalized card |
+| **Virtual only card** | A card which does not have its details added to a physical card, but can be accessed digitally. ||
+| **Card manufacturer** | A group that manufacturers and distributes physical cards. | Card embosser, card personalization bureau, card perso bureau, card printer |
+| **Embossing** | The process of raising text on a physical medium in order to make the text stand out from the base medium ||
+| **EMVCo** | A standards organization setup by the major card networks to define implementation practices and specifications for common features. ||
+| **EMV chip** | An integrated circuit embedded in some physical cards which provides the ability to secure individual card transactions. | Card chip |
+| **Near-field communication (NFC)** | A short-range, wireless technology that allows nearby, enabled devices to communicate with one another. ||
+| **Numberless card** | A physical card that does not have the PAN embossed on the card for security purposes. ||

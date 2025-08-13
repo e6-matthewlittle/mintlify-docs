@@ -1,0 +1,59 @@
+---
+title: "Rewards enablement"
+menu: Rewards
+route: /docs/rewards/rewards-setup
+excerpt: Rewards in Tritium are units of value given to customers to incentivize different types of spend behaviors. 
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+containerWide: true
+showHeadingsNav: true
+date: "05-10-2024"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Rewards enablement
+
+Episode Six (E6) provides the ability to enable rewards in association with a partner. Once rewards is enabled, your product programs can be setup for rewards processing.
+
+## Prerequisites 
+
+A partner which will be used to manage your product programs must first exist before enabling rewards. E6 will typically handle the setup of this partner as part of your initial tenancy setup. For more information, see [Partners](/docs/platform-access/partners).
+
+<Callout
+    calloutType={'info'}
+>
+    E6 needs to enable the rewards plugin for your tenancy before it can be setup. Please reach out to your E6 representative to have this enabled.
+</Callout>
+
+## Actions
+
+A program needs to be created which will manage the rewards configuration and pending rewards customers. To create a program, see [Programs](/docs/programs/programs). When naming the program, choose a name which is clearly for rewards such as `${partnerName} + "_rewards`.
+
+<Callout
+    calloutType={'info'}
+>
+    The reward program should be setup with all currencies that will be earned including fiat currencies and custom loyalty points as needed.
+</Callout>
+
+Once the program is created, the rewards offering needs to be added for that program. This can be done using the [Create Reward Program API](/tech-specs/rewards/rewards-programs/api?#operation/createRewardProgramConfiguration). For this instance of the API call, the `config` object should be empty. Later the `config` object will contain the product programs as part of the `groups` object.
+
+### Optional - Create rewards spend program
+
+If you are not using an automated statement credit pattern and want customers to be able to spend from a separate rewards spend account, then another [program](/docs/programs/programs) should be created for this. The program should be configured as a deposit type program. This will require additional customer accounts to be created under this program along with the pending rewards customer created for tracking and managing earn.
+
+<Callout
+    calloutType={'info'}
+>
+    Work with your E6 delivery team to ensure best alignment of your rewards experience to available E6 implementation patterns for rewards.
+</Callout>
+
+## What's next
+
+Once rewards have been enabled for a partner as a rewards program, product programs can have reward plans and rules setup. For more information see [Product rewards setup](/docs/rewards/product-rewards).
+

@@ -1,0 +1,403 @@
+---
+title: "Q1 2024 release notes"
+menu: Release
+route: /docs/release/q1-2024-release-notes
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "05-10-2024"
+---
+# Q1 2024 release notes
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## March 2024
+
+### New Features 
+
+**Revolving Credit - Added the ability to simulate billing day of month changes** <br/>
+Users can now simulate a billing day of month change event as part of revolving credit account simulation in test environments.
+
+**User Authentication - Added password requirement clarification** <br/>
+All password screens in Dashboard now contain a disclaimer explaining password requirements management.  
+
+**Revolving Credit - Added ability to not accrue interest on disputed transactions** <br/>
+Revolving credit programs can now be setup so that disputed transactions are not included in certain revolving credit processes such as interest accrual and min due calculation. Transaction disputes can be registered using the Chargeback APIs.
+
+**Rewards - Implemented reward plan cap and reward rule MCCs** <br/>
+Reward plans can now have a reward accumulation cap set so that customers assigned to the plan can only earn a specified amount of rewards in a certain period.
+
+**Cooperative Authorization - Added new partial authorization fields** <br/>
+In support of partial authorization processing for E6 clients using cooperative authorization, we have added a new partialAuth field to authorization request payloads to indicate if a merchant accepts partial authorization. A new partialAmount field was also added to the response object so that an issuer can specify a partially authorized amount to be returned to the merchant.
+
+**Notifications - Added cardNumber to customer risk notification** <br/>
+`cardNumber` attribute was added to customer risk notification payload to better enable downstream identification of the card which triggered the notification
+
+**Dashboard - Added the ability to set customer level loan preferences** <br/>
+Customer level loan preferences can now be established for parent level installment customers through the Dashboard
+
+**Rewards - Added customer level offset configuration** <br/>
+Reward customer automated distribution and redemption timing offset can now be configured at the customer level. This allows specific customers to have their reward distributed on any day of the month as desired. Standard approach is typically to have reward distribution and redemption occur on the last day of the billing cycle for revolving credit customers.
+
+**Fees - Added new fee rule data validation** <br/>
+When setting up a fee rule, either one of the fee flat amount or percentage must be greater than 0 so that the fee rule is correctly being used during processing.
+
+**Revolving Credit - Added new reward summary to statements** <br/>
+Added a new postedRewards field showing the amount of rewards applied to the revolving credit account during a billing period.
+
+**Revolving Credit -Added reward redemption repayment hierarchy processing** <br/>
+When a revolving credit customer receives an automated or manual reward redemption from a rewards accounts, a positive amount will be processed according to the revolving credit repayment hierarchy. If the amount is negative due to refunds or other reasons, then the amount will be applied to the current period principal sub-balance.
+
+**Card Schemes - Added support for EFTPOS processing** <br/>
+E6 is now enabled to receive, process, and respond to card payment messages received through the EFTPOS network in Australia.
+
+**Dashboard - Added the ability to cascade loan automatic load rule removal** <br/>
+Users can now cascade a removal of automatic load rules from child loans when a removal action is taken at the parent installment customer in Dashboard.
+
+**Dashboard - Added revolving credit payoff calculator support** <br/>
+Added the ability for a customer service agent to simulate revolving credit account payoff within the current billing period from the Dashboard. This can be done from the Financials tab of a revolving credit customer.
+
+**Revolving Credit - Added new non-processing toggle feature** <br/>
+Added the ability to set a revolving credit customer to not have normal revolving credit processes including interest accrual, billing, repayment period close, automatic payment, and grace end be applied to that customer. This can be applied manually at the customer level or through a delinquency action. When the customer has the non-processing toggle turned off, the customer will have a new billing period and repayment end scheduled and interest will start to accrue again the next day.
+
+**Revolving Credit - Added the ability to automate delinquency action return** <br/>
+Delinquency action return behavior can now be set for revolving credit programs. Users are able to select a return period count and value that will apply for interest tier changes, minimum due profile changes, and risk level changes. Once the required count of good payment behavior periods has occurred, customers who have previously had the delinquency action applied will be set to the return value as configured.
+
+**Dashboard - Added rewards summary to customer details page** <br/>
+Users can now view a summary of pending and distributed rewards in a new Rewards tab when viewing the details of a particular customer if rewards have been configured.
+
+**Dashboard - Added support for rewards program setup** <br/>
+Reward type programs can now be setup via Dashboard. Rewards programs act as “rewards engines” to which other product programs can be associated for rewards earn, distribution, and redemption. Within the reward program configuration, users can setup rewards plans and the underlying rules for the product programs as needed. This can also be done through the new Rewards tab within the program details page.
+
+**Revolving Credit - Added next billing close for delinquency action timing** <br/>
+ Implemented the ability to have revolving credit delinquency actions be applied on the next billing period close. This allows interest rates to be updated starting next period rather than mid period to avoid having multiple rates being implemented in the same period which might lead to issues with statement requirements for interest rate disclosures. The default value for existing delinquency actions is graceEnd per the previous behavior.
+
+ **Dashboard - Implemented new partner details page** <br/> 
+ Implemented new partner details page within the Dashboard to expand the ability for clients to understand and manage the partners setup within their tenancy. This includes the ability to view and manage partner balances, attributes, IINs, change orders, and more depending on user roles and permissions. This replace the previous Dashboard partner details side drawer.
+
+### Enhancements
+
+**Card Issuance - Corrected corporate card issuance error** <br/>
+Updated logic so that card orders can be placed at the root corporate entity using a person identifier from a "department" or "project" child customer which has been set up as part of a corporate control hierarchy.
+
+**Revolving Credit - Corrected statement transaction gap for change billing offset** <br/>
+Updated revolving credit statement generation to correctly account for a change in a customer's billing period offset which caused transactions to be missing from a statement.
+
+**Dashboard - Fixed transaction filters** <br/>
+Corrected issue where filter options on the customer transaction tab in Dashboard were not properly being applied.
+
+**Dashboard - Consolidated customer relationship tables** <br/>
+Combined customer relationship tables in Dashboard to reduce the implementation of stacked tables which could lead to navigation issues. A single table now includes any parent customer, child customers, inward connections, and outward connections.
+
+**Card Payments - Enabled partial authorization enrollment** <br/>
+Clients who use cooperative authorization for card payments can now request that E6 enrolls them in partial authorization so that it can be processed in regions where it is required.
+
+**Dashboard - Prevented incorrect username or password error popup** <br/>
+Altered Dashboard API interaction so that erroneous "Incorrect username or password" error modal would not appear after login.
+
+**Dashboard - Correct revolving credit period transaction display** <br/>
+Updated display logic for viewing revolving credit period transactions so that late fees and interest are properly displayed in the list.
+
+**Dashboard - Corrected transaction pagination issue** <br/>
+Updated customer transaction sub-nav table so that pagination amount set by Dashboard user will be reflected in the API results shown.
+
+**Dashboard - Corrected customer memo creation issue** <br/>
+Stopped issue where Dashboard users were given error and the page was redirected when creating a new customer memo.
+
+**Revolving Credit - Corrected missing PAN from statement file** <br/>
+Updated the card query logic as part of statement file generation so that card PAN will always be populated as needed.
+
+**Card Payments - Updated account status inquiry response code** <br/>
+Updated the response code for account status inquiries from "05" to "62" to avoid card scheme non-compliance as part of recent card scheme mandates.
+
+**Card Payments - Updated card expiry mismatch error response** <br/>
+Added a new error minor code for expiry mismatch. Previously, if card expiry provided during card capture did not match the card on file, it would incorrectly give a card expired response.
+
+**Dashboard - Corrected declined transaction copy** <br/>
+Updated the copy and error code display structure of client-specified declined response codes which have been provided as part of cooperative authorization response. Response codes will now display as "Client Specific Error: " & the provided minor error code.
+
+**Card Scheme Reporting - Updated Issuing_Cards tab in QOC reports** <br/>
+Updated Visa QOC report output to meet card scheme mandates for QOC reporting in region including the Issuing_Cards tab.
+
+**Dashboard - Moved revolving credit customer interest configuration to side drawer** <br/>
+Ability to edit revolving credit customer interest rate method, tier assignment, or direct rate settings has now been moved to a side drawer instead of directly on the summary page. This side drawer can be found using the ellipses on the interest summary section.
+
+**Revolving Credit - Updated interest forgiveness states** <br/>
+Corrected issue where revolving credit customer interest forgiveness status could not be updated in Dashboard. Interest forgiveness status can now be set to FORGIVEN (previously On/True), UNFORGIVEN (previously Off/False), or RETURNING.
+
+**Dashboard - Corrected transaction pagination issue** 
+Updated customer transaction sub-nav table so that pagination amount set by Dashboard user will be reflected in the API results shown.
+
+**Revolving Credit - Corrected statement paymentType issue** <br/> 
+Corrected issue with revolving credit statement file which caused automatic load paymentType and amount incorrectly.
+
+**Dashboard - Stopped Invalid Parameter - unknown issue** <br/>
+Corrected issue in Dashboard which caused erroneous "Invalid Parameter - unknown" message to appear when using the risk levels or customer controls sections due to commas entered into control rule value field during previous operations.
+
+**Dashboard - Corrected revolving credit delinquency action conflict error** <br/>
+Corrected issue in Dashboard where user could not see full details of revolving credit billing summary side drawer due to scrolling issue if only one billing period for the account existed.
+
+**Dashboard - Corrected risk exception value display** <br/>
+Corrected display logic in Dashboard which showed not applicable risk measurements as 0. The risk measurements will now appear as "N/A" for risk exceptions where no measurement is maintained.
+
+**Dashboard - Removed sensitive data from error log export** <br/>
+Removed sensitive information from error log export including authorization token in order to ensure secure data would not be unnecessarily exposed.
+
+**Automatic Load - Corrected automatic load clearing issue** <br/>
+Corrected issue which caused automatic load external transaction did not clear as expected and subsequently expired leading to repayment issues for revolving credit issues. Automatic load transactions will now clear at 11:30 PM local time as expected.
+
+**Revolving Credit - Limited adjustments for sub-balances to currency decimal point precision** <br/>
+Added additional data validation for revolving credit adjustments to ensure that adjustments cannot exceed the decimal precision of the account currency for principal and billed interest amounts. Unbilled interest adjustments are precise to the currency decimal precision + 3 digits.
+
+**Dashboard - Enhanced login experience** <br/>
+Removed the need to click to after entering partner name to see login options. Dashboard will now automatically retrieve login options after a partner name is entered via remember me, autofill, or text entry.
+
+**Dashboard - Consolidated Dashboard account relationships tabs** <br/>
+Enhanced the customer relationships tab in Dashboard to display all relationship types in a single table with details being available in side drawers. The Relationships tab now contains parent, child, inward graph, and outward graph connections to the account being viewed.
+
+**Notifications - Enhanced transaction notifications for corporate control hierarchy** <br/>
+Updated the transaction notification customer lookup when the corporate control hierarchy is in place so that all expected information is contained in the transaction payload including transaction, card payment details, and card details.
+
+**Reports- Updated delinquency report processing** <br/>	
+Delinquencies and return from delinquencies are now reported the day they become occur rather than day + 1 as in previous processing.
+
+**Notifications - Added creationTime to all customer notifications** <br/>
+Added new `creationTime` field to all customer notifications so that an exact time for the event creation is provided regardless of the region of the program. Previously, certain program locations would lead to `creationDateTime` only displaying date information.
+
+**Installments - Enabled Retrieve Offering Summary API for loan accounts** <br/>
+Updated the Retrieve Offering Summary API to also return details of loan accounts. Previously this was performed through the Retrieve Loan Summary API. The loan customer account `customerNumber` should be passed into the Retrieve Offering Summary API path `GET /v1/offering-customers/{customer-number`}.
+
+**Card Issuance - Corrected corporate card issuance error** <br/>
+Updated logic so that card orders can be placed at the root corporate entity using a person identifier from a "department" or "project" child customer which has been set up as part of a corporate control hierarchy.
+
+**Revolving Credit - Corrected statement transaction gap for change billing offset** <br/>	
+Updated revolving credit statement generation to correctly account for a change in a customer's billing period offset which caused transactions to be missing from a statement.
+
+**Revolving Credit - Added ability to not accrue interest on disputed transactions** <br/>
+Revolving credit programs can now be setup so that disputed transactions are not included in certain revolving credit processes such as interest accrual and min due calculation. Transaction disputes can be registered using the Chargeback APIs.
+
+**Notifications - Added cardNumber to customer risk notification** <br/>
+`customerNumber` attribute was added to customer risk notification payload to better enable downstream identification of the card which triggered the notification.
+
+**Rewards - Added customer level offset configuration** <br/>
+Reward customer automated distribution and redemption timing offset can now be configured at the customer level. This allows specific customers to have their reward distributed on any day of the month as desired. Standard approach is typically to have reward distribution and redemption occur on the last day of the billing cycle for revolving credit customers.
+
+**Rewards - Implemented reward plan cap and reward rule MCCs** <br/>
+Reward plans can now have a reward accumulation cap set so that customers assigned to the plan can only earn a specified amount of rewards in a certain period. Reward plan rules can now have an array of MCCs added to them so that a transaction with a matching MCC will earn at that specified rate as opposed to a general earn rate. This allows for incentivization of spend at certain types of merchant categories.
+
+**Revolving Credit - Added reward redemption repayment hierarchy processing** <br/>
+When a revolving credit customer receives an automated or manual reward redemption from a rewards accounts, a positive amount will be processed according to the revolving credit repayment hierarchy. If the amount is negative due to refunds or other reasons, then the amount will be applied to the current period principal sub-balance.
+
+**Revolving Credit - Added the ability to automate delinquency action return** <br/>	
+Delinquency action return behavior can now be set for revolving credit programs. Users are able to select a return period count and value that will apply for interest tier changes, minimum due profile changes, and risk level changes. Once the required count of good payment behavior periods has occurred, customers who have previously had the delinquency action applied will be set to the return value as configured.
+
+**Card Payments - Updated card expiry mismatch error response** <br/>
+Added a new error minor code for expiry mismatch. Previously, if card expiry provided during card capture did not match the card on file, it would incorrectly give a card expired response.
+
+**Dashboard - Corrected declined transaction copy** <br/>	
+Updated the copy and error code display structure of client-specified declined response codes which have been provided as part of cooperative authorization response. Response codes will now display as "Client Specific Error: " & the provided minor error code.
+
+**Card Scheme Reporting - Updated Issuing_Cards tab in QOC reports** <br/>	
+Updated Visa QOC report output to meet card scheme mandates for QOC reporting in region including the Issuing_Cards tab.
+
+**Revolving Credit - Updated minimum due repayment eligibility rules** <br/>
+Minimum due and total due will now only be affected by end customer initiated account credits such as repayment or repayment equivalents. Account balance will still be affected by any credit which is applied to the account using the configured repayment hierarchy. Refunds, reversals, chargebacks, adjustments, and other non-repayment equivalents will not affect minimum or total due.
+
+**Revolving Credit - Corrected repayment nullPointerException** <br/>
+Corrected an issue with revolving credit customer repayment processing which could cause a `nullPointerException` to occur if the customer did not go through a billing cycle prior to the point of repayment.
+
+**Revolving Credit - Fixed repayment allocation report issues** <br/>
+Corrected repayment allocation report issues where: not all transactions were represented in the report and some tracker balances were not represented in the report if multiple tracker repayment balances were equal to 0.
+
+**Dashboard - Corrected account holder update issue** <br/>
+Updated display of account holder information in the edit account holder side drawer of Dashboard so that account holder details can be updated as expected.
+
+**Revolving Credit - Corrected revolving credit payoff calculator in Dashboard** <br/>
+Fixed issue which caused the revolving credit account payoff calculator to not work as expected in Dashboard. Revolving credit payoff calculator will now correctly display the value returned by the API.
+
+**Dashboard - Corrected revolving credit customer processingFlag display issue** <br/>
+Updated state management in Dashboard Financials tab of revolving credit customers so that `processingFlag` correctly displays value returned from the API.
+
+**Dashboard - Removed duplicate interest forgiveness flag** <br/>
+Removed duplicate interest forgiveness toggle on the Financials tab for revolving credit customers in Dashboard which was removed in a previous fix but returned.
+
+**Dashboard - Corrected revolving credit program saving issue** <br/>
+Updated data validation in Dashboard for `block` type delinquency actions which was previously preventing program configurations from being saved due to incorrect data expectations.
+
+**Card Payments - Corrected ATM reversal matching logic** <br/>
+Updated the matching logic for ATM reversals so that they are appropriately matched to the original withdraw transaction rather than being treated as a refund. For revolving credit accounts, ATM reversals will now be applied as credits to the period of the original withdraw transaction.
+
+**Automatic Load - Enhanced automatic load for installments to correct extraction file issue** <br/>	
+Updated automatic load processing for installments and loans so that automatic load extraction files are generated as expected. Previously some automatic load extract files were delivered without any contents.
+
+**Controls - Corrected erroneous disable_mag_stripe enforcement for Google Pay** <br/>
+Updated the logic for the `disable_mag_stripe` control so that it no longer will be unexpectedly triggered for some Google Pay transactions.
+
+**Revolving Credit - Applied additional fixes for revolving credit automatic load simulation** <br/>
+Further corrected revolving credit automatic load simulation due to previous issues with not being able to simulate automatic load events during revolving credit account simulation. Automatic load events should now be able to be processed as expected during account simulation.
+
+**Dashboard - Fixed transaction filters** <br/>
+Corrected issue where filter options on the customer transaction tab were not properly being applied.
+
+**Revolving Credit - Correct late payment fee exemption processing issue** <br/>
+Fixed processing logic for late payment fee exemption so that late payment fee is not charged for a customer which has had the late payment fee exemption set to true as part of delinquency action processing.
+
+**Dashboard - Consolidated customer relationship tables** <br/>
+Combined customer relationship tables in Dashboard to reduce the implementation of stacked tables which could lead to navigation issues. A single table now includes any parent customer, child customers, inward connections, and outward connections.
+
+**Dashboard - Prevented incorrect username or password error popup** <br/>
+Altered Dashboard API interaction so that erroneous "Incorrect username or password" error modal would not appear after login.
+
+**Dashboard - Correct revolving credit period transaction display** <br/>
+Updated display logic for viewing revolving credit period transactions so that late fees and interest are properly displayed in the list.
+
+**Dashboard - Added the ability to set customer level loan preferences** <br/>
+Customer level loan preferences can now be established for parent level installment customers through the Dashboard.
+
+**Fees - Added new fee rule data validation** <br/>
+When setting up a fee rule, either one of the fee flat amount or percentage must be greater than 0 so that the fee rule is correctly being used during processing.
+
+**Dashboard - Corrected customer memo creation issue** <br/>	
+Stopped issue where Dashboard users were given error and the page was redirected when creating a new customer memo.
+
+**Revolving Credit - Corrected missing PAN from statement file** <br/>
+Updated the card query logic as part of statement file generation so that card PAN will always be populated as needed regardless of card state.
+
+**Dashboard - Added the ability to cascade loan automatic load rule removal** <br/>	
+Users can now cascade a removal of automatic load rules from child loans when a removal action is taken at the parent installment customer in Dashboard.
+
+**Card Payments - Updated account status inquiry response code** <br/>
+Updated the response code for account status inquiries from "05" to "62" to avoid card scheme non-compliance as part of recent card scheme mandates.
+
+**Dashboard - Moved revolving credit customer interest configuration to side drawer** <br/>
+Ability to edit revolving credit customer interest rate method, tier assignment, or direct rate settings has now been moved to a side drawer instead of directly on the summary page. This side drawer can be found using the ellipses on the interest summary section.
+
+**Controls - Enhanced corporate control framework for card control consistency** <br/>
+Update the logic of the corporate control framework to ensure that card controls are correctly enforced. When using the corporate control framework, child customers must be set up in order to have controls work correctly. Child customers can represent departments, employees, projects, or other entities.
+
+**Card Payments - Implemented Visa Article 1.4** <br/>
+Extended default authorization hold period to 30 days, if the 0100 Auth request contains DE62.4=”X” and DE25=”05” (Cardholder present, but card not present).
+
+**Revolving Credit - Added the ability to simulate billing day of month changes** <br/>
+Users can now simulate a billing day of month change event as part of revolving credit account simulation in test environments.
+
+**Card Payments - Enabled partial authorization enrollment** <br/>
+Clients who use cooperative authorization for card payments can now request that E6 enrolls them in partial authorization so that it can be processed in regions where it is required.
+
+**User Authentication - Added password requirement clarification** <br/>	
+Document your E6 user password requirements for users to reference during new user setup, password change, and password reset.
+
+**Cooperative Authorization - Added new partial authorization fields** <br/>
+In support of partial authorization processing for E6 clients using cooperative authorization, we have added a new `partialAuth` field to authorization request payloads to indicate if a merchant accepts partial authorization. A new `partialAmount` field was also added to the response object so that an issuer can specify a partially authorized amount to be returned to the merchant.
+
+**Revolving Credit - Added new reward summary to statements** <br/>
+Added a new `postedRewards` field showing the amount of rewards applied to the revolving credit account during a billing period.
+
+**Dashboard - Added revolving credit payoff calculator support** <br/>
+Added the ability for a customer service agent to simulate revolving credit account payoff within the current billing period from the Dashboard. This can be done from the Financials tab of a revolving credit customer.
+
+
+
+## February 2024 
+
+### New Features
+- Implemented new partner details page within the Dashboard to expand the ability for clients to understand and manage the partners setup within their tenancy. This includes the ability to view partner balances, attributes, IINs, change orders, and more
+- Implemented the ability to simulate regulatory disclosure requirements for US retail credit card statements
+- Implemented the ability to have revolving credit delinquency actions be applied on the next billing period close. This allows interest rates to be updated starting next period rather than mid period
+- Implemented regulatory disclosure requirements for US retail credit card statements
+- Added change order integration for installments programs and customers in the Dashboard. This includes installment program configuration changes as well as installment customer and loan configuration changes
+- Setup the ability to securely retrieve card PINs via API
+- Added the ability to add a transaction identifier to adjustment. This enables the program operating balance to be created in the case that a chargeback or reversal comes in for the original transaction instead of the customer receiving a duplicate credit
+- Added additional data validation for revolving credit adjustments to ensure that adjustments cannot exceed the decimal precision of the account currency 
+- Added the ability to add a transaction identifier to adjustment. This enables the program operating balance to be created in the case that a chargeback or reversal comes in for the original transaction instead of the customer receiving a duplicate credit.
+- Added change order integration for installments programs and customers in the Dashboard. This includes installment program configuration changes as well as installment customer and loan configuration changes.
+
+### Enhancements 
+- Removed the customerId field from the auto load API requests and responses
+- Enhanced the customer relationships tab in Dashboard to display all relationship types in a single table with details being available in side drawers
+- Enhanced the Dashboard login experience to reduce the number of button clicks required to login
+- Corrected issue where $0 amount clearings were received despite a similar authorization existing for a greater amount
+- Updated revolving credit customer repayment processing logic to avoid conflict of sub-balance repayment when repayment occurs during the billing period close process. This prevents cases where credit balance could occur in current period purchase bucket unexpectedly
+- Updated the data validation logic for revolving credit customer adjustments in Dashboard to ensure alignment with currency decimal precision. Adjustments for unbilled interest can now summary adjustments with up to 3 additional decimal places beyond the base currency allowed decimals
+- Corrected issue where SAP report was generated without expected content
+- Corrected issue which caused automatic load external transaction did not clear as expected and subsequently expired
+- Corrected issue where revolving credit customer adjustment change order payload details were not being returned as expected
+- Enhanced revolving credit repayment report logic to include automated repayment of interest and fees using account excess credit
+- Corrected issue which caused duplicated declined authorization event notifications to be received
+- Removed sensitive information from error log export including authorization token
+- Corrected display logic in Dashboard which showed not applicable risk measurements as 0. The risk measurements will now appear as "N/A"
+- Corrected issue in Dashboard where user could not see full details of revolving credit billing summary side drawer
+- Updated logic for monthly fees to not filter out fee application for accounts where there was a minimum of 1 transaction
+- Re-added missing filter fields to the customer network messages tab in Dashboard including from date, to date, and pagination
+- Updated logic in Dashboard for revolving credit program to not require `repaymentDefinition` configuration to view product configurations
+- Corrected issue where revolving credit program delinquency actions were not able to be saved when actions had the same delinquent count set
+- Corrected issue in Dashboard which caused erroneous "Invalid Parameter - unknown" message to appear due to commas entered into control rule
+- Updated card order batch processing logic to accept new and existing card profiles
+- Corrected issue with revolving credit statement file which caused automatic load paymentType and amount incorrectly
+- Corrected issue where transaction type code filter did not include all expected transaction type code in Dashboard customer transaction tab
+- Corrected issue which caused leading 0s to be removed from phone numbers when added via Dashboard
+- Corrected issue in Dashboard where user could not see full details of revolving credit billing summary side drawer due to scrolling issue if only one billing period for the account existed.
+- Corrected issue in Dashboard which caused erroneous "Invalid Parameter - unknown" message to appear when using the risk levels or customer controls sections due to commas entered into control rule value field during previous operations.
+- Implemented correction for recent release which started to cause authorizations to fail
+- Updated processing logic to ensure that reversalTransactionId is included in cooperative authorization reversal messages as expected.
+- Corrected issue where automatic load simulation failed to occur when using revolving credit account simulator.
+- Corrected issue where revolving credit customer interest forgiveness status could not be updated in Dashboard. Interest forgiveness status can now be set to FORGIVEN (previously On/True), UNFORGIVEN (previously Off/False), or RETURNING.
+- Improved the processing logic for card order file generation so that if a failure occurs during file generation that the process will be automatically picked back up from the failure point to ensure card orders are not missed.
+- Corrected logic for the ATM count 1 day control so that authorizations and associated clearings in the timeframe were both being counted causing the risk rule to block transactions earlier than expected.
+- Updated revolving credit customer repayment processing logic to avoid conflict of sub-balance repayment when repayment occurs during the billing period close process. This prevents cases where credit balance could occur in current period purchase bucket unexpectedly.
+- Corrected issue which caused revolving credit account simulation API to return a gateway timeout error after the latest release.
+- Corrected issue with revolving credit account simulation which caused autoload simulation to not take place as expected based on the request payload.
+- Re-added filters for different types of transactions within the consolidated customer transaction tab in Dashboard
+
+## January 2024 
+
+### New Features
+- Implemented new rules for programName field validation for creating a new program. Minimum programName length is now 4 characters, maximum is 54 characters, and the field only allows alphanumeric characters except for underscores and hyphens
+- Added delinquency count to billing history side drawer in Dashboard for revolving credit customers
+- Enabled end-to-end application loading states in Dashboard for greater usability
+- Added new change orders tab for customers in Dashboard for managing change orders for a specific customer
+- Added new history tab for customers in Dashboard for viewing full customer account event history
+- Added new change orders tab for programs in Dashboard for managing change orders for a particular program
+- Added new security questions tab for programs in Dashboard for enabling 3DS and other use cases
+- Added new field for 3DS indicator in raw ISO8583 field for network message APIs
+- Implemented new corporate control hierarchy framework which allows controls to be managed at the root corporate customer, child account, and card level at the same time. This allows for the root corporate account to be associated with a product which contains a credit limit while also enforcing controls below that credit limit for employees and departments.
+- Included new interest forgiveness configuration option in Dashboard for revolving credit program. This allows for greater fidelity of configuration of interest forgiveness including decision to forgive, bill, or defer unbilled interest.
+- Added the ability to set transaction installment grouping configurations for installment programs in Dashboard
+- Added the ability to set loan creation preferences at the installment customer level in Dashboard
+
+### Enhancements 
+- Updated customer control view in Dashboard to reduce clicks required to view relevant control information. Controls and measurements can now be viewed in a new Controls tab on the customer page.
+- Removed interestForgivenessEligible field from revolving credit customer setup API
+- Deprecated transactionId field within customer notification event payload
+- Updated the card profile view for programs in the Dashboard to provide more details in the card profile list
+- Updated the display of program static details in Dashboard program view
+- Updated the controls tab in program details page in Dashboard to improve visibility intro risk level rules
+- Moved program merchant controls into a standalone tab in Dashboard and updated view to provide more details in table for each merchant control
+- Updated the Dashboard customer blocks experience to be in standalone tab rather than in the "Risk" tab
+- Corrected issue where transaction types were incorrectly mapped in Dashboard in some cases
+- Enhanced installments automatic load to allow for cascading of auto load rules from parent installment customer to child loan customers
+- Enhanced card payment simulator API to better handle reversal simulation across authorization and clearing use cases
+- Updated card PIN management APIs to allow for RSA encryption
+- Adjusted logic for revolving credit customer common credit balance utilization when multiple transaction entries exist for a single transaction
+- Corrected issue in Dashboard where risk measurement values were not changing following a risk level change
+- Corrected logic in card token side drawer of Dashboard to allow for deletion of tokens as expected
+- Enhanced card token activation API to support app 2 app setup up identity verification
+- Updated logic for revolving credit delinquency action processing to correct issue where previous delinquency counts were not included
+- Updated logic for online purchase count limit - 1 day to be able to account for authorizations, clearings, or both
+- Corrected issue where previous month's interest / fees were not being correctly filtered when viewing cycle transactions
+- Corrected issue where withdraw percentage limit as portion of credit limit did not get measured as expected
+- Enhanced revolving credit interest display in Dashboard so unbilled interest is now displayed to three decimal places beyond number of decimal places set for currency
+- Corrected issue which caused error pop up to appear when viewing risk details for a customer in Dashboard
+- Corrected issue in Dashboard where customer memos page did not render as expected
+- Improved change order creation side drawer in Dashboard to provide more clarity on change order scheduling option
+- Updated revolving credit automatic load logic to account for percentage input before manual payments are subtracted
+- Updated Change Order retrieval to include additional visibility for change order status
+- Updated data field mapping in Dashboard for available balance in new customer summary view for revolving credit customers
+- Enhanced customer risk details side drawer in Dashboard to refresh data when adding risk exception
+- Updated Dashboard logic for editing person official IDs to warn reduce creation of new official IDs with due to data fields being the same as an existing official ID
+- Corrected issue where Dashboard didn't display some country names correctly
+- Corrected issue where failed clearing authorization did not work as expected in card payment simulator

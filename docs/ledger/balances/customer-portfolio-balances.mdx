@@ -1,0 +1,51 @@
+---
+title: "Customer portfolio balances"
+route: /docs/balances/customer-portfolio-balances
+excerpt: Management of program customer balance summary which is the real-time sum of all the customer balances across the program.
+types: 
+  - guide
+_tags:
+  - account
+  - balance
+  - custodial account
+  - custodial
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Program customer balance summary
+
+The program customer balance summary is the real-time sum of all the customer balances across the program. Summarization of these balances are important for managing your program as a whole including settlement with payment partners.
+
+## What we do
+
+Episode Six (E6) manages a real-time set of balances for each program in the established program currencies.  E6 allows programs to manage one or more currency accounts as needed depending on the product type. Program customer summary balances, called *custodial account balances* within our system, can be retrieved in real-time as needed. The program customer balance summary can be used in a number of ways including:
+
+* Managing a custodial account with a bank
+* Tying a customer portfolio to a physical account or core banking system
+* Managing the overall position of a product program
+* Performing settlement and reconciliation with payment partners
+
+<Callout
+    calloutType={'info'}
+>
+    An E6 program "custodial account" can be one-to-one with a custodial account being provided by a bank sponsor, but does not have to be.
+</Callout>
+
+## Prerequisites
+
+A program must first be created before balances for that program can be retrieved. The desired currencies must be provided during program setup or added later for the balances to be managed. To learn more about creating a program, see [Programs](/docs/programs/programs).
+
+## Actions
+
+Program custodial balances can be retrieved in real-time using the [List Program Custodial Balances API](/tech-specs/balances/program-customer-balance-summary/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingAPI_getCustodialPortfolioAccountList_GET). This will return a list of balances for each of the currencies configured for the program.
+
+## What's next
+
+Additional program customer balance summary currencies can be added to a program using the [Create Custodial Account API](/tech-specs/balances/program-customer-balance-summary/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingAPI_createCustodialAccount_POST). The new currency account must be one which exists within the program's parent partner but does not yet exist for the program.
+
+Changes in value to the program customer balance summary can be viewed as part of the [Program net positions report](/docs/reports/program-net-positions).

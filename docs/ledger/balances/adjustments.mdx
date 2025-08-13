@@ -1,0 +1,51 @@
+---
+title: "Adjustments"
+route: /docs/balances/adjustments
+menu: Account tasks
+excerpt: An adjustment is an action that manually credits or debits a customer's account balance.
+types: 
+  - guide
+_tags:
+  - adjustments
+  - partner
+  - customer accounts
+  - configure
+  - add
+  - credit
+  - debit
+  - deposit
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Adjustments
+
+An adjustment is an action that manually credits or debits a customer's account balance. Adjustments are typically used to address issues with a customer's available balance or for customer satisfaction purposes. For example, if a fee has been incorrectly charged to the account, an adjustment can be used to remove the fee from the account by crediting the amount of the fee back to the customer.
+
+## What we do 
+
+Episode Six (E6) allows any customer account balance to be adjusted. E6 supports both credit and debit adjustments. When a credit adjustment is initiated, the target program account is debited and the customer account is credited. For a debit adjustment, the customer account is debited and the target program is credited.
+
+<Callout
+  calloutType={'info'}
+>
+  Adjustments can be performed on revolving credit customer accounts by adjusting individual customer sub-balances. For more information about adjusting a revolving credit customer account, see <a href="/docs/revolving-credit/sub-balance-adjustments"> Sub-balance adjustments</a>.
+</Callout>
+
+## Prerequisites 
+
+Before performing an adjustment, a customer account is required. For more information, see [Customers](/docs/customers/customers).
+
+## Actions 
+
+To make an adjustment on a customer account, call the [Adjust Customer Account API](/tech-specs/payments/adjustment/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_adjust_POST). In the `amount` attribute, specify the amount of the adjustment. A positive value results in a credit adjustment. A negative value results in a debit adjustment. A transaction memo should also be provided in the `internalMemo` field.
+
+When an adjustment transaction is created, the resulting transaction entry will have a `transactionTypeCode` of 14 for an adjustment.
+
+## What's next 
+
+After performing an adjustment, the customer's updated account balance can be retrieved. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).
+

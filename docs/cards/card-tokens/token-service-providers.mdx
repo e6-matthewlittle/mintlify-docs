@@ -1,0 +1,49 @@
+---
+title: "Token service providers"
+menu: Cards
+route: /docs/cards/token-service-providers
+excerpt: Token service providers (TSPs) are the groups which create and manage card tokens.
+types:
+  - guide
+_tags:
+  - Mastercard Digital Enablement Services
+  - MDES
+  - Mastercard Connect
+  - VIAP
+  - Visa Token Service
+  - VTS
+  - UMPS
+  - token service provider
+  - TSP
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Token service providers
+
+Card tokens are created and managed by groups called token service providers (TSPs). The TSPs are responsible for not only the secure storage of the card tokens but also the mapping of the card tokens to the original payment card. Card networks provide services to tokenize cards in their token servers such as Mastercard Digital Enablement Service (MDES), Visa Token Service (VTS), and UnionPay International Mobile Payment Service (UMPS).
+
+## What we do
+
+Episode Six (E6) supports tokenization and token lifecycle management through the card network TSPs. This includes generating tokenization payloads for push provisioning, providing card tokenization authorization as needed, and connecting with the TSP APIs for card token lifecycle management. The card network TSPs perform the process of mapping the card token PAN to the original card PAN before E6 receives the network message from the card network payment systems. E6 also supports you throughout the certification process with the TSP for your IIN.
+
+## Prerequisites
+
+You must have a [certified](/docs/cards/certification), live IIN before card tokenization can be supported.
+
+## Actions
+
+You will need to open a project with your card network to enable card tokens. This project includes enabling your IIN for card tokens along with testing and certification of integration with the card network TSP. E6 is able to leverage its existing integrations with the card network TSPs for certification. Your E6 delivery team will support you with the card network project until you have been certified.
+
+<Callout
+    calloutType={"warning"}
+>
+If you have not enabled card tokens with a card network in an E6 Cloud region, some configuration is required by E6 for TSP certification as the card networks will generate integration details such as keys, IDs, and certificates for each issuer-E6 instance.
+</Callout>
+
+## What's next
+
+You will need to determine which [provisioning](/docs/cards/token-provisioning) flows you want to support for your card product. The choice of provisioning flows and [digital wallets](/docs/cards/digital-wallets) will drive the scope of your digital wallet certification.

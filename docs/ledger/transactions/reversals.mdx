@@ -1,0 +1,58 @@
+---
+title: "Reversals"
+menu: Payments
+route: /docs/transactions/reversals
+excerpt: A reversal is an action that undoes a previously completed transaction.
+types: 
+  - guide
+_tags:
+  - reversal
+  - transactions
+  - payments
+  - merchant
+  - partial
+  - full
+containerWide: true
+showHeadingsNav: true
+date: "03-20-2023"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Reversals
+
+A reversal is an action that undoes a previously completed transaction. When a reversal is performed, the funds are returned to the purchaser’s account. Reversals are typically used when an issue has been discovered after a transaction has settled. For example, a reversal can be used to cancel a transaction that was made for an incorrect amount.
+
+## What we do
+
+Episode Six (E6) allows for any transaction in its ledger to be reversed, either fully or partially. When a reversal is performed, all transaction entries within that transaction are reversed. Reversing a transaction leads to debits and credits moving in the opposite direction of the original transaction. The destination of the debits and credits depends on the payment type that triggered the transaction, as well as additional rules such as fees. A full reversal reverses the entire transaction, while a partial reversal replaces the original transaction with a new transaction with different amounts.
+
+<Callout
+    calloutType={'info'}
+>
+    Reversals on a revolving credit customer's outbound payments, like purchases and cash advances, unwind unbilled interest if both the reversal and original transaction occur within the current period. If they don’t, sub-balance adjustments are required to align previous and owed interest sub-balances due to the impact billing has on tracking these changes.
+</Callout>
+
+## Prerequisites
+
+To reverse a customer transaction, a customer account must exist. For more information, see [Customers](/docs/customers/customers).
+
+A transaction external reference is required to perform a reversal. The external reference is used to identify the transaction being reversed. For more information, see [Transactions](/docs/transactions/transactions).
+
+## Actions
+
+Transaction reversals can be made by calling the [Reverses Transaction API](/tech-specs/transactions/reversals/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_reversal_PUT).
+
+### Full reversal
+
+To perform a full reversal, provide the external reference of the transaction you want to reverse in the `originalExternalReference` attribute. A successful request reverses the transaction and credits the customer.
+
+### Partial reversal
+
+To perform a partial reversal, provide a `replacementAmounts` object in the request. This object contains the amounts that will replace the original transaction. Provide an `originalExternalReference` attribute for the transaction being reversed and a `replacementExternalReference` for the transaction replacing the reversal.
+
+A successful request reverses the original transaction. The previously authorized amount is replaced with the amounts provided in the `replacementAmounts` object in the request.
+
+## What's next
+
+After performing a reversal, the customer can view their account balance. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).

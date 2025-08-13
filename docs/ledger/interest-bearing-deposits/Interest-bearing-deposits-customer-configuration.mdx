@@ -1,0 +1,39 @@
+---
+title: "Customer configuration"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/customer-configuration
+excerpt: Setting up an interest-bearing deposit product for a customer.
+types: 
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - savings account
+  - customer setup
+containerWide: true
+showHeadingsNav: true
+---
+
+# Customer configuration
+
+Customer-level interest-bearing deposit configurations are settings that apply to a customer account opened under an interest-bearing deposit program. These configurations apply only to the customer account for which they are set including interest rate tier assignment.
+
+## What we do
+
+Episode Six (E6) provides the ability to add interest-bearing deposit configurations to a customer. When interest-bearing deposit configurations are added to a customer, the customer is updated to support interest-bearing deposit behavior. Customer configurations are specific to the customer account. 
+
+## Prerequisites
+
+To create an interest-bearing deposit customer account, an interest-bearing deposit program is required. To create an interest-bearing deposit program, see [program configuration](/docs/interest-bearing-deposits/program-configuration).
+
+Before configuring an interest-bearing deposit customer, a base customer account is required. The customer must be created under the interest-bearing deposit program. To create a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+Once a customer account has been opened, the customer offering can be created and configured. This allows for interest behavior to be defined for the customer, relative to options made available by the program offering configuration. The following fields must be provided as part of the [Create Interest-Bearing Deposit Customer Offering API](/tech-specs/interest-bearing-deposits/customers/api?#operation/createInterestBearingDepositsCustomer). The key configuration which should be provided is the `interestTierName` to which the customer should be assigned.
+
+## What’s Next
+
+Funds can be deposited into the configured interest-bearing deposit account by performing an [Account funding](/docs/payments/account-funding) operation. Once funds have been deposited into the account, [interest accrual](/docs/interest-bearing-deposits/interest-accrual) will begin to be processed on the account.
+
+Call the [Interest-Bearing Deposit Customer APIs](/tech-specs/interest-bearing-deposits/customers) to view and update the customer offering information including interest configuration and balances.

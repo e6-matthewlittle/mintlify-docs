@@ -1,0 +1,130 @@
+---
+title: "Q1 2023 release notes"
+menu: Release
+route: /docs/release/q1-2023-release-notes
+excerpt: Q1 2023 platform release notes.
+_tags:
+  - docs
+  - release
+  - notes
+  - documentation
+  - enhancements
+  - automatic load
+  - card profiles
+  - standard notifications
+  - detail report
+  - ISO 8583
+  - ISO 8583 Message Authorization Daily Report
+  - ISO 8583 Message Settlement Daily Report
+  - authorization
+  - cooperative authorization
+  - reversal
+  - card blocks
+  - address api
+  - embossing file
+  - daily customer account balance report
+  - raw data extracts
+  - card controls
+  - customer fees api
+containerWide: true
+showHeadingsNav: true
+date: "02-28-2023"
+---
+
+# Q1 2023 release notes
+
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## Week of March 27, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Launched the new automatic load feature that allows accounts to be funded on a recurring basis, including repayment of revolving credit accounts. For more information, see [Automatic load](/docs/payments/automatic-load).
+- Added token activation methods to card profiles. This feature enables available token activation methods to be retrieved in support of card tokenization. For more information, see [Card profiles](/docs/cards/card-profiles).
+
+### Enhancements
+
+- Added two new notification types in support of the automatic load feature: AutoLoadChangeNotification and AutoLoadExtractionNotification. For specifications of these notifications, see [Standard notifications](/docs/notifications/standard-notifications).
+- Added a new `repaymentAssessmentRequirement` attribute to the revolving credit program request payload. This attribute specifies the repayment amount required on the due date for customers to maintain or return to interest forgiveness. Accepted values include `MINIMUM_DUE`, `TOTAL_DUE` and `STATEMENT_BALANCE`.
+- Added a new `currentPeriodGraceReturnBilling` attribute to the revolving credit program request payload. This attribute provides additional logic to allow for partial forgiveness of current period purchase interest when a revolving credit customer returns to grace during a billing period. Accepted values include `PARTIAL` and `NONE`.
+- Added a new `estimatedInterest` field in the revolving credit billing history summary and statement file to account for United Kingdom (UK) regulatory requirements. For more information, see the Statement File Specifications supplementary document.
+- Added a new `totalCostOfCredit` field to the revolving credit customer billing history summary and statement file to account for United Kingdom (UK) regulations to display the total charge of credit. For more information, see the Statement File Specifications supplementary document.
+- Extended support for Mastercard ISO 8583 Japanese domestic field - DE 112 Additional Data , 3 sub elements, 030/031/032.
+- Upgraded Mastercard card payment simulator to support DE104, DE108, and DE112.
+- Returned `dpan`, `trid` (Token Requestor ID), and `walletID` fields to the [Customer transactions report](/docs/reports/customer-transactions) after they were previously removed.
+- Added support for automatic load simulation as part of revolving credit customer account simulation. For more information, see the Revolving Credit Interest Simulation supplementary document.
+- Added field DE48 to the ISO 8583 Message Settlement Daily Report and the ISO 8583 Message Authorization Daily Report using the same columns as in the Detail Report to support reporting of declined transactions to token requestor partners. For more information, see [Card authorization messages report](/docs/reports/card-authorization-messages) and [Card clearing messages report](/docs/reports/card-clearing-messages).
+- Added a new `transactionId` field to the Customer Transaction Notification model.
+- Added additional support for Visa Direct payments to be processed on revolving credit accounts.
+- Enhanced the Reversal API to support partial reversals of transactions. For more information, see [Reversal](/docs/transactions/reversal).
+- Added support for displaying transaction `originalAuthDate` in the transaction detail side drawer of the Dashboard.
+- Enhanced ISO 8583 Message Settlement Daily Report to display interchange  fee and amount in the settlement currency rather than the transaction currency in the `pds146Currency` and `pds146Amount` fields. For more information, see [Card clearing messages report](/docs/reports/card-clearing-messages).
+- Added a new `cardNumber` field to customer transaction notification payload for transactions associated with a card payment. For more information, see [Standard notifications](/docs/notifications/standard-notifications).
+- Enhanced program list view in the Dashboard to simplify the data layout and increase render performance.
+- Enhanced card blocks so that deactivation blocks can no longer be removed. For more information, see [Card blocks](/docs/blocks/card-blocks).
+- Enhanced the layout of the program details page of the Dashboard to separate fees and controls.
+- Enhanced ISO 8583 duplicate check logic to check based on acquiring amount.
+- Added the ability for non-approver roles to have read-only access to the change orders module of the Dashboard.
+- Enhanced merchant control side drawer in the Dashboard to enumerate the card network field.
+- Enhanced logic for extracting `dpan` in the ISO 8583 Message Settlement Daily Report and the ISO 8583 Message Authorization Daily report.
+- Enhanced AVS to support Visa compressed format, which removes alpha and special characters.
+- Corrected an issue where the revolving credit statement file did not split transactions by card following new card issuance for an account.
+- Corrected an issue in the Dashboard where memos were not correctly displaying return carriages.
+- Corrected an issue in the Dashboard where customer search by external reference was not allowing for non-numeric characters.
+- Corrected an issue where transaction dates were missing from revolving credit statement files.
+- Corrected an issue in the Dashboard where a “/” in a program name would cause issues with retrieving program details.
+- Corrected an issue where ordering a new virtual card via the Dashboard caused the request to be made twice.
+- Corrected an issue in the Dashboard where adjustments for revolving credit customers could not be made for billed interest sub-balances.
+- Corrected an issue where the Dashboard incorrectly displayed repayment period end dates for revolving credit customers.
+- Corrected an issue where the “Online Purchase Limit 1 Day” control was not properly accumulating measurements, causing the control to not be enforced.
+- Corrected an issue for revolving credit customers where statement file transactions did not match transactions found in the Transactions API.
+- Corrected an issue where cash advance handling fees were not being reported as fees in the revolving credit statement file.
+- Corrected an issue where an incorrect memo was displayed for change orders with multiple fee entries changes for a fee plan. Change order memos are now captured when creating a new change order for fee plans in the Dashboard.
+
+## Week of February 27, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Significant change
+
+- Normalized the use of country codes in file generation and reporting to use two-character country codes instead of two or three-character country codes. The [Address API](/tech-specs/persons/person-geographical-addresses) and other APIs that accept a `countryCode` attribute will still accept two or three-character country codes, but all country codes will be saved and returned as two-character strings.
+
+### New features
+
+- Added new raw data extracts for customers, persons, geographical addresses, email addresses, and phone numbers for account holders. For more information, see [Raw data extracts](/docs/reports/raw-data-extracts).
+- Launched card-level controls, which give the ability to set up and enforce controls on specific cards along with account-level controls and program-level controls. For more information, see [Card controls](/docs/controls/card-controls).
+
+### Enhancements
+
+- **UPDATE March 20, 2023:** Corrected an issue where reports were not being sent for programs whose names contained spaces.
+- Added a new `creationDateTime` field to the ISO 8583 Message Settlement Daily Report. This field is a human-readable version of the `creationDay` field in the program’s local timezone. The format is `yyyy-MM-dd'T'HH:mm:ss.SSS z`, in which `z` represents the local timezone. For more information, see [Card clearing messages report](/docs/reports/card-clearing-messages).
+- Added field DE48 including `walledId`, `DPAN`, and `tokenRequestorId` to the ISO Authorization and the ISO Settlement reports. These fields had already been present in the detailed transaction report. For more information, see the [Card authorization messages report](/docs/reports/card-authorization-messages) and [Card clearing messages report](/docs/reports/card-clearing-messages).
+- Enhanced cooperative authorization / real-time-funding (RTF) and transaction notification payloads to include `interchangeName`. The interchange name was added to the CustomerTransactionNotification, CustomerTransactionFailureNotification, and AuthorizationErrorNotification. For more information, see [Cooperative authorization](/docs/cards/cooperative-authorization) and [Standard notifications](/docs/notifications/standard-notifications).
+- Added two new fields to revolving credit statement files to improve the ability to generate statement files with localized times. The `creationTime` field is the creation date of the transaction entry in UTC time. The `creationDateTime` field is the creation date and time of the transaction entry in the program’s local time zone. The format is` yyyy-MM-dd'T'HH:mm:ss.SSS z`, in which `z` represents the local time zone. For more information, see the Statement File Specifications supplementary document.
+- Corrected an issue related to FX transactions on revolving credit statement files. FX transactions will now have `fxRate` populated with no markup. Cross border payments will display markup amount and `fxRate` equal to 0.00. For more information, see the Statement File Specifications supplementary document.
+- Added a new `markupType` attribute to revolving credit statement files. `markupType` indicates which type of markup is being applied to a foreign exchange transaction. This attribute can display two values: `DCC` and `CROSS_BORDER`. For more information, see the Statement File Specifications supplementary document.
+- Enhanced the ability for cooperative authorization clients to send back fine-grained error codes. These codes include a new majorCode (610) for client-initiated errors. For example, TRITIUM will map a response code such as “610x61” from an RTF response to an RC=61 response to Visa or Mastercard. For more information, see [Cooperative authorization](/docs/cards/cooperative-authorization).
+- Enhanced card automatic re-issuance processing so that only the latest card will be reissued if the card is `valid` and meets the required expiry condition.
+- Enhanced card automatic re-issuance processing so that if one `externalReference` is associated with multiple customers, then only the latest customer’s card that is nearing expiration (one month before expiry) will be reissued.
+- Enhanced card automatic re-issuance processing so that only cards that have recent transactions will be reissued.
+- Corrected an issue where repeated cooperative authorization / RTF messages were being sent as part of authorization processing. This change was made for both production payments as well as the ISO 8583 simulator.
+- Corrected an issue related to processing VTS notifications where Apple Pay is the token requestor.
+- Simplified the error handling user experience in the Dashboard.
+- Corrected an issue related to card expiry format displaying incorrectly when using non-English languages in the Dashboard.
+- Corrected an error that kept card tokens from displaying in the Dashboard.
+- Corrected an issue in the Dashboard where searching by customer number also returned results for cards.
+- Corrected an issue in the Dashboard where searching transactions by date failed to return the expected results.
+- Corrected an issue in the Dashboard where authorization holds were not displaying correctly.
+- Corrected an issue in the Dashboard that prevented new users from being created.
+- Corrected an issue in the Dashboard that kept customer control details from displaying for **CustomerAgent** and **RiskAgent** roles.
+- Corrected an issue with card order dates displaying incorrectly in the Dashboard.
+- Corrected an issue where the current balance was showing in ATM balance inquiries instead of the available balance.
+- Corrected an issue with minimum payment due calculation where some minimum payments due were negative amounts.
+- Corrected an issue where interest rates were not updating for interest rate tiers.
+- Customer fees are now enabled for revolving credit customers. The Customer Fee API allows fees to be added only to specified revolving credit accounts, rather than via a fee plan at the program level. For more information, see the [Customer Fees API](/tech-specs/fees/customer-fees).
+- Corrected an issue with revolving credit customers not being able to be switched from interest rate tier to direct interest rate configurations.
+- Enhanced exception case mappings for MDES tokenization to improve cardholder error messaging, including incorrect expiry.
+- Corrected an issue with cooperative authorization requests that have `forcepost = true` and experience a time out. Authorization webhook notifications will now be resent until an “Approve only” response is received.
+- Corrected an issue with cooperative authorization requests that have `forcepost = false` and experience a time out. Reversals will now be retried and the original reversal request removed.

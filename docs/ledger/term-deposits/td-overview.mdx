@@ -1,0 +1,58 @@
+---
+title: "Term deposits overview"
+sidebarTitle: "Overview"
+menu: Term deposits
+route: /docs/term-deposits/overview
+excerpt: Term deposit accounts allow customers to earn interest on the balance of the account while the funds are not accessible during a set term.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - term deposit
+  - time deposit
+  - certificate of deposit
+  - CD
+  - interest
+  - deposit
+containerWide: true
+showHeadingsNav: true
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# Term deposits overview
+
+Term deposit accounts, also sometimes called certificates of deposits (CDs), allow customers to earn interest on the balance in the account over a set period of time. This account type typically provides a higher interest rate than a normal interest bearing deposit account in return for the customer not being able to access the funds for the term of the account. A company offering a term deposit account can then use the deposited funds to back other activities such as lending or investment.
+
+## How it works
+
+Episode Six (E6) provides the ability to setup a term deposit product in TRITIUM. Each term deposit account will then accrue interest based on the program and customer level configurations from the point of account opening. E6 manages interest accrual on customer account balances as well as the distribution of the accrued interest from the program operating account to the customer accounts. At the end of the term, the original deposited funds and the posted interest can be reinvested into a new term deposit, swept into another customer account, or held in the term deposit account with no further earning.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+        linkPath="/docs/term-deposits/program-configuration"
+        title={"Program configuration"}
+        body={"Setting up an term deposit product for a program."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/term-deposits/customer-configuration"
+        title={"Customer configuration"}
+        body={"Setting up an term deposit product for a customer."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/term-deposits/maturity"
+        title={"Maturity"}
+        body={"Maturity of a term deposit occurs when the specified term has passed. Various maturity actions can occur based on customer account configurations."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/term-deposits/cancellation"
+        title={"Cancellation"}
+        body={"Cancellation of a term deposit account will stop any future interest accrual and send the original funds to a specified account."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

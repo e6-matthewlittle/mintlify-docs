@@ -1,0 +1,92 @@
+---
+title: "Ledger"
+menu: Getting Started
+route: /docs/ledger/overview
+excerpt:
+types:
+  - guide
+_tags:
+  - ledger
+  - system of record
+  - account products
+  - payments
+  - accounts
+  - credits
+  - debits
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Ledger
+
+A ledger is a system of record for financial transactions made between accounts. The ledger records the balances and transactions for all accounts which are being tracked. Each account within a ledger is defined by a combination of owning entity, purpose, and currency. For example, a consumer might have an account created in a ledger for a particular financial product, such as a deposit account, in U.S. dollars. As needed, multiple ledger accounts can be joined into a portfolio to enable the tracking of multiple currencies for a given owning entity and purpose.
+
+Balances for an account include the actual balance and the available balance. The actual balance is the true balance of the account based on all cleared transactions up to the point of balance retrieval. The available balance is the actual balance less any temporary authorization holds on the account. When payments are authorized, the available balance is used to ensure funds are not promised twice.
+
+Transactions are made up of credit-debit pairs where the value of the transaction is first *debited* from the payer account and then *credited* to the payee account. When a ledger guarantees that all transactions have a credit-debit pair, it is called dual-entry accounting. Dual-entry ensures that financial value is not being created nor destroyed unexpectedly during transaction processing. While it may seem like common sense to do this, not all ledgers ensure this type of accounting. Transactions can also be made up of multiple transaction entries if secondary transactions need to be created to process the root transaction such as the charging of fees, exchange of currencies, etc.
+
+## What we do
+
+Episode Six (E6) gives you a bank-grade, dual-entry ledger to give you the financial foundation you need for managing accounts. Our ledger can scale up to thousands of transactions per second (TPS) to meet the most demanding of use cases. Everything you need from a ledger is included from balance management, transaction processing, and reporting. E6 manages several types of accounts to support your payment and financial products.
+
+1. **Customer Account**: An account opened for a customer counterparty for a specific product program. This account can be a deposit or credit account based on the program product types and allows for understanding the position of obligation for a specific customer.
+2. **Program Operating Account**: An internal account created for a product that is used to collect product income, pay out benefits, and counteract adjustments to customer accounts. This allows you to understand the profit and loss (P&L) of your product when it comes to customer financial and payment processing.
+3. **Custodial Account**: An account which summarizes the portfolio of customers for a specific product program. This allows you to track net positions for reconciliation and settlement without having to understand individual customer account positions.
+4. **Partner Account**: An account created for a non-customer counterparty to track funding in and out of the ledger. Used for reconciliation and settlement with the counterparties.
+
+### Account products
+
+By default, E6 customer accounts can support a variety of account products including single-currency deposit accounts, digital wallets, virtual accounts, multi-currency deposit accounts, and negative balance accounts. For these account types, the account product is basic and the E6 ledger is used for tracking the account balance. For more advanced account product behaviors, we have a catalog of configurable options available for you to enhance the basic account functionality.
+
+| E6 account product | Description | Use cases |
+| --------------- | -- | --|
+| Default | Accounts with one or more currencies which can be used to hold funds or have funds drawn against the account. Each customer account tracks specific behaviors for interest accrual or other product actions. | Single currency deposit account, digital wallet, virtual account, multicurrency deposit account, negative balance account |
+| Revolving credit | Provide a line of credit to customers with a monthly repayment expectation. Track multiple sub-balances across different draw types in parallel with the ability to accrue interest differently per draw type. | Line of credit, credit card, charge card, credit builder card |
+| Installments | Lend funds with repayment expected across a fixed repayment schedule. Can be interest-accruing or non-interest accruing. Funds can be lent out under a standalone line of credit, an existing line of credit, or with no line of credit. | Loans, installments, financing |
+| Interest-bearing deposits | Provide interest accrual on deposited funds without time-based restrictions on funds. | Interest-bearing deposit account, savings account, money market account |
+| Term deposits | Provide interest accrual on deposited funds if the customer leaves funds deposited for the agreed upon amount of time. | Term deposit account |
+
+### Account features
+
+Every account in the E6 ledger, regardless of account product type or use case, can be enabled with the following features.
+
+- **Payments**: Process various types of payments to and from customer accounts including partner accounts and between customer accounts.
+- **Fees**: Collect fees from customers based on their activities used flat, percentage, greater of, lesser or, or combination calculation logic. Fee rules can be assigned to a whole program, a customer segment, or to individual customers.
+- **Rewards**: Incentivize different customer behaviors with configurable rewards. Multiple reward models are supported including cash back and points accrual.
+- **FX**: Allow for the exchange of funds as needed to enable an end payment using integrated liquidity providers. Add additional buy-sell or currency pair margins as needed to add additional revenue generation.
+
+## What you can do
+
+Clients choose to use Ledger from E6 because of its ability to effectively solve the following types of problem statements.
+
+- Offer a financial account product
+- Provide more product value to customers with reduced dependency on legacy systems
+- Add a new feature such as installments to an existing product
+- Create a closed-loop payment network and ecosystem
+- Enable reconciliation and settlement for payment processing including net positions and customer level details
+
+### Supported use cases
+
+E6 supports any type of card product that you can imagine including the following use cases.
+
+| Customer type | Deposit use cases | Credit use cases |
+| ------------- | -- |
+| **Consumer** | Deposit/checking/debit accounts, interest-bearing deposit accounts, savings accounts, term deposit accounts, multi-currency accounts, escrow accounts, digital wallets | Overdrafts, lines of credit, P2P lending, personal loans, purchase financing/BNPL, automotive loans |
+| **Business** | Deposit/debit accounts, multi-currency account, term deposit accounts, savings accounts, digital wallets, virtual accounts, sub-ledgering | Overdrafts, lines of credit, business loans, purchase financing, Business Now, Pay Later |
+| **Corporate** | Deposit accounts, multi-currency accounts, virtual accounts, sub-ledgering, wallets-as-a-service (WaaS) | Embedded finance |
+
+## What's next
+
+To learn more about how the E6 ledger works, read through the following additional documentation.
+
+- [**Balances**](/docs/balances/overview) - Balances are used to track the current amount held by an account.
+- [**Transactions**](/docs/transactions/overview) - A transaction is a record of a funds movement from one account to another.
+- [**Payments**](/docs/payments/payments-overview) - Requests to perform a money movement between two accounts in the ledger.
+- [**Fees**](/docs/fees/fees-overview) - A fee is an amount collected from a customer by a product provider based on trigger condition.
+- [**Revolving credit**](/docs/revolving-credit/revolving-credit-overview) - Revolving credit products allow customers to borrow funds against a set credit limit while paying off accrued debt in regular monthly periods.
+- [**Installments**](/docs/installments/installments-overview) - Convert a payment into a series of smaller repayments due over time.
+- [**Interest-bearing deposits**](/docs/interest-bearing-deposits/overview) - Interest-bearing deposit accounts allow customers to earn interest on the balance of the account.
+- [**Term deposits**](/docs/term-deposits/overview) - Term deposit accounts allow customers to earn interest on the balance of the account while the funds are not accessible during a set term.
+- [**Rewards**](/docs/rewards/rewards-overview) - Rewards are incentives provided to customers to encourage different types of activities including spend.
+- [**FX**](/docs/fx/fx-overview) - FX is the exchange of one currency for another at an agreed upon rate of exchange.

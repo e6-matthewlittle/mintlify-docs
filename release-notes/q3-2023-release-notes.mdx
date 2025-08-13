@@ -1,0 +1,249 @@
+---
+title: "Q3 2023 release notes"
+menu: Release
+route: /docs/release/q3-2023-release-notes
+excerpt: Q3 2023 platform release notes.
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - enhancements
+containerWide: true
+showHeadingsNav: true
+date: "02-28-2023"
+---
+
+# Q3 2023 release notes
+
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## Week of September 25, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Added the ability to automatically action revolving credit customers based on number of outstanding payment due count. These delinquency actions include changing the customer's assigned risk level, blocking the customer, or changing the customer's assigned interest tier. For more information, see [Delinquency actions](/docs/revolving-credit/revolving-credit-program-configuration/#delinquency-actions).
+- Implemented a new customer summary report for revolving credit programs, which includes all detailed information about each of a program's revolving credit customers. For more information, see [Revolving credit - customer summaries report](/docs/reports/rc-customer-summaries).
+- Added the ability to migrate virtual card to a physical card after the virtual card has been issued.
+- Added new late presentment report for card payments that identifies transactions that are received after the authorization hold has expired.
+
+### Enhancements
+
+- Added additional fields to the standard statement file, including enhanced `pastDue` and `totalDue` fields. For more information, see [Statement file](/docs/revolving-credit/statement-file).
+- Added `graceEndTime` to minimum due history API response so that users can understand when penalization of that due amount occurred. For more information, see [Minimum payment history](/docs/revolving-credit/minimum-payment-history).
+- Added additional exception handling logic for cases where multiple reversals for the same transaction are received from a card scheme.
+- Added new `portfolioType` field to the transaction detail report. For more information, see [Customer transactions report](/docs/reports/customer-transactions).
+- Added additional risk measurements in the risk measurement API including purchase limit for 1 year, reward limit for 1 day, reward limit for 7 days, and reward limit for 30 days. 
+- Added the ability to support multiple clearing messages on Mastercard.
+- Added new logic to support retry for Mastercard ABU file upload.
+- Updated mapping of the authorization date field in Dashboard to map to the datetime of when the authorization record was created in Tritium rather than when the merchant sent the request in their local time.
+- Corrected issue where cooperative authorization response was set to 96 instead of 91 for 503 responses from authorization API.
+- Corrected issue where interest was billed in the same period as a card sale fee that was charged.
+- Corrected issue where an artificial limit was in place for credit limits, leaving high-value amounts unable to be entered.
+- Corrected issue where a physical card ordered in test environments became invalid a day after being ordered.
+- Corrected issue where revolving credit adjustment transactions weren't formatted correctly in the Detail Report.
+- Added the ability to view non-standard ISO 8583 attributes in the ISO 8583 side drawer in the Dashboard.
+- Added the ability to configure allowable over limit in Dashboard for revolving credit programs.
+- Updated revolving credit customer summary in Dashboard to display over limit setting.
+- Corrected issue in Dashboard where the transaction list was showing an incorrect transaction when navigating from revolving credit billing history side drawer.
+- Corrected issue where late fees were being displayed with transaction type "Money Send" in Dashboard.
+- Corrected issue where Dashboard performed unexpected rounding of minimum due values.
+
+## Week of September 18, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements 
+
+- Added the ability to activate a card by using its card PIN for the first time. For more information, see [Card activation](/docs/cards/card-activation/#use-card-pin).
+- Implemented CVR check in support of allowable PIN try count verification for Visa clients.
+
+## Week of September 11, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements 
+
+- Added new double confirmation for performing card cancellation in Dashboard.
+- Corrected issue where a PIN set at an ATM was not being returned via the Retrieve PIN API.
+- Corrected issue where password reset for users wasn't triggering an email.
+- Corrected issue where the `cardAcceptorCountryCode` value for Romania was being set to `ROM` instead of `ROU`.
+- Disabled the ability to add the **PlatformManager** role to users unless the **PlatformManager** role is present for the user making the change or creating the user.
+- Corrected issue where the `cardAcceptorName` value was set to the merchant address for some card payments.
+
+## Week of August 28, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features 
+
+- Added new report for revolving credit customers that provides a breakdown of how a repayment was allocated across the different customer sub-balances. For more information, see [Revolving credit - customer repayment allocations report](/docs/reports/rc-customer-repayment-allocations).
+- Added the ability to configure over limit allowances for revolving credit programs and to enable or disable over limit for revolving credit customers. For more information, see [Over limit](/docs/revolving-credit/revolving-credit-program-configuration/#over-limit).
+- Added the ability to configure grace periods for revolving credit programs. Penalization assessment and delinquency actions will take place at the configured grace end date for each customer. For more information, see [Grace periods](/docs/revolving-credit/revolving-credit-program-configuration/#grace-period).
+
+### Enhancements
+
+- Enhanced revolving credit late payment fees to assess fees either at a flat rate, the remaining minimum due, or the greater or lesser amount based on program configurations. For more information, see [Late payment fee](/docs/revolving-credit/revolving-credit-program-configuration/#late-payment-fee).
+- Added new APIs and events supporting delivery of annual statement details for revolving credit customers. For more information, see [Annual statement file](/docs/revolving-credit/annual-statement-file).
+- Added the ability to set a customer-facing memo when charging a fee through the customer fee API. For more information, see [One-time fees](/docs/fees/one-time-fees).
+- Added the ability to establish a "cure period" for automatic load rules using a new account so that the account cannot be debited unless the cure period has elapsed. This setting is configured at the automatic load partner level. For more information, see [Payment partner integration](/docs/payments/payment-partner-integration).
+- Added the ability to mange statement delivery preference for revolving credit customers. For more information, see [Statement preference](/docs/revolving-credit/revolving-credit-program-configuration/#statement-preference).
+- Added new program controls for the following use cases:
+  - Added new controls for managing card payments during physical card shipping including: `contactless_no_cvm_limit`, `contactless_no_cvm_1d`, `mag_stripe_countries_count`, and `atm_mag_stripe_countries_1d`.
+  - Added new `disable_fallback` control that enables fallback transaction to be declined where card chip initiated payment has failed and magstripe is used instead.
+  - Implemented new controls to support limiting ATM withdrawal count and amounts per day by country: `atm_countries_count_1d` and `atm_countries_1d`. 
+  - For more information about these new controls, see [Program controls](/docs/controls/program-controls).
+- Added new fields supporting UK regulatory requirements for displaying recommended minimum payments, persistent debt flags, and persistent debt dates in revolving credit statement files, billing history API, and Dashboard. For more information, see [Statement file](/docs/revolving-credit/statement-file), [Billing history](/docs/revolving-credit/billing-history), and [Revolving credit - customer billings report](/docs/reports/rc-customer-billings).
+- Added new `authCreationTime` field in the transaction object that shows the creation time of the original authorization.
+- Updated Retrieve Customer Blocks API to allow current user to view data even if the partner of the logged in user did not create the blocks.
+- Corrected issue that caused the `withdraw_percentage_limit` control to not work as expected as the maximum percentage of the overall credit limit that can be used for cash advance balances.
+- Corrected issue where `pds146` field is incorrect in ISO 8583 Message Settlement Daily Report.
+- Corrected issue where repayment period length change for a revolving credit program did not affect existing customers.
+- Corrected issue where the Transaction Detail Report uses the incorrect transaction type code for money send.
+- Corrected issue that caused billing period close operation to fail for certain customers.
+- Corrected issue where activation of physical cards for online purchases was not working as expected.
+- Corrected issue where `interestBalance` field was not present in revolving credit customer `billingPeriodEnd` event payload.
+- Established better alignment of revolving credit customer datetimes based on inclusive and exclusive logic for "end" datetimes.
+- Corrected issue that caused change orders page on Dashboard to not render.
+- Moved automatic load to a new standalone tab for customers in Dashboard.
+
+## Week of August 21, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New feature
+
+- Added support for Visa In-App Provisioning (VIAP).
+
+### Enhancements
+
+- Corrected issue that caused zero value amount card transactions to be declined due to an invalid parameter.
+- Corrected issue where the Customer validation API did not validate the last name value and used the primary account holder's date of birth instead of the target account holder.
+- Corrected issue where the `refund_limit` program control was not being enforced as expected.
+- Corrected issue that caused transactions to be approved with amount values higher than the `complianceAmount`.
+- Corrected issue where a declined transaction made through Apple Pay appeared as a refund.
+- Corrected issue where response code and other fields in the ISO 8583 side drawer were not populated as expected.
+
+## Week of August 14, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements 
+
+- Added the ability to process zero value cooperative authorization or real-time funding (RTF) authorizations in support of subscription or recurring billing use cases. For more information, see [Cooperative authorization](/docs/cards/cooperative-authorization/#authorization-messages-for-zero-amount-authorization-requests).
+- Enhanced processing logic for calculating minimum due amounts on newly billed interest.
+- Corrected issue where statement file delinquency counter did not match value displayed in Dashboard for revolving credit customers.
+- Implemented a default setting for revolving credit customer statement preferences to prevent statement generation failure if no value is set. By default, `statementPreference` is set to `paperStatements` if no other option is selected. For more information, see [Statement preference](/docs/revolving-credit/revolving-credit-program-configuration/#statement-preference).
+- Corrected issue where revolving credit account simulation led to incorrect minimum payment due amounts.
+- Implemented additional logic to assure refund processing alignment to repayment hierarchy.
+- Updated revolving credit customer view in Dashboard to allow for new features to be displayed in a simpler view.
+- Corrected issue that caused fees to not include memos as expected.
+- Updated Hong Kong non-processing day calendars.
+- Corrected issue where large decimal place transaction caused revolving credit account simulation to fail.
+- Corrected issue where revolving credit statement dates did not align with Dashboard.
+- Enhanced the revolving credit minimum dues view in Dashboard.
+
+## Week of August 7, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New feature 
+
+- Created new annual fee rule that applies a set fee on the anniversary of account opening as opposed to on a set date of the year.
+
+### Enhancements 
+
+- Added support for calculating and displaying US revolving credit customer APR/IRR during billing period close.
+- Corrected issue that caused the change orders page on Dashboard to not render.
+
+## Week of July 31, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements
+
+- Added new partner control rule to limit the number of password reset attempts for a user. For more information about partner user controls, see [User controls](/docs/users/user-controls).
+- Corrected issue where the "Product" tab was not showing for revolving credit customers in Dashboard.
+- Corrected issue that caused null pointer exception when attempting to tokenize a card on MDES. 
+
+## Week of July 24, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New feature
+
+- Implemented the ability to cancel only the next automatic load for a customer account without shutting off future automatic loads. This must be done after the extraction date and before the payment due date in order to take effect on the target automatic load. For more information, see [Automatic load cancellation](/docs/payments/automatic-load/#automatic-load-cancellation).
+
+### Enhancements
+
+- Implemented support for new interest forgiveness modes, including "forgive all," which will forgive unbilled interest across current, previous, and owed balances for revolving credit customers. For more information, see [Interest forgiveness mode](/docs/revolving-credit/revolving-credit-program-configuration#interest-forgiveness-mode).
+- Enhanced revolving credit customer balance report to take into account all sub-balances within the revolving credit definition. For more information, see [Revolving credit - customer sub-balances report](/docs/reports/rc-customer-sub-balances).
+- Enhanced revolving credit customer due detail to provide additional data and moved to a standalone API. For more information, see [Minimum payment history](/docs/revolving-credit/minimum-payment-history).
+- Enhanced billing period close summarization of past due for revolving credit customers.
+- Enhanced revolving credit customer summary view with better past due summary.
+- Added new fields to Card Sale Report including `reissue`, `primaryPersonId`, `timeZone`, `creationDateTime`, and `orderType`.
+- Implemented new control for a 30-day rolling window of total ATM withdrawals and purchases. For information about the new `atm_purchase_30d` program control, see [Program controls](/docs/controls/program-controls/#appendix-available-controls).
+- Implemented new fee rule for `moneyReceive` transaction type code.
+- Implemented new raw data extract for customer external references. For specifications of the new report, see [External Reference Report](/docs/reports/raw-data-extracts/#external-reference-report).
+- Added new fields to the transaction detail report including `callerReference` and `complianceCurrencyAmount`. For field specifications, see [Customer transactions report](/docs/reports/customer-transactions).
+- Corrected issue where late payment fee was not appearing on current statement for revolving credit customers.
+- Enhanced customer transaction view in the Dashboard to provide clearer association of related transaction entries.
+- Implemented new minimum due history experience in the Dashboard for revolving credit customers.
+- Corrected issue with create card order API where minimum length data validation was not being performed as expected, leading to failed card orders.
+- Corrected issue where `customerId` was shown in Revolving Credit Billing Report instead of `customerNumber`. For specifications of the new `customerNumber` field, see  [Revolving credit - customer billings report](/docs/reports/rc-customer-billings).
+- Extended revolving credit customer statement file to include all cards for the account.
+- Corrected issue where cash advance fee was not being charged for some revolving credit customers.
+- Moved automatic load to a new standalone tab for customers in the Dashboard.
+- Removed deprecated automatic load fields from revolving credit program configuration model in the Dashboard.
+- Added the ability set a percentage for revolving credit autoload balance preferences in the Dashboard.
+- Corrected issue that prevented official IDs from being added and edited in the Dashboard.
+- Updated Dashboard navigation to move page navigation to the top navigation bar and page sub-navigation to a side menu.
+- Corrected issue where both P2P credit and debit risk measurements were being incremented for P2P credit scenarios. 
+- Corrected issue where custodial balance API and customer balance report did not sum up to the same values. 
+
+## July 17, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features 
+
+- Added the ability to reissue a physical card with the same PIN as the card being replaced. For more information, see [Customer card issuance](/docs/cards/customer-card-issuance).
+- Enabled programmatic labeling of transactions based on provided rules.
+- Added new idempotent APIs for creating customers and card orders
+- Added the ability to set a card PIN via API with an encrypted card PIN. For more information on encrypting the PIN and calling the API, see [PIN management](/docs/cards/pin-management).
+
+### Enhancements
+
+- Added support for real-time balance calculation during automatic load extraction when a relative balance such as statement balance or minimum due was selected during automatic load rule configuration. For more information on the new `percentage` field of the automatic load rule object, see [Revolving credit automatic load rule setup](/docs/payments/automatic-load/#revolving-credit-automatic-load-rule-setup).
+- New `moneySend` transaction type code created to handle withdrawals from account to external account. Existing `moneySend` transaction type code is changed to `moneyReceive` for use in receiving funds to card. For more information, see [Transactions](/docs/transactions/transactions).
+- Updated roles for customer agent to include the ability to view revolving credit customer details.
+- Corrected issue where multiple automatic load extraction files were generated within a day.
+- Corrected issue where automatic load extraction amounts were not taking payments since the last automatic load into account. For more information, see [Automatic load processing](/docs/payments/automatic-load/#automatic-load-processing). 
+- Corrected issue where automatic load payment requests were appearing in the wrong extraction file.
+- Corrected issue where revolving credit customer repayment due date was off by one day in Dashboard.
+- Added a new `effectiveFrom` field to card blocks to indicate when the triggering event for a card block occurred, such as the card being stolen. For more information, see [Card blocks](/docs/blocks/card-blocks).
+- Corrected issue where automatic load extraction scheduling did not take non-processing days into account.
+- Added new interest fields for UK revolving credit customer billing period summaries in Dashboard.
+- Corrected issue where revolving credit program configuration still required the `repaymentHierarchy` object despite being replaced by the `repaymentDefinition` object.
+- Corrected issue where automatic load rules would not appear in Dashboard following the deletion of an automatic load rule.
+- Corrected issue where revolving credit customer statement notification showed balance up to three decimal places.
+- Corrected issue where billing cycle transaction view for revolving credit customers was off by one day in the Dashboard.
+
+## Week of July 10, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements
+
+- Corrected issue where new revolving credit programs could not be configured due to missed `FUND_TRANSFER` item in repayment definition.
+- Added new "Partner - Withdraw" fee type.
+- Corrected issue with the Customer Over Credit Limit Report, Negative Balance Report, Customer Compliance Balance Report, and Invoice Report that caused reports to be empty.
+- Corrected issue which caused new account report to contain data delayed by one day.
+- Corrected issue where revolving credit customer statement file did not include correct markup types. 
+- Corrected issue where search by card number was not returning expected results in Dashboard.
+- Corrected issue where `fxRateWithMarkup` and `fxRateWithMarkupInverse` were not being correctly calculated for revolving credit statement file.
+- Corrected issue where revolving credit customer statement file was not being generated as expected.
+- Corrected issue where customer search by PAN was not displaying returned results.
+- Corrected spelling mistake in Dashboard on revolving credit customer sub-balance table. 

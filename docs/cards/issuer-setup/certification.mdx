@@ -1,0 +1,91 @@
+---
+title: "Certification"
+menu: Cards
+route: /docs/cards/certification
+excerpt: Issuer identification number (IIN) certification is the process of getting a procured IIN approved by the card network for production use with an issuer processor.
+types: 
+  - guide
+_tags:
+  - cards
+  - networks
+  - network integration 
+  - mastercard
+  - visa
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Certification
+
+Issuer identification number (IIN) certification is the process of getting a procured IIN approved by the card network for production use with an issuer processor. Going through certification gives the card networks certainty that the product being launched on their network is ready for live clients. The certification process typically consists of:
+
+* **Offline testing - ** Validation of authorization test cases using a certified card network simulator tool using mock cards.
+* **Online testing - ** Validation of authorization and clearing test cases using a test connection with the card network processing endpoint.
+* **Physical card testing - ** Optional validation of test cases using physical "white" cards that have been created by the card manufacturer.
+
+## What we do
+
+Episode Six (E6) supports clients throughout the IIN certification process for IINs where E6 has been listed as the issuer processor. This includes setting up your card product configurations in test environments, generating test data sets including cards, performing offline testing using card network simulators, and enabling online testing. E6 will also complete a test integration with card manufacturers as needed so that physical cards can be created for validation. Once the certification process is complete with sign off from the card network, E6 will promote you to production for card issuance and card payment processing.
+
+Reduced testing might be available if E6 already has a certified connection as an issuer processor with the card network for an instance of the E6 platform. As the E6 platform is globally distributed, each instance has to be certified independently with the card networks as each one has its own Group Sign-In (GSI) for Mastercard and processor control record (PCR) for Visa. The test reduction is typically based on previous certification of an IIN for that instance where the funding source (prepaid, debit, or credit) is the same as the new IIN. Your E6 delivery team will help you understand the scope of certification testing required based on the current state of certification for your E6 instance.
+
+## Prerequisites
+
+Before starting certification, an IIN must be [procured](/docs/cards/iin-procurement) either directly from the card network or through an IIN sponsor.
+
+If [physical cards](/docs/cards/physical-cards) are being used, then a card manufacturer must be selected and E6 must have integrated with the manufacturer.
+
+## Actions
+
+Certification with a card network requires you to take the following actions for a new to card network certification. Where noted, some steps may not be required.
+
+### Certification enablement
+
+Prior to the start of certification, E6 will configure all required aspects of card issuance and processing including the [IIN](/docs/cards/iin-procurement), required [card profiles](/docs/cards/card-profiles), and integration details in your test environment. All configurations will align with what was set up with the card network during IIN procurement and details gathered during solution mapping.
+
+### Offline testing
+
+The first part of certification is offline testing, where card authorization tests are run without direct connectivity with the card network. In place of the actual card network, a certified simulation tool is used. The card network will provide you with a test case guide based on the type of product being certified. Once you share this with E6, our team prepares a set of test cards for use throughout testing. E6 then uses the resulting cards in the simulation tool to satisfy the test case guide requirements. When a full set of successful test results are available, E6 will provide the completed test case guide back to you for submission to the card network. Once the results are certified by the card network, online testing can begin.
+
+<Callout
+    calloutType={'info'}
+>
+    Offline testing is likely not needed if E6 has already certified the combination of card network, funding type, and E6 platform instance. Your E6 delivery team will help you understand what testing scope is needed for your IIN certification.
+</Callout>
+
+### Physical card testing
+
+Physical card testing is an optional part of certification based on the utilization of physical cards using chips within the card product experience. The goal of this testing is to ensure that physical cards from the point of card generation with E6, through physical card manufacturing, and finally to presentment of the card for card payment work as expected.
+
+This includes validation of chip-enabled cards through card personalization validation (CPV) for Mastercard, personalization validation testing (PVT) for Visa. These tests are not required as part of certification for virtual cards and physical cards that only use a magstripe. As part of this, E6 will need to perform key exchanges with the card network and the card manufacturer for the purposes of card creation and validation.
+
+Once all integration and setup is complete, a test embossing file will be provided to the card manufacturer. The manufacturer will then create a batch of "white" cards for use in testing. The term "white cards" is in reference to the fact that the cards are typically card-art free and appear as plain-white, plastic cards. The card manufacturer will then perform the physical card testing as needed either through self testing of the cards, a third party, or submission of the white cards to the card network.
+
+Confirmation of successful physical card testing will be provided to the card manufacturer and the issuer, but not to E6 as E6 is not involved in the final creation and testing of the physical cards.
+
+### Online testing
+
+E6 works with the card network to conduct online authorization testing to ensure the connectivity between the card network, the issuer processor (E6), and the card issuer. Similar to offline testing, the simulation scenarios depend on the product type of the card. All online testing is done from the E6 test environment using the same configurations used for offline testing.
+
+<Callout
+    calloutType={'warning'}
+>
+    If you use <a href={"/docs/cards/cooperative-authorization"}>cooperative authorization</a>, then you will need to ensure full integration and processing for that is completed before online testing can commence. E6 will use the cooperative authorization implementation in the test environment when online testing is performed. Failure to fully implement the required cooperative authorization processing may lead to a delay in certification.
+</Callout>
+
+When all parties are prepared to start online testing, E6 submits a set of test cards, usually the same ones used for offline testing, to the card network so that they can simulate different authorization scenarios. These do not have to include any physical white cards that were manufactured. Once the cards are received, the card network will perform online authorization testing for the required scenarios. Once all authorization test scenarios are successful, the card networks move forward to clearing.
+
+Each E6 client has its own file delivery endpoint, such as Mastercard File Express (MFE) for Mastercard and , setup to receive clearing files and reports from the card network. E6 works with the card network to get this setup as needed as part of online testing. When the online authorization testing is done, the card network sends a test clearing file for simulated authorizations that E6 processes to close out the issuer processing tests.
+
+### Production promotion
+
+Once all online testing is complete and signed off, the card network will provide final certification for the IIN. This will be provided to the owner of the IIN. At this point, schemes will work to move the IIN configurations into their production environments. E6 will also promote the IIN, card profiles, and other configurations as needed to a production instance in alignment with other project activities. At this point E6 will also perform key exchanges with the card network and card manufacturer as needed. Final confirmation of production card network connectivity for the IIN comes in the form of an `X800` ISO8583 message that E6 will respond to with an `X810` message.
+
+## What's next
+
+Once certification of the BIN/IIN is completed, cards can be [issued](/docs/cards/issuance-overview) in the production environment in order to make live [card payments](/docs/cards/card-payments).
+
+[Card on file updater](/docs/cards/card-on-file-updaters) certification is usually performed as part of the same card network project as the IIN certification but needs to be completed after certification of the IIN is complete. Similarly, any certification needed for [tokenization](/docs/cards/card-tokens) to use cards in digital wallets has to wait until certification of the IIN is complete.

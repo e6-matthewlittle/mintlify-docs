@@ -1,0 +1,109 @@
+---
+title: "Loan repayment"
+menu: Installments
+route: /docs/installments/loan-repayment
+excerpt: A loan repayment is a payment made to repay a loan's borrowed funds, fees, and interest.
+types: 
+  - guide
+_tags:
+  - products
+  - installments
+  - program
+  - configuration
+  - credits
+  - Load
+  - loan
+  - summary
+  - Reversal
+  - Refund
+  - Chargeback
+  - excess credit
+  - penalization
+  - delinquency
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Loan repayment 
+
+A loan repayment is a payment made to repay a loan's borrowed funds, fees, and interest. Common repayment methods include manual payments or automatic payments set on a recurring schedule. Other non-repayment forms of credit that can be applied to loans include refunds, reversals, and chargebacks. 
+
+## What we do 
+
+Episode Six (E6) enables repayments to be recorded on installments customers' loans. For card payment-based credits, such as refunds, reversals, and chargebacks, E6 automatically processes those credits from the card network and applies them to the appropriate customer account. Loan repayments are processed using the balance repayment hierarchy and payment schedule repayment order that can be set at the installments program level. For more information about installments repayment order, see [Installments program configuration](/docs/installments/installments-program-configuration).
+
+Whenever a credit is recorded on an installments customer, E6 updates the account's balances in real time. The customer's available credit and loan schedule is also updated with each credit applied. 
+
+E6 can process credits for specific loans as well as cross-loan credits. Cross-loan credits are applied to all of a customer's outstanding loans. When a cross-loan credit is received, the credit is applied to each loan in the order specified by the program's repayment order. For example, if the repayment order is set to `TERM_SHORTENING`, then cross-loan credits are applied to each loan's outstanding payments due, followed by each loan's next upcoming payment and last payment due.
+
+If a customer misses their payment, E6 can process delinquency actions and penalization on the customer. Delinquency actions can change the customer's control level or block the customer, while penalization charges a late fee to the customer account.
+
+<Callout
+    calloutType={'info'}
+>
+    Customer delinquency locks can be enabled to determine whether delinquency actions are processed on a customer. If a customer's delinquency lock is toggled off, no delinquency actions are enforced on that account. 
+</Callout>
+
+## Prerequisites 
+
+Before a loan repayment can occur, a loan must be created. For more information, see [Loan creation](/docs/installments/loan-creation). 
+
+For the loan to have card payment-based credits applied, the loan must have been originated from a card payment.
+
+## Actions 
+
+Credits can be recorded for an installments customer's loans through the following methods: 
+
+- Load 
+- Reversal 
+- Refund 
+- Chargeback
+
+### Load 
+
+A repayment can be recorded on the loan by loading funds into the loan child customer account. For more information, see [Account funding](/docs/payments/account-funding).
+
+Loads can also be configured to occur automatically on a recurring schedule. For more information, see [Automatic load](/docs/payments/automatic-load).
+
+### Reversal 
+
+When a reversal is received from a card network, the loan is repaid for the reversal amount. If a full reversal is applied, then the loan is paid off in full. If a partial reversal is received, the reversal credit is applied to the loan in the order defined by the program's payment schedule repayment order.
+
+### Refund 
+
+An installments customer can receive two kinds of refunds from the card network:
+
+| Refund | Description |
+| ---------- | ------------------- |
+| Unmatched refund | A refund not linked to an original transaction. This refund type is the default for all card network refunds. Credits from an unmatched refund are received as cross-loan credits that are applied according to the program's payment schedule repayment order. |
+| Matched refund | A refund linked to the original transaction that generated the loan. The transaction is identified and matched to the refund by client-defined criteria. Credits from a matched refund are applied to the loan associated with the transaction that is matched to the refund. |
+
+<Callout
+    calloutType={'info'}
+>
+    By default, E6 only processes unmatched refunds. If you want to process matched refunds, contact your E6 representative.
+</Callout>
+
+### Chargeback 
+
+When a chargeback for a transaction is received from the card network, the chargeback credit is applied to the specific loan in the order defined by the program's payment schedule repayment order.
+
+### Excess credit 
+
+If a credit recorded on a loan is greater than the loan's outstanding balance, then the excess credit will be applied to the parent customer account. The customer's excess credit will be handled according to the installments program's `excessCreditAction` setting.
+
+### Penalization 
+
+If a customer repayment occurs after the end of the repayment period's grace days, a late payment fee can be applied to the account. The late payment fee is a flat amount that can be configured at the program level.
+
+### Delinquency actions 
+
+Delinquency actions can also be enforced on customers who miss a payment due. If the number of days after the payment due date has exceeded the number of days late defined by the program's delinquency actions, then delinquency actions will be applied to that customer. Depending on the days late and the program's configurations, customers can either be blocked or their control level can be changed by delinquency actions.
+
+## What's next 
+
+After a repayment has been applied to a loan, the customer's loan summary is updated showing the repaid loan balances. For more information, see [Loan summary](/docs/installments/loan-summary). 
+
+If a delinquent customer has triggered a control level change or customer block, these delinquency actions can be manually resolved. To change a customer's control level, see [Customer controls](/docs/controls/customer-controls). To remove a customer's delinquency block, see [Customer blocks](/docs/blocks/customer-blocks).

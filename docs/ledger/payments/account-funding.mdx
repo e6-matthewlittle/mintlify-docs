@@ -1,0 +1,59 @@
+---
+title: "Load"
+menu: Payments
+route: /docs/payments/account-funding
+excerpt: A load is a payment made from an account in an external ledger or SOR into an account.
+types: 
+  - guide
+_tags:
+  - funding
+  - funding accounts
+  - customer identifier
+  - account
+  - recording
+  - record
+  - balance
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Load
+
+A load is a payment made from an account in an external ledger or system of record (SOR) into an account held in a target SOR. The load reaches the target account through a connected payment processor that fulfills the funds transfer via automatic clearing house (ACH), wire, real-time payment (RTP), or other form of electronic funds transfer (EFT).
+
+## What we do
+
+Episode Six (E6) allows for the recording of a load into an E6-managed customer account. When a load is initiated, the target partner account is debited and the customer account is credited.
+
+## Prerequisites
+
+Before recording a load for a customer account, you must create a partner to represent a connected payment processor or payment rail. For more information, see [Payment partner integration](/docs/payments/payment-partner-integration).
+
+<Callout
+  calloutType={'info'}
+>
+This new partner must be set up to process loads in the E6 system. To enable the partner to process loads, contact your E6 representative so that they can perform this part of the setup.
+</Callout>
+
+A customer account must also be created. To create a customer account, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To record a load for an E6-managed customer account, call the [Creates Load Payment API](/tech-specs/payments/fund/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_load_POST). The `partnerName` of the request should be the payment processing partner. For all load requests, the transaction currency must be a currency available for both the partner account and the customer account.
+
+Optionally, amounts to be withheld from available spend can be set on the customer balance as part of a load request. Withholding of funds can be used to delay spend of newly loaded funds or to "quarantine" funds for a required amount of time. When one or more `witholdings` are provided in the request then an authorization hold will be placed on the account for the specified amount. Each `withholding` can have a different `releaseTime` set so that the funds can be made available again at a specified time.
+
+Default fee rules can also be overridden as part of the load request. In the case where specific fee amounts should override program or customer level fee rules, the `loadAmountsWithFees` array should be populated instead of the usual `loadAmounts` array.
+
+<Callout
+    calloutType={'warning'}
+>
+    Do not use both the `loadAmountsWithFees` and `loadAmounts` arrays in the same request.
+</Callout>
+
+## What's next
+
+After the load is recorded, the customer can view their updated account balance. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).

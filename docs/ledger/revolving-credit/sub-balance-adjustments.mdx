@@ -1,0 +1,106 @@
+---
+title: "Sub-balance adjustments"
+menu: Revolving credit
+route: /docs/revolving-credit/sub-balance-adjustments
+excerpt: If a customer sub-balance is incorrect, a sub-balance adjustment can be performed.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - bulk
+  - add
+  - adjust
+  - adjustments
+  - product actions
+  - memo
+  - external reference
+  - customer
+  - configuration
+  - adjust customer sub-balances api
+  - sub-balance
+  - retrieve
+  - Product Actions API endpoint
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Sub-balance adjustments
+
+As a revolving credit customer makes purchases, withdrawals, and repayments, the customer's account balances are tracked in draw type sub-balances. If any of a customer's draw type balances are determined to be inaccurate or incorrect, sub-balance adjustments can be made to correct the balance amount.
+
+## What we do
+
+Episode Six (E6) supports sub-balance adjustments on revolving credit customer accounts. Adjustments can be performed on any draw type sub-balance that has been configured for a customer's program. Sub-balance adjustments can be made calling the Product Actions API with the `adjustBalances` action type. For more information, see [Product actions](/docs/products/product-actions).
+
+<Callout
+    calloutType={'info'}
+>
+    Adjustments to credit customer account balances should only be made using the sub-balance adjustment process. Adjustments to non-credit customer account balances should be made using the change order process.
+</Callout>
+
+## Prerequisites
+
+Before performing a sub-balance adjustment, a customer with revolving credit configurations is required. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+## Actions
+
+To perform a sub-balance adjustment, call the [Adjust Customer Sub-balances API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/adjustRevolvingCreditCustomerSubBalance). This call uses the [Execute offering customer actions API](/tech-specs/product/customer-product/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.OfferingAPI_executeOfferingCustomerAction_POST) with `name` set to `adjustBalances`. In the `value` attribute, provide a JSON object encoded as a string showing the sub-balances you want to adjust and the amount you want to add or subtract from the current balance.
+
+The `schema` attribute in the request contains the data structure identifying the balance types that can be adjusted.
+
+<Callout
+    calloutType={'info'}
+>
+    Only the current period principal sub-balances and the common balance adjustment will accept positive values. For all other sub-balances, the adjustment amount cannot be greater than 0. Adjustments greater than 0 on these balances would lead to a credit. Common balance adjustments can be negative but cannot take the common balance below 0. 
+</Callout>
+
+When a sub-balance adjustment is performed, the customer's draw type sub-balances are updated with the adjusted amounts.
+
+### Optional: Add an external reference
+
+In the `value` attribute, an external reference can be provided as a string in the `externalReference` field. The external reference can be used to retrieve the adjustment transaction. The external reference can be between 1-64 characters long and cannot include any special characters other than dashes or underscores.
+
+### Optional: Add a memo
+
+In the `value` attribute, a transaction memo can be provided as a string in the `memo` field. The memo can be up to 128 characters long. When a `memo` is provided for an adjustment request, the memo will be populated in the resulting transaction entry. If no `memo` field or value is provided in the request, the transaction entry memo for the adjustment transaction will be `Adjustment`.
+
+## What's next
+
+After a sub-balance is adjusted, you can view the updated account balances by calling the [Retrieve Revolving Credit Customer Summary API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/retrieveRevolvingCreditCustomerConfiguration).
+
+## Appendix
+
+### Bulk adjustments
+
+Sub-balance adjustments can be applied in bulk by processing a bulk adjustment file. A bulk adjustment file consists of multiple line items, each of which represents an adjustment transaction. Each adjustment line item should contain the customer number for the customer whose balances are being adjusted. The line item should also specify the draw type, draw balance type, and draw balance sub-type of the balance being adjusted. The adjustment amount is provided in the `amount` field. An external reference and memo can be defined for each adjustment line item.
+
+To enable bulk adjustment file processing, establish an SFTP site and provide details for E6 to access the site. In the SFTP site, establish a directory where you can place adjustment files for E6 to process. In addition, create two directories for completed adjustment files and for results files. E6 will access the adjustment files from the download directory. Once the files are processed, E6 will move the processed file to the completed directory. Separate files containing the results will be uploaded to the results directory, showing the results of the adjustment transactions.
+
+Adjustment files use the following default naming convention:
+
+| Sample | Format |
+| -- | -- |
+| BT.D250523.T160639 | "BT.D" + {date(MMDDYY)} + "." + "T" + "{time(HHMMSS)}" |
+
+Here is a sample of a bulk adjustment file:
+
+```
+{"creditCardAdjustment":{"offeringCustomerNumber":"10000030010266","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"CURRENT","drawBalanceSubType":"PRINCIPAL","amount":-27.13,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}
+{"creditCardAdjustment":{"offeringCustomerNumber":"10000030030280","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"PREVIOUS","drawBalanceSubType":"PRINCIPAL","amount":-15.89,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}
+{"creditCardAdjustment":{"offeringCustomerNumber":"87654321","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"CURRENT","drawBalanceSubType":"PRINCIPAL","amount":-2.43,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}
+{"creditCardAdjustment":{"offeringCustomerNumber":"87654321","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"CURRENT","drawBalanceSubType":"PRINCIPAL","amount":-2.43,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}
+```
+
+When a bulk transaction file has been processed, a file containing the results will be uploaded to the results directory. The results file will have the same file name as the original file, with ".RESULTS" appended to the end of the file name. The results file will contain the same information as the original file with an `error` field that indicates if an error occurred when processing the adjustment. If `error` is `true`, the adjustment line item will contain an `errorDetail` field with information about the error.
+
+Here is a sample of a results file:
+
+```
+{"error":false,"transaction":{"creditCardAdjustment":{"offeringCustomerNumber":"10000010040341","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"CURRENT","drawBalanceSubType":"PRINCIPAL","amount":-27.13,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}}
+{"error":false,"transaction":{"creditCardAdjustment":{"offeringCustomerNumber":"10000010060125","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"PREVIOUS","drawBalanceSubType":"PRINCIPAL","amount":-15.89,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}}
+{"error":true,"errorDetail":"CustomerNumber 87654321 not found.","transaction":{"creditCardAdjustment":{"offeringCustomerNumber":"87654321","balanceAdjustments":{"adjustments":[{"drawType":"FEE","drawBalanceType":"CURRENT","drawBalanceSubType":"PRINCIPAL","amount":-2.43,"externalReference":"XRef1-123456"}],"memo":"Test Memo"}}}}
+{"error":true,"errorDetail":"Unable to parse transaction."}
+```

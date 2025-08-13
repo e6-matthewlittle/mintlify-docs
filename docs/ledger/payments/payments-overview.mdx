@@ -1,0 +1,108 @@
+---
+title: "Payments overview"
+sidebarTitle: "Overview"
+menu: Payments
+route: /docs/payments/payments-overview
+excerpt: Requests to perform a money movement between two accounts in the ledger.
+types: 
+  - guide
+_tags:
+  - credit
+  - cards
+  - payment
+  - wallets
+  - banks
+  - use cases
+  - multicurrency
+  - closed loop
+  - open loop
+  - real-time
+  - payment processing
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# Payments overview
+
+Payment processing with Episode Six (E6) allows end users to transfer funds with configurable payment limits, fees, routing, and exchange rates. The Tritium® platform enables Real-time funding of accounts, withdrawals, purchases, reversals, and many other payments use cases.
+
+The Tritium Payments APIs are built for full integration with client platforms, with the ability to connect to any global payment network. Tritium supports both the ISO 8583 and ISO 20022 message standards.
+
+## Use cases
+
+Tritium enables a wide range of payments use cases, including:
+
+| Use case | Description |
+| ---------- | ------------------- |
+| Multi-currency | Make payments with any currency through Tritium's ability to connect with exchange providers across fiat, cryptocurrency, or any other asset class. |
+| Closed loop and open loop payments | Call the payments APIs to enable closed loop and open loop payments, supporting use cases such as business-to-business, peer-to-peer, and consumer-to-merchant payments. |
+| Real-time payments | Support Real-time payments with Tritium's integrations to the ISO 20022 message standard, enabling payments that settle nearly instantly. |
+
+## How payments work
+
+Tritium provides a dual-entry ledger that tracks transactions within the client's environment. For more information about the technical design of the Tritium ledger, see [Ledger](/docs/system-structure/ledger). For instances where the Tritium ledger is not the system of record, Tritium can cooperatively authorize with external systems to enable transaction settlement.
+
+Funds can be loaded into and withdrawn from accounts hosted in Tritium via any connected payment rail. External references can be established to allow funds to be moved to or from external accounts outside the Tritium system.
+
+Fees, controls, and exchange margins can be defined for additional configuration of payments processing in Tritium. Fees and controls are configured at the program level while exchanges are configured at the partner level. For more information, see [Fee plans](/docs/fees/fee-plans), [Program controls](/docs/controls/program-controls), and [Exchange margins](/docs/fx/exchange-margins).
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/payments/payment-partner-integration"
+      title={<Trans i18nKey="home-resource-1-payments-title" />}
+      body={<Trans i18nKey="home-resource-1-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+      <Highlights.Item
+      linkPath="/docs/payments/account-funding"
+      title={<Trans i18nKey="home-resource-2-payments-title" />}
+      body={<Trans i18nKey="home-resource-2-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/payments/withdraw"
+      title={<Trans i18nKey="home-resource-3-payments-title" />}
+      body={<Trans i18nKey="home-resource-3-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/payments/purchase"
+      title={<Trans i18nKey="home-resource-4-payments-title" />}
+      body={<Trans i18nKey="home-resource-4-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/payments/p2p-transfer"
+      title={<Trans i18nKey="home-resource-6-payments-title" />}
+      body={<Trans i18nKey="home-resource-6-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+      <Highlights.Item
+      linkPath="/docs/fx/fx-transfer"
+      title={<Trans i18nKey="home-resource-7-payments-title" />}
+      body={<Trans i18nKey="home-resource-7-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/payments/partner-transfers"
+      title={<Trans i18nKey="home-resource-8-payments-title" />}
+      body={<Trans i18nKey="home-resource-8-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/balances/adjustments"
+      title={<Trans i18nKey="home-resource-9-payments-title" />}
+      body={<Trans i18nKey="home-resource-9-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+        <Highlights.Item
+      linkPath="/docs/payments/automatic-load"
+      title={<Trans i18nKey="home-resource-10-payments-title" />}
+      body={<Trans i18nKey="home-resource-10-payments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

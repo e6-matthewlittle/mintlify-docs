@@ -1,0 +1,40 @@
+---
+title: "Partner fees"
+menu: Fees
+route: /docs/fees/partner-fees
+excerpt: A Partner fee is a fee rule that charges a fee from a customer to a partner.
+types: 
+  - guide
+_tags:
+  - partner
+  - fee
+  - partner fees
+  - fee rule
+containerWide: true
+showHeadingsNav: true
+date: "02-27-2023"
+---
+
+# Partner fees
+
+A partner fee is a fee rule that causes a fee to be charged to a customer which is credited to a partner. Once setup, partner fee rules can be used to allow partners to receive revenue for processing customer transactions alongside the program operator. Other uses include creating tax witholding for certain types of transactions.
+
+## What we do
+
+Episode Six (E6) provides the ability to manage partner fee rules for a program. Each partner fee rule is assigned to a specific transaction source-type combination. Partner fee rules operate in parallel with the fee plans to which the customer has been assigned.
+
+## Prerequisites
+
+To create a partner fee, you must first create a [program](/docs/programs/programs).
+
+## Actions
+
+You can add a partner fee to a customer calling the [Create Partner Fee API](/tech-specs/fees/program-partner-fees/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerFeesAPI_createOrUpdate_POST). Fees must be setup in alignment with a transaction type and source code. For information about fee calculation methods and a list of available fees, see [Fee rules](/docs/fees/fee-rules).
+
+When triggered, the partner fee will debit the customer account and credit the partner that was the counterparty of the triggering transaction.
+
+## What's next
+
+Once a partner fee has been created, it can be managed calling the [Partner Fee APIs](/tech-specs/fees/program-partner-fees). After creating a customer, fees are calculated and assessed based on the triggering activity.
+
+Unlike customer fees, partner fees cannot be amended or exempted by program level or customer level fee plans or exceptions.

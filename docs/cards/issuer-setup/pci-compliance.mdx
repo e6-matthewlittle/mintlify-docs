@@ -1,0 +1,37 @@
+---
+title: "PCI compliance"
+route: "/docs/cards/pci-compliance"
+excerpt: A type of security standard required to protect cardholder info when PANs are present.
+types: 
+  - guide
+_tags:
+  - security
+  - pci
+  - pci dss
+  - pci compliance
+  - certification
+showHeadingsNav: true
+containerWide: true
+date: "07-15-2022"
+---
+
+# PCI compliance
+
+Payment card industry (PCI) compliance is the state of being within the Payment Card Industry Data Security Standards (PCI DSS) laid out by the PCI Security Standards Council. Under PCI DSS, security measures must be in place to ensure protection of cardholder data. Depending on the amount of transactions being processed per year, card networks require service providers to meet set levels of PCI DSS compliance.
+
+| PCI DSS Service Provider Level | Description | Requirements |
+| -- | -- | -- |
+| Level 1 | Greater than 300,000 transactions per year. | Annual PCI assessment resulting in a Report on Compliance (ROC) |
+| Level 2 | Fewer than 300,000 transactions per year. | Annual self-assessment questionnaire (SAQ) |
+
+For additional information on PCI and compliance with requirements, see the PCI Security Standards Council [website](https://www.pcisecuritystandards.org).
+
+## What we do
+
+Episode Six (E6) is certified as PCI DSS Level 1. This means that E6 can generate, store, and process cardholder data as an issuer processor for all card networks. This includes all E6 Cloud hosted instances of the E6 platform. Since E6 is PCI-compliant, clients are able to access card issuer processing features without being PCI-compliant themselves. This is done through preventing the access of card PANs across APIs and reports.
+
+## Actions
+
+Clients who are looking to access PANs in their server-side systems need to be PCI-compliant. E6 will not provide access to card PANs unless clients, or their third parties, can prove compliance. E6 tracks and manages the enforcement of PCI-compliance at the [partner](/docs/platform-access/partners) level. For non-PCI compliant parties, E6 can provide controlled access to the PAN using one-time, limited use bearer tokens. For more information, see [Virtual card access](/docs/cards/virtual-card-access).
+
+E6 will also enforce PAN masking for non-PCI-compliant for any reports, notifications, or other data feeds that are provided.

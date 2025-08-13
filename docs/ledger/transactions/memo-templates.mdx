@@ -1,0 +1,52 @@
+---
+title: "Memo templates"
+menu: Transactions
+route: /docs/transactions/memo-templates
+excerpt: Create custom memo templates to populate the memo fields of transactions.
+types: 
+  - guide
+_tags:
+  - transaction memo
+  - memo templates
+  - memo
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Memo templates
+
+Memo templates are configurations that are used to dynamically generate transaction memos. This allows you to generate transaction memos based on the type of transaction and reference transaction-specific values in the memo to give greater context to your customers. Transaction memo templates are typically managed in the context of a particular language to support the display of memos in the customer's preferred language.
+
+## What we do
+
+Episode Six (E6) gives you the ability to self-configure and manage transaction memo templates for each program. You can set up memo templates in multiple languages per program so that you can display memos differently for different customers as needed. Memo template sets are a set of memo templates set per program per language. Once a memo template is created you can configure memo templates for each transaction type.
+
+## Prerequisites
+
+Before a memo template can be configured, you must first have a [program](/docs/programs/programs) with which to associate a memo template.
+
+## Actions
+
+Memo templates are built around language-specific template sets. Before transaction type specific memo templates can be set up, you first need to add a memo template set per language you want to support. To create a memo template set, call the [Create or Update Memo Template Set API](/tech-specs/transactions/memo-templates/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.MemoAPI_createMemoTemplateSet_POST) and provide the `language` you want to set up.
+
+After you have a memo template set created, you can set up individual memo templates for that language. To create a memo template, call the [Create or Update Memo Template API](/tech-specs/transactions/memo-templates/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.MemoAPI_createMemoTemplate_POST). Within this request, you must provide the `template` that provides the string value to be populated in the `memo` field.
+
+### Variables
+
+To include variables in your templates, use the `${...}` container to denote variables, such as `${cardAcceptorCity}`. When the memo is being generated, the variable is automatically filled in with the relevant information. If the required information is not available, the template resets to the default placeholder text.
+
+To specify how your default variable (`var`) text is handled in mail and memo templates, several options are provided:
+
+| Syntax | Description |
+| -- | -- |
+| `${var:default}` | Expands to `var`, will expand to default if `var` is not defined. |
+| `${var::default}` | Performs the above default fallback, but allows for escaping special characters like "+,-". |
+| `${var:+default}` | Expands to "" if `var` is not defined, and default if `var` is defined. |
+| `${var:-default}` | Expands to "" if `var` is defined, and default if `var` is not defined. |
+
+## What's next
+
+After you set up the transaction memo template, any matching [transactions](/docs/transactions/transactions) will have the `memo` field populated using the template.
+
+You can also view and update memo template sets and their memo templates as needed using the [Memo Template APIs](/tech-specs/transactions/memo-templates). Dynamic values can be set in the memo template using the format of `${dynamicAttributeName}`. Attributes available for memo templates include the below options.

@@ -1,0 +1,278 @@
+---
+title: "Cooperative authorization"
+menu: Cards
+route: /docs/cards/cooperative-authorization
+excerpt: Integration between E6 as an issuer processor and your account system of record.
+types: 
+  - guide
+_tags:
+  - real-time funding
+  - cooperative authorization
+  - cooperative
+containerWide: true
+showHeadingsNav: true
+date: "08-09-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Cooperative authorization
+
+In many cases, an issuer has multiple systems that are used throughout card payment processing. These systems can include an account processing system (account system of record or ledger), a card management system (CMS), and a card payment issuer processing system. The card management system and payment processing system are commonly combined for card payments when a third party card issuer processor is used. While these systems can be combined in many ways, depending on the system provider, the key systems must be able to communicate to complete card payments.
+
+Cooperative authorization is the process when the issuer processor interfaces with the card network and then asks the system of record to evaluate the requests and update the account as necessary. One advantage of cooperative authorization is that it allows issuer processing to be cloud-based and the system of record does not have to maintain PCI compliance. Cooperative authorization also removes the need for shadow ledgering when two balances are maintained in two different systems. Shadow ledgering can cause the balances to fall out of synchronization.
+
+## What we do
+
+Episode Six (E6) provides a standard framework for connecting our card issuer processing solution with your system of record to enable cooperative authorization. E6 receives and parses incoming ISO 8583 messages from any card network, performs allocated checks such as velocity controls, and works with the system of record to make decisions as needed. Once the system of record returns a decision, E6 finalizes the response back to the card network, generates the ISO 8583 message, and returns the ISO 8583 message back to the card network to complete the card payment process.
+
+Cooperative authorization is also how E6 is able to authorize and process card payments on distributed ledger systems. E6 can power cards on cryptocurrency wallets through this process.
+
+## Prerequisites
+
+Enabling your system to process card payments using E6 as the issuer processor using cooperative authorization requires the following setup items to be completed.
+
+### Authentication enablement
+
+E6 needs to be able to securely call any API endpoints which you expose as part of cooperative authorization. Commonly this will include issuance of a bearer token to be passed by E6 in the headers of cooperative authorization API calls to your system. This bearer token must be a base64 string (512 bits). E6 will store a provided bearer token per environment once they have been provided. If desired, you can manage and update bearer tokens using [secret management](/docs/platform-access/secret-management). When creating the secret, the type should be set as `RTF_BEARER_TOKEN`.
+
+### API Exposure
+
+To use cooperative authorization with E6 as the issuer processor, clients must enable a connection with your system of record. Connection includes exposing the following standard E6 cooperative authorization APIs that align with the card payment lifecycle. For more information on the card payment lifecycle, see [Card Payments](/docs/cards/card-payments).
+
+| API | Card Payment Event(s) |
+| --- | --------------------- |
+| [Authorization](/tech-specs/cards/cooperative-authorization) | Authorization, incremental authorization, partial authorization, refund authorization, balance inquiry, account inquiry |
+| [Clearing](/tech-specs/cards/cooperative-authorization) | Clearing, Refund posting |
+| [Reversal](/tech-specs/cards/cooperative-authorization) | Reversal, System timeout |
+
+E6 must be provided the base path of the cooperative authorization APIs which you expose. Each environment that you use will require its own base path. E6 will code to this base path and the APIs you expose during initial setup of your E6 tenancy.
+
+### Duplicate Messages
+
+E6 provides a `referenceNumber` as part of each cooperative authorization request. This field should be used to perform a duplicate message check as part of each of the cooperative authorization endpoints exposed by your system. Duplicate message can occur as a result of E6 system retries or other extenuating circumstances.
+
+<Callout
+    calloutType={'warning'}
+>
+    Failure to enforce a duplicate message check can lead to multiple authorization holds or transactions being posted to your customer accounts.
+</Callout>
+
+### Response Generation
+
+Responses must be generated according to the E6 error code structure. For cooperative authorization, you can send back to Tritium the following response codes:
+
+| Scenario | Description | Response Code |
+| ------- | ------ | ------ |
+| Success | Card lifecycle event was approved or processed successfully. | `"0"` |
+| Insufficient Funds | Card payment was unable to be approved due to a the account not having the required funds for the payment amount. | `"300"` |
+| Control | Card payment was unable to be approved due to the account failing a control parameter such as a velocity control. | `"400"` |
+| Client-Specified Error | A specific type of error code to be returned to the card scheme based on the system of record processing. For example `"610x61"` for Mastercard will lead E6 to return a response to the card scheme with reason code `"61"`. These error codes must start with `"610x"` following by the card scheme response code in the place of the `"NN"`. | `"610xNN"` |
+
+When processing against these APIs, your system has 3000 milliseconds to respond. In all cases, the API messages are synchronous, meaning if a response is not sent for any message, E6 continues to send repeats of the original message until a response is received. If no response is received, then the request times out and decline messages are sent to the card network.
+
+<Callout
+    calloutType={'warning'}
+>
+    If any other response code other than the above is returned, E6 will return a default decline response code to the card scheme.
+</Callout>
+
+For more information on Mastercard response codes, see [Mastercard Response Codes and Error Codes](https://developer.mastercard.com/mastercard-merchant-presented-qr/documentation/server-apis/response-error-codes/#network-response-codes). For more information on Visa response codes, see [Visa Request and Response Codes](https://developer.visa.com/request_response_codes#Action%20Code%20(actionCode)%20%20-%20UPDATED).
+
+## Actions
+
+Your system must be able to perform the following actions as part of cooperative authorization. Each card lifecycle event requires different actions from your account system of record.
+
+### Authorizations
+
+When E6 receives an authorization message for a card payment, a call is made to the [Authorization](/tech-specs/cards/cooperative-authorization) that was set up in your system.
+
+**Typical authorization** <br/>
+In a normal card payment, an authorization will be raised by the merchant before later capturing the funds through clearing. E6 will complete it's part of authorization processing and will only send a request to your system if all E6 authorization checks have succeeded. A list of verifications which have been already been performed by E6 as part of authorization processing will be included in the `verificationList` field. When you receive a call to your Authorization API, the following actions are expected to be executed:
+
+- Decision of the authorization request
+- Creation of an authorization hold (temporary debit) on the account if authorization is approved
+- Initiation of a timeout operation for the authorization hold based on the provided releaseTime. If the `releaseTime` is reached without the card payment being completed then the authorization hold should be removed from the account.
+
+Other behavior scenarios for authorization processing which must be included in your Authorization API behavior include force post authorizations, incremental authorizations, partial authorizations, and refund authorizations.
+
+**Force post authorization** <br/>
+In certain cases, authorizations are performed where the decision of the authorization request doesn't need to be approved. This is called using force post. When this occurs, E6 sets `forcePost = true` in the request. In this case, you should not attempt to decision the authorization request and should proceed with authorization hold creation. E6 will always expect a success response in this scenario. If your system is unable to respond to a `forcePost = true` message for any reason, including downtime or outage, E6 will continue to make this request periodically until a success response is provided.
+
+**Incremental authorizations** <br/>
+An incremental authorization allows a merchant to increase authorized amounts on a cardholder account before the payment is cleared. In E6 receives an incremental authorization associated with an existing authorization, the request to the Authorization API will reference the original authorization when the call is made by having the `originalAuthorizationId` field populated with the `authorizationId` from the original authorization. When the call is made to your system, the following actions are expected to be executed:
+
+- Decision of the incremental authorization request (only decision based on incremental amount)
+- If approved
+    - Removal of the original authorization hold from the account
+    - Creation of a new authorization hold on the account for the new total amount
+    - Kick off a timeout operation for the new authorization hold based on the provided releaseTime. If the `releaseTime` is reached without the card payment being completed then the authorization hold should be removed from the account.
+- If declined
+    - No further action is required
+
+**Partial authorizations** <br/>
+A partial authorization allows an issuer to approve an authorization even when the cardholder account doesn't have sufficient funds. In this case, the issuer can respond with an authorization approval with the available amount. Partial authorizations can only be performed at certain merchants who support it. If the merchant accepts partial authorizations, the `partialAuth` field will be set to `true`. If you wish to approve a partial authorization, the `partialAmount` field should be returned with the amount set to the approved amount. If E6 receives a `partialAmount` then it will respond to the card scheme with response code `10`.
+
+<Callout
+    calloutType={'info'}
+>
+    If you wish to use partial authorizations, please contact your E6 representative as the feature will need to be enabled for you by E6.
+</Callout>
+
+**Zero amount authorizations** <br/>
+Zero amount authorization requests are often used to establish a valid card is present where customers enter their cards into platforms for monthly billing. Also, these messages can identify possible fraudulent activity, such as when a card is being pinged across multiple platforms by an unauthorized user to establish whether the card is usable.
+
+<Callout
+    calloutType={'info'}
+>
+    If you wish to use zero amount authorizations, please contact your E6 representative as the feature will need to be enabled for you by E6.
+</Callout>
+
+When a zero amount authorization call is made to your system, the following actions are expected to be executed:
+
+- Decision of the authorization request (as you would any other transaction)
+
+**Refund authorizations** <br/>
+Most card networks recommend that cardholders are notified of pending refunds through authorizations before the refund is cleared. When E6 receives a refund through an authorization message, a call is made to the Authorization API with the `partnerTransactionType` field set to `withdraw`. When you receive a refund authorization call to your Authorization API endpoint, the following actions are expected to be executed:
+
+- Creation of a positive authorization hold (temporary credit) on the account
+- Initiation of a timeout operation for the authorization hold based on the provided releaseTime. If the `releaseTime` is reached without the card payment being completed then the positive authorization hold should be removed from the account.
+
+<Callout
+    calloutType={'info'}
+>
+    Merchant refunds are independent payments from the original purchases and might not have a reference to the original authorizations unless it was provided explicitly by the merchant. As such, the `authTransactionId` field will be populated as this is a new authorization.
+</Callout>
+
+### Clearings
+
+When E6 receives a clearing file from a card scheme, a call is made to the [Clearing API](/tech-specs/cards/cooperative-authorization/api?#operation/net.e6tech.h3.middletier.module.payment.action.plugins.rtf.CanonicalRTFIntegrationAPI_transaction_PUT) that was set up in your system. This will lead to full transactions being posted to your customer accounts. All clearing transactions are processed with `forcePost = true` as they cannot be ignored.
+
+<Callout
+    calloutType={'warning'}
+>
+    For clearing, approve-only responses are expected. A response must be returned for clearing requests.
+</Callout>
+
+E6 will maintain each representative customer account in our system at a zero balance as part of cooperative authorization for accounting purposes. When a clearing message for a customer is received from a card scheme, an equivalent, offsetting `load` or `withdraw` transaction with a source type of `partner` will be created against the cooperative authorization partner.
+
+**Typical Clearing** <br/>
+When a merchant wants to capture funds from cardholders promised through an authorization, they do so by clearing those transactions. When the call is made to your system, the following actions are expected to be executed:
+
+- Release of an associated authorization hold from the account
+- Post of a full purchase transaction to the account
+
+The corresponding authorization can be identified using the `authTransactionId` field. The `authTransactionId` is set to the authorization identifier from the original authorization. Not all transactions are previously authorized. In the event of no previous authorization, the `authTransactionId` field will be empty.
+
+Some regions use single messages for the majority of transactions, other regions for very specific transactions (ATM’s Networks being a common example). Where Single Messages are received, the request will be sent through as a clearing transaction with the `forcePost` value set to `false`.
+
+**Cash Advances** <br/>
+There are a number of different fields that can be used to identify a cash advance / withdrawal. First and foremost being the `transactionType` field which will be `purchase` or `withdrawal` for each of these scenarios. Certain codes for `MCC` such as `6010` for "ATM" or `6011` for "Cash Over Counter" can sometimes signify a cash equivalent purchase.
+
+**Multiple Clearing Messages** <br/>
+Multiple clearing caters to the logistics of e-commerce transactions. The schemes allow multiple clearing messages to be passed at different intervals, timed to the order of shipment dispatch so that after the initial authorization, cardholders will receive more than one clearing message tied to that single original authorization.
+
+Clearing payloads where multiple clearing is being used and can be identified through the `remainAuthCurrency` and `remainAuthAmount` fields. These fields are used exclusively for multiple clearing messages.
+
+When a multiple clearing call is made to your system, the following actions are expected to be executed:
+
+- Release of the original associated authorization hold from the account
+- Creation of a new authorization hold for the remaining authorized amount
+- Post of the cleared purchase transaction amount to the account
+- Initiation of a timeout operation for the authorization hold based on the provided releaseTime. If the `releaseTime` is reached without the card payment being completed then the positive authorization hold should be removed from the account.
+
+Authorization matching must be performed using:
+- `retrievalID` where the `retrievalID` value is the original transaction ID; and
+- `authTransactionId` where the `authTransactionId` is set to the authorization identifier from the original authorization
+
+**Refund clearings** <br/>
+When E6 receives a clearing file that includes a refund, a call is made to the Clearing API with a `transactionTypeCode` of `4`for `refund` and a positive value. When a refund call is made to your system, the following actions are expected to be executed:
+
+- Post a credit transaction to the account for the refund amount
+
+If the refund was authorized, then the `authTransactionId` field is populated. This field population is set to the authorization identifier from the original authorization.
+
+### Reversals
+
+Reversals occur when an already registered authorization hold or transaction needs to be backed out. When E6 receives a reversal message for a card, a call is made to the [Reversal API](/tech-specs/cards/cooperative-authorization) that was set up in your system. Reversals can be for the full amount or for a partial amount. Reversals are linked through the `originalTransactionId` field to original transactions. E6 also calls the Reversal API if a decline message is received from the card network.
+
+**Authorization Reversal** <br/>
+An authorization reversal is used when a merchant opts to cancel an already completed authorization request. When the call is made to your system, the following actions are expected to be executed:
+
+- If full reversal: Release authorization hold from the account
+- If partial reversal: Release of the original authorization hold from the account and generation of an updated authorization hold
+
+**Clearing Reversal** <br/>
+A clearing reversal is used when a merchant opts to cancel an already cleared transaction. When the call is made to your system, the following actions are expected to be executed:
+
+- Post a transaction to the account for the reversal amount (can be credit or debit)
+- Unwind any fees or other transactions associated with the original cleared transaction as needed
+
+<Callout
+    calloutType={'warning'}
+>
+    Depending on the type of account to which the card is associated, additional actions might be needed. For example, reversals on credit cards will affect interest accrual amounts.
+</Callout>
+
+**Timeout** <br/>
+E6 also calls the Reversal API if a timeout occurs within the E6 system after an unsuccessful call to the Authorization API. In this case, E6 responds to the card network with a decline and makes the Reversal API call to notify your system of the action. In timeout scenarios, `reversalTransactionID` is not sent in the request. For all other reversals, `reversalTransactionID` is present.
+
+## What's next
+
+An issuer must reconcile and settle with the card network as needed. *Settlement* is the process of making a payment to the card network for the net outflow of funds made by the card network on behalf of an issuer. For information on how to reconcile net settlement positions, see the [Program net positions report](/docs/reports/program-net-positions). For details of what is contained in the Invoice Report, you can use the [Card authorization messages report](/docs/reports/card-authorization-messages) and the [Card clearing messages report](/docs/reports/card-clearing-messages). These will contain all transaction level line items which comprise the Invoice Report totals.
+
+## Appendix
+
+### Description of fields
+
+| Cooperative authorization request field | Sample value/Description | ISO 8583 field | Sample value / Description |
+| ----------------- | ------------------------ | -------------- | -------------------------- |
+| type              | authorization, reversal, transaction | 0  | 0100 – Auth                |
+| interchangeName   | test_interchange_name    |                |                            |
+| currency          | GBP                      | 20             | 840                        |
+| amount            | 12.23                    | 4              | 000000001223               |
+| customerNumber    | 10000170010647           | 2              | 5373283144285483           |
+| cardNumber        | 7773531729921536741      | 2              | 5376716560300846           |
+| partnerName       | rtf_test_partner         | 2              | 5376716560300846           |
+| programName       | rtf_test_program         | 2              | 5376716560300846           |
+| forcePost         | false                    |                |                            |
+| transactionSourceCode | 5 Load(5) for debit  |                |                            |
+| transactionTypeCode | 3 purchase, load       |                |                            |
+| retrievalId       | 1000000006000            |                |                            |
+| releaseTime       | 1647370331070            |                |                            |
+| feeAmount         | 0.00                     |                |                            |
+| partnerTransactionType | load                  |                |                            |
+| paymentContext    |                          |                |                            |
+| transactionSource | Online                   |                |                            |
+| cardAcceptorId    | ABC123TESTMTF19          | 42             | ABC123TESTMTF19            |
+| complianceAmount  | -12.23                   | 4              | 000000001223               |
+| authCode          | 392392                   |                |                            |
+| cardAcceptorTerminalId | MTF TEST            | 41             | MTF TEST                   |
+| acquiringInstitutionId | 999901              | 32             | 999901                     |
+| cardAcceptorCountryCode | NV                 | 43             | Department Store Vegas NV  |
+| settlementDate    | 20220310                 | 7              | 0310185211                 |
+| mcc               | 1234                     | 18             | 1234                       |
+| acquirerAmount    | 12.23                    | 4              | 000000001223               |
+| authorization     | true                     |                |                            |
+| transactionType   | purchase                 | 3              | 000000 The first two digits for the code determine the action: purchase, load, withdraw etc. |
+| cardAcceptorCity  | Las Vegas                    | 43             | Department Store Las Vegas NV  |
+| reversal          | false                    |                |                            |
+| referenceNumber   | 010033104203101852110000012345600000000000 | 0, 11, 7, 32, 33 |            |
+| authReleasedTime  | 0                        |                |                            |
+| complianceCurrency | GBP                     | 19             | 840                        |
+| originalReferenceNumber | MRW011B630315      | 63, 15         | MRW011B63, 0315            |
+| acquirerCurrency  | GBP                      | 20             | 840                        |
+| forcePost         | false                    |                |                            |
+| cardAcceptorName  | Department Store         | 43             | Department Store Las Vegas NV  |
+| posEntryMode      | 072                      | 22             | 072                        |
+| posCondition      | 00001                    | 61             | 00001                      |
+| cardPresent       | false                    |                |                            |
+| rawRequest        | Raw ISO message          |                |                            |
+| rawReferenceNumber | 010033104203101852110000012345600000000000 | 0, 11, 7, 32, 33 |            |
+| authTransactionId | 1000000010021 Applicable to authorizations and transactions | |            |
+| partialAuth | false - Boolean to toggle whether the merchant supports partial authorization. If true, the issuer can decide to perform a partial authorization approval if needed. If no value is present, partialAuth defaults to false.| |            |
+| originalTransactionId | 1000000018022 Applicable to reversals |               |            |
+| reversalTransactionId | 1000000018023 Applicable to reversals |               |            |
+| transactionId     | 1000000006003 Applicable to transactions  |               |            |
+| remainAuthCurrency  | Currency for multi-clearing transaction  | 25 | $ - currency for multi-clearing authorization   |   |
+| remainAuthAmount   | Amount for multi-clearing transaction    | 25 | 50.00 - amount for multi-clearing authorization |   |

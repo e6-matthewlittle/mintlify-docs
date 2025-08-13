@@ -1,0 +1,61 @@
+---
+title: "FX transfer"
+menu: Payments
+route: /docs/fx/fx-transfer
+excerpt: FX transfers allow customers to convert one currency to another currency for payments.
+types: 
+  - guide
+_tags:
+  - wallet
+  - transfer
+  - fx
+  - confirm
+  - funds
+  - quote
+  - multicurrency
+  - currency
+  - target currency
+  - margins
+  - buy margin
+  - sell margin
+  - request
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# FX transfer
+
+When a customer has a multicurrency deposit account, funds can be exchanged between the customer's supported currencies. This process involves booking a foreign exchange (FX) trade to make funds available in the target currency. FX transfers allow customers to convert value held in one currency to another currency for future payments.
+
+<Diagram
+    img={'https://episodesix.com/hubfs/web-content/diagrams/process/FX%20transfer.svg'}
+    caption={'FX transfer process'}
+/>
+
+## What we do
+
+Episode Six (E6) allows customers to exchange funds of one currency for another within the same multicurrency account. E6 manages connections with exchange partners so that FX trades can be booked as part of the FX transfer. E6 enables rate quotes to be retrieved based on a real-time price feed or based on a fixed rate table.
+
+When an FX wallet transfer is made, the source currency wallet is debited and the exchange's account is credited. The exchange's account sells the source currency to buy an equivalent amount in the destination currency. This amount is then debited from the exchange's account and credited to the destination currency wallet.
+
+## Prerequisites
+
+Before performing a wallet transfer, an exchange provider and exchange must exist under your bank entity. The exchange must be configured to support the currencies you want to exchange. For more information, see [Partners](/docs/administration/administration-overview). Buy and sell margins on currencies and currency pairs can be established per exchange or program.
+
+The customer should be created under a program with more than one currency set up and an exchange added. To create a multicurrency deposit program, see [Programs](/docs/programs/programs).
+
+Once a multicurrency program has been created, you can add customers for that program. These customers will be created with the currency wallets selected for the program. To create a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+You can transfer funds between a customer's wallets using the following process:
+
+1. Obtain an exchange rate by calling the [Request FX Quote API](/tech-specs/FX/fx-wallet-transfer/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getExchangeQuote_POST)
+2. Confirm the FX transfer by calling the [Confirm Wallet Transfer API](/tech-specs/FX/fx-wallet-transfer/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_confirmWalletTransfer_PUT) and providing the quote from the previous step
+
+## What's next
+
+After performing an FX transfer, the customer can view their updated currency wallet balances. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).

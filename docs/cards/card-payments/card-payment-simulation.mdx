@@ -1,0 +1,1295 @@
+---
+title: "Card payment simulation"
+menu: Cards
+route: /docs/cards/card-payment-simulation
+excerpt: Card payment simulation allows you to test various card payment scenarios.
+types: 
+  - guide
+_tags:
+  - cards
+  - orders
+  - tokenization
+  - payment simulation
+  - api
+  - payment events
+  - simulate
+  - card payments
+  - ISO8583
+containerWide: true
+showHeadingsNav: true
+date: "11-18-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Card payment simulation
+
+When developing a card-based product, the ability to successfully process card payments must be tested before the product can go live. Card payment simulation allows you to test various card payment scenarios without connecting to a production instance of a card network. By simulating card payments, you can confirm that processing activities like the placement and releases of authorization holds, transaction posting, balance calculation, and payment controls are operating as expected.
+
+## What we do
+
+You can call the Episode Six (E6) [Card Payment Simulation API](/tech-specs/cards/card-payment-simulation) to test card payments before going into production. The Simulation API supports payment scenarios like authorizations, clearings, and reversals. With each request, the Simulation API builds an ISO 8583 request message, sends it through a simulated card scheme, and returns an ISO 8583 response message. Both the request and response messages are returned in the response body. E6 provides multiple endpoints in the Simulation API that allow you to simulate common payment events, including:
+
+- POS purchase
+- Online purchase
+- ATM withdrawal
+- ATM balance inquiry
+- Authorization reversal
+- Clearing reversal (refund)
+- Foreign exchange (FX) transaction
+- PIN Validation - Success
+- PIN Validation - Failure
+- Visa Fast Funds
+- FX Dynamic Currency Conversion (DCC)
+- FX Cross Border
+- Raw message simulation
+
+In addition to card and payment details, a country code and physical address can also be provided in Simulation API calls. By providing the country code in the request, you can test if card payment controls on international transactions process correctly.
+
+Any controls that have been set in your environment will also be applied to transactions created with the Simulation API, allowing you to test that your controls are behaving as expected.
+
+## Prerequisites
+
+Card payment simulation is only available for [issued](/docs/cards/issuance-overview) cards.
+
+Once the card has been created, retrieve the card's PAN and expiry. There are several methods to retrieve card details depending on your Payment Card Industry Data Security Standards (PCI-DSS) status. For information, see [Virtual card access](/docs/cards/virtual-card-access).
+
+<Callout
+    calloutType={'info'}
+>
+    The Simulation API can be used with a card in any card state, such as <tt>activated</tt>, <tt>created</tt>, <tt>shipped</tt>, or <tt>invalid</tt>, to test that cards are properly accepted or declined.
+</Callout>
+
+## Actions
+
+You can call the Simulation API in the following standard flow:
+
+1. Call the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST) to simulate an authorization. The response returns two XML-formatted ISO 8583 messages for the transaction: a request message in the `requestMsg` field, and a response message in the `responseMsg` field.
+2. After simulating an authorization, call the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT) to clear the simulated transaction. The clearing request includes the same fields as the authorization request, with two additional fields: `originalMsgRequest` and `originalMsgResponse`. In the `originalMsgRequest` field, include the XML ISO message from the `requestMsg` returned in the authorization response. In the `originalMsgResponse` field, include the response XML ISO message from the `responseMsg` returned in the authorization response.
+
+<Callout
+    calloutType={'info'}
+>
+    In some cases, the <tt>billingAmount</tt> in the clearing request can have different values than the authorization request. For example, when leaving a tip at a restaurant, the clearing amount will be greater than the original authorization amount.
+</Callout>
+
+For most use cases, both an authorization and clearing are required. For reversals or refunds, an additional call to the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT) is required.
+
+See the following table for instructions on calling the Simulation API to test common payment events:
+
+| Use case | Description | Simulation requirements |
+| - | - | - |
+| POS purchase | A purchase made at a physical Point of Sale (POS). | In the authorization request, set `cardPresent` to `true` and set `transactionType` to `Purchase`. In the `MCC` field, provide the Merchant Category Code (MCC) for the merchant type you want to test. |
+| Online purchase | A purchase made at an online retailer. | In the authorization request, set `cardPresent` to `false` and `transactionType` to `Purchase`. In the `MCC` field, provide the MCC for the merchant type you want to test. |
+| ATM withdrawal | Withdrawal of funds from an Automated Teller Machine (ATM). | In the authorization request, set `cardPresent` to `true` and `transactionType` to `Withdraw`. Set the `MCC` to `6011`. 6011 is the MCC for ATMs. |
+| Balance inquiry | A transaction that allows a customer to view their account balances. | In the authorization request, set `cardPresent` to `true` and  `transactionType` to `balanceInquiry`. Set the `MCC` to `6011`. 6011 is the MCC for ATMs. In the authorization response, the balance is available in Field 54 of the `responseMsg`. Field 54 contains the applicable currency code (such as `840` for USD), a `C` or `D` to indicate a Credit or Debit amount, and the balance amount in the last 12 digits. |
+| Authorization reversal | The cancellation of an authorization before the clearing has completed. | Any kind of authorization can be reversed, but online or POS purchases are most commonly reversed. After processing an authorization, call the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT). In the reversal request, set the `authorization` field to `true`. In the `originalMsg` field, include the authorization ISO request message that was returned in the `requestMsg` field in the authorization response. |
+| Clearing reversal (Refund) | A credit sent to the customer after the clearing authorization is completed. | Any kind of clearing can be reversed, but online or POS purchases are most commonly reversed. After processing an authorization and clearing, call the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT). In the reversal request, set the `authorization` field to `false`. In the `originalMsg` field, include the clearing ISO request message that was returned in the `requestMsg` field in the clearing response. |
+| FX transaction | A transaction made using a foreign currency. | In the `acquirerAmount` object of the authorization request, provide a `currency` that is different than the program's billing currency. Note that the Simulation API does not calculate exchange rates. In the `amount` field in the `acquirerAmount` object, provide an amount that has already been converted to the acquirer currency according to the current exchange rate. |
+| PIN Validation - Success | A transaction made using the correct PIN. | A PIN block can be generated using the test PIN encryption key provided by E6 named `KPE_INTERCHANGE`. Once the encrypted PIN block has been generated, include an `additionalFields` object in the authorization request with `path` set to `52` (the field for PIN blocks), `value` set to the encrypted PIN block, and `type` to `Binary`. |
+| PIN Validation - Failure | A transaction made using an incorrect PIN. | Include an `additionalFields` object in the authorization request with `path` set to `52` (the field for PIN blocks), `value` set to an invalid value like `0000000000000000`, and `type` to `Binary`. |
+| Fast Funds/Visa Direct Services | A Visa payment transaction with funds available within 30 minutes. | In the authorization request, set `transactionType` to `FastFund`. |
+| FX DCC transaction | A transaction where the consumer pays using the program's home currency and the acquirer performs FX conversion to the acquirer currency. | This simulation requires setting different values in the authorization and clearing requests. For more information, see the [Appendix](#fx-dcc-transaction). |
+| FX Cross Border transaction | A transaction where the acquiring country is different from the program’s country. | In the authorization request, provide an `acceptorCountryCode` that is different from the program's country code. |
+| Raw message simulation | Transaction simulation performed using a raw ISO 8583 message in XML or hexadecimal format. | Call the [Raw Message Simulator API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_processRawMessage_POST) to simulate an authorization. Set the `messageFormat` field to `XML` or `HEX_BINARY` to define whether the message is in XML or hexadecimal format. Provide the raw ISO message in the specified format in the `rawMessage` field, and set the `authorization` field to `true`. To clear the transaction, call the API again, provide a clearing message in the `rawMessage` field, and set `authorization` to `false`. The clearing message should match the authorization being cleared. |
+
+For examples of each of these simulations, see the [Appendix](#appendix-sample-payloads).
+
+## What's next
+
+After simulating card payment scenarios, you can check the customer’s account balances and list transactions to see how the simulations impacted the customer.
+- Check an account's balance by calling the [Retrieve Customer Balances API](/tech-specs/balances/customer-balances/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getWallets_GET) and passing the customer ID in the `customer-identifier` path parameter.
+- List the customer's transactions by calling the [Generate transaction list API](/tech-specs/transactions/transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listTransactions_POST) and passing the customer ID in the `portfolioId` attribute in the request body.
+
+## Appendix: Sample payloads
+
+The following are sample request and response JSONs for calling the Simulation API.
+
+### POS purchase
+
+Here is a sample request to simulate an authorization for a POS purchase with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5812",
+    "acceptorAddress": "MC DONALD",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151332\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"612876\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5812\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"MC DONALD              Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC612876\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151332\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"612876\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"762834\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000180000\"/>\n  <field id=\"63\" value=\"MCC612876\"/>\n</isomsg>\n",
+    "transactionId": 1000000018005,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate a POS purchase clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5812",
+    "acceptorAddress": "MC DONALD",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Purchase",
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151332\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"612876\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5812\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"MC DONALD              Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC612876\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151332\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"612876\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"762834\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000180000\"/>\n  <field id=\"63\" value=\"MCC612876\"/>\n</isomsg>\n"
+}
+```
+
+This request results in the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213151533\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10101C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5812\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670915733466\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"MC DONALD                                                             Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC6128761213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213151533\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10101C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5812\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670915733466\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"MC DONALD                                                             Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC6128761213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000018006,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Online purchase
+
+Here is a sample request to simulate an authorization for an online purchase with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151909\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"949966\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC949966\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151909\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"949966\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"440114\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000170000\"/>\n  <field id=\"63\" value=\"MCC949966\"/>\n</isomsg>\n",
+    "transactionId": 1000000018007,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate an online purchase clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151909\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"949966\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC949966\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213151909\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"949966\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"440114\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000170000\"/>\n  <field id=\"63\" value=\"MCC949966\"/>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213152048\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670916048481\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC9499661213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213152048\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670916048481\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC9499661213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000018008,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### ATM withdrawal
+
+Here is a sample request to simulate an authorization for an ATM withdrawal with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "6011",
+    "acceptorAddress": "ATM",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Withdraw",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213150024\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"824233\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"6011\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"ATM                    Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC824233\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213150024\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"824233\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"820227\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000190000\"/>\n  <field id=\"63\" value=\"MCC824233\"/>\n</isomsg>\n",
+    "transactionId": 1000000018001,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate an ATM withdrawal clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "mcc": "6011",
+    "acceptorAddress": "ATM",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Withdraw",
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213150024\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"824233\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"6011\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"ATM                    Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC824233\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"7\" value=\"1213150024\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"824233\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"820227\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000190000\"/>\n  <field id=\"63\" value=\"MCC824233\"/>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213150312\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10101C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"6011\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670914992194\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"ATM                                                                   Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC8242331213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000010000\"/>\n  <field id=\"12\" value=\"221213150312\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10101C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"6011\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670914992194\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"ATM                                                                   Hong Kong                 HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC8242331213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000018002,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### ATM balance inquiry
+
+Here is a sample request to simulate an authorization for an ATM balance inquiry with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 0,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 0,
+        "currencyCode": "HKD"
+    },
+    "mcc": "6011",
+    "acceptorAddress": "ATM",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "BalanceInquiry"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"300000\"/>\n  <field id=\"4\" value=\"000000000000\"/>\n  <field id=\"6\" value=\"000000000000\"/>\n  <field id=\"7\" value=\"1213150545\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"145421\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"6011\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"ATM                    Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC145421\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"300000\"/>\n  <field id=\"4\" value=\"000000000000\"/>\n  <field id=\"6\" value=\"000000000000\"/>\n  <field id=\"7\" value=\"1213150545\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"145421\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"257521\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000190000\"/>\n  <field id=\"63\" value=\"MCC145421\"/>\n</isomsg>\n",
+    "transactionId": 1000000018003,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+The value of Field 54 in the `responseMsg` contains the balance: `0002344C000000190000`. In this field, `344` is the currency code for HKD, `C` indicates a credit amount, and `000000190000` indicates a balance of 1900.00 HKD. Because ISO 8583 messages do not display decimal points, the last two digits in the amount indicate the currency amount subdivisions, such as cents for HKD.
+
+### Incremental authorization
+
+Here is a sample request to simulate an incremental authorization with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+First create the authorization request
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000005000\"/>\n  <field id=\"6\" value=\"000000005000\"/>\n  <field id=\"7\" value=\"0607015638\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"398258\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC398258\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000005000\"/>\n  <field id=\"6\" value=\"000000005000\"/>\n  <field id=\"7\" value=\"0607015638\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"398258\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"291755\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"54\" value=\"0002840D000000025700\"/>\n  <field id=\"63\" value=\"MCC398258\"/>\n</isomsg>\n",
+    "transactionId": 1000000138006,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Then request to increment the authorization by calling the [Perform Incremental Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.Simulation_incrementalAuth_POST): Note that the `originalMsg` field includes the ISO 8583 message returned in the `requestMsg` from the authorization response:
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 200,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 200,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "authorization": true,
+    "originalMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000005000\"/>\n  <field id=\"6\" value=\"000000005000\"/>\n  <field id=\"7\" value=\"0607015638\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"398258\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC398258\"/>\n</isomsg>\n"
+}
+```
+
+A successful incremental authorization returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000030000\"/>\n  <field id=\"6\" value=\"000000030000\"/>\n  <field id=\"7\" value=\"0606205916\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"555530\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F3F9F8F2F5F8F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC555530\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000030000\"/>\n  <field id=\"6\" value=\"000000030000\"/>\n  <field id=\"7\" value=\"0606205916\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"555530\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"291755\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F3F9F8F2F5F8F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"54\" value=\"0002840D000000055700\"/>\n  <field id=\"63\" value=\"MCC555530\"/>\n</isomsg>\n",
+    "transactionId": 1000000138007,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Authorization reversal
+
+Here is a sample request to simulate an authorization reversal with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+First create the authorization request
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607014709\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"829246\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC829246\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607014709\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"829246\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"239709\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"54\" value=\"0002840D000000011700\"/>\n  <field id=\"63\" value=\"MCC829246\"/>\n</isomsg>\n",
+    "transactionId": 1000000138001,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Then request to reverse the authorization by calling the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT). Note that the `originalMsg` field includes the ISO 8583 message returned in the `requestMsg` from the authorization response:
+
+```json
+{
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "authorization": true,
+    "originalMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607014709\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"829246\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC829246\"/>\n</isomsg>\n"
+}
+```
+
+A successful reversal returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0400\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607014709\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"926548\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F8F2F9F2F4F6F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC926548\"/>\n  <field id=\"90\" value=\"010082924606070147090000012345600000000000\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0410\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607014709\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"926548\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"239709\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F8F2F9F2F4F6F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\"MCC926548\"/>\n  <field id=\"90\" value=\"010082924606070147090000012345600000000000\"/>\n</isomsg>\n",
+    "transactionId": 1000000138002,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Authorization partial reversal
+
+Here is a sample request to simulate a partial authorization reversal with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+First create the authorization request
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 99,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607015025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"025370\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC025370\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607015025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"025370\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"896816\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"54\" value=\"0002840D000000011700\"/>\n  <field id=\"63\" value=\"MCC025370\"/>\n</isomsg>\n",
+    "transactionId": 1000000138003,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is an example of a request to a partial authorization by calling the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT). Note that the `originalMsg` field includes the ISO 8583 message returned in the `requestMsg` from the authorization response:
+
+```json
+{
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "US",
+    "acceptorCountryCode": "US",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "authorization": true,
+    "acquirerReplacementAmount": {
+        "amount": 50,
+        "currencyCode": "USD"
+    },
+    "billingReplacementAmount": {
+        "amount": 50,
+        "currencyCode": "USD"
+    },
+    "originalMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607015025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"025370\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC025370\"/>\n</isomsg>\n"
+}
+```
+
+A successful partial reversal returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0400\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607015025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"134877\"/>\n  <field id=\"14\" value=\"2906\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            program-count pro\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F0F2F5F3F7F0F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC134877\"/>\n  <field id=\"90\" value=\"010002537006070150250000012345600000000000\"/>\n  <field id=\"95\" value=\"000000010000000000000000000000010000000000\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0410\"/>\n  <field id=\"2\" value=\"5365803000001003\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0607015025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"134877\"/>\n  <field id=\"15\" value=\"0606\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"896816\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0F6F3F1F5D4C3C3F0F2F5F3F7F0F0F6F0F64040\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\"MCC134877\"/>\n  <field id=\"90\" value=\"010002537006070150250000012345600000000000\"/>\n  <field id=\"95\" value=\"000000010000000000000000000000010000000000\"/>\n</isomsg>\n",
+    "transactionId": 1000000138005,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Clearing reversal (refund)
+
+Here is a sample request to simulate a clearing reversal (refund) with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+First create the authorization request
+
+```json
+{
+  "acquirerAmount": {
+    "amount": 399,
+    "currencyCode": "USD"
+  },
+  "billingAmount": {
+    "amount": 399,
+    "currencyCode": "USD"
+  },
+  "mcc": "5732",
+  "acceptorAddress": "APPLE STORE",
+  "acceptorCity": "US",
+  "acceptorCountryCode": "US",
+  "pan": "5365803000001821",
+  "expiry": "203002",
+  "cardPresent": false,
+  "transactionType": "Refund"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"7\" value=\"0226195915\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"955656\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"15\" value=\"0226\"/>\n  <field id=\"18\" value=\"5732\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"APPLE STORE            US            US \"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC955656\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"7\" value=\"0226195915\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"955656\"/>\n  <field id=\"15\" value=\"0226\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"54\" value=\"0002840C000000000000\"/>\n  <field id=\"63\" value=\"MCC955656\"/>\n</isomsg>\n",
+    "transactionId": 1000000340006,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Next simulate a clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 399,
+        "currencyCode": "USD"
+    },
+    "billingAmount": {
+        "amount": 399,
+        "currencyCode": "USD"
+    },
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "US",
+    "acceptorCountryCode": "US",
+    "pan": "5365803000001821",
+    "expiry": "203002",
+    "cardPresent": false,
+    "transactionType": "Refund",
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"bitmap\" value=\"{1, 2, 3, 4, 6, 12, 14, 22, 23, 24, 25, 26, 30, 31, 32, 33, 37, 38, 40, 41, 42, 43, 48, 49, 51, 63, 71, 73, 93, 94, 95, 100, 111}\" type=\"bitmap\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"bitmap\" value=\"{1, 2, 3, 4, 6, 12, 14, 22, 23, 24, 25, 26, 30, 31, 32, 33, 37, 38, 40, 41, 42, 43, 48, 49, 51, 63, 71, 73, 93, 94, 95, 100, 111}\" type=\"bitmap\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000340007,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is an example of a request to reverse this clearing by calling the [Perform a Reversal API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_reverse_PUT). Reversing a clearing authorization results in a refund. Note that the `originalMsg` field includes the ISO 8583 message returned in the `requestMsg` from the clearing response:
+
+```json
+{   
+    "mcc": "5732",
+    "acceptorAddress": "APPLE STORE",
+    "acceptorCity": "US",
+    "acceptorCountryCode": "US",    
+    "cardPresent": false,
+    "transactionType": "Refund",
+    "authorization": false,
+    "originalMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"bitmap\" value=\"{1, 2, 3, 4, 6, 12, 14, 22, 23, 24, 25, 26, 30, 31, 32, 33, 37, 38, 40, 41, 42, 43, 48, 49, 51, 63, 71, 73, 93, 94, 95, 100, 111}\" type=\"bitmap\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n"
+}
+```
+
+A successful clearing reversal returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"bitmap\" value=\"{1, 2, 3, 4, 6, 12, 14, 22, 23, 24, 25, 26, 30, 31, 32, 33, 37, 38, 40, 41, 42, 43, 48, 49, 51, 63, 71, 73, 93, 94, 95, 100, 111}\" type=\"bitmap\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F533030323530303752323530323236\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5365803000001821\"/>\n  <field id=\"3\" value=\"200000\"/>\n  <field id=\"4\" value=\"000000039900\"/>\n  <field id=\"6\" value=\"000000039900\"/>\n  <field id=\"12\" value=\"250226200125\"/>\n  <field id=\"14\" value=\"3002\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5732\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001740600085761\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"586809\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"APPLE STORE                                                           US                        USA\"/>\n  <field id=\"48\" value=\"30303032303033444F533030323530303752323530323236\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"840\"/>\n  <field id=\"63\" value=\" MCC9556560226  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000340008,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+<Callout
+    calloutType={'info'}
+>
+    Tritium allows only one partial or full clearing reversal per transaction. Any second reversal attempt will be treated as an unmatched clearing reversal and processed as a new refund instead.
+</Callout>
+
+### FX Transactions
+
+Here is a sample request to simulate an authorization for an FX transaction with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 10.99,
+        "currencyCode": "USD"
+    },
+    "billingAmount": {
+        "amount": 85.43,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5942",
+    "acceptorAddress": "AMAZON COM",
+    "acceptorCity": "San Diego",
+    "acceptorCountryCode": "US",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"7\" value=\"1213152358\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"238569\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5942\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"AMAZON COM             San Diego     USA\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC238569\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"7\" value=\"1213152358\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"238569\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"322720\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000161457\"/>\n  <field id=\"63\" value=\"MCC238569\"/>\n</isomsg>\n",
+    "transactionId": 1000000018009,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate an FX transaction clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 10.99,
+        "currencyCode": "USD"
+    },
+    "billingAmount": {
+        "amount": 85.43,
+        "currencyCode": "HKD"
+    },
+    "mcc": "5942",
+    "acceptorAddress": "AMAZON COM",
+    "acceptorCity": "San Diego",
+    "acceptorCountryCode": "US",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": false,
+    "transactionType": "Purchase",
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"7\" value=\"1213152358\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"238569\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"5942\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"AMAZON COM             San Diego     USA\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC238569\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"7\" value=\"1213152358\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"238569\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"322720\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000161457\"/>\n  <field id=\"63\" value=\"MCC238569\"/>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"12\" value=\"221213152555\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5942\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670916355681\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"AMAZON COM                                                            San Diego                 USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC2385691213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001099\"/>\n  <field id=\"6\" value=\"000000008543\"/>\n  <field id=\"12\" value=\"221213152555\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"5942\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001670916355681\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"AMAZON COM                                                            San Diego                 USA\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\" MCC2385691213  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000018010,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### PIN Validation - Success
+
+Here is a sample request to simulate an authorization for a correct PIN with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST) using an encrypted PIN block :
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 1000,
+        "currencyCode": "HKD"
+    },
+    "mcc": "6011",
+    "acceptorAddress": "ATM",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Withdraw",
+    "partialAuth": false,
+    "additionalFields": [
+        {
+            "path": "52",
+            "value": "{{encryptedPINBlock}}",
+            "type": "Binary"
+        }
+    ]
+}
+```
+
+### PIN Validation - Failure
+
+Here is a sample request to simulate an authorization for an incorrect PIN with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acquirerAmount": {
+        "amount": 100,
+        "currencyCode": "HKD"
+    },
+    "billingAmount": {
+        "amount": 1000,
+        "currencyCode": "HKD"
+    },
+    "mcc": "6011",
+    "acceptorAddress": "ATM",
+    "acceptorCity": "Hong Kong",
+    "acceptorCountryCode": "HK",
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "cardPresent": true,
+    "transactionType": "Withdraw",
+    "partialAuth": false,
+    "additionalFields": [
+        {
+            "path": "52",
+            "value": "0000000000000000",
+            "type": "Binary"
+        }
+    ]
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000100000\"/>\n  <field id=\"7\" value=\"1213160025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"425663\"/>\n  <field id=\"14\" value=\"2712\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"18\" value=\"6011\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"ATM                    Hong Kong     HKG\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"52\" value=\"0000000000000000\" type=\"binary\"/>\n  <field id=\"61\" value=\"00000\"/>\n  <field id=\"63\" value=\"MCC425663\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"5212630700000018\"/>\n  <field id=\"3\" value=\"010000\"/>\n  <field id=\"4\" value=\"000000010000\"/>\n  <field id=\"6\" value=\"000000100000\"/>\n  <field id=\"7\" value=\"1213160025\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"425663\"/>\n  <field id=\"15\" value=\"1213\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"901745\"/>\n  <field id=\"39\" value=\"55\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"D7F6F1F0F1F0\" type=\"binary\"/>\n  <field id=\"49\" value=\"344\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"63\" value=\"MCC425663\"/>\n</isomsg>\n",
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Fast Funds
+
+Here is a sample request to simulate an authorization for a Fast Funds transaction with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+
+```json
+{
+    "acceptorAddress": "123 5th Street",
+    "acceptorCity": "London",
+    "acceptorCountryCode": "GB",
+    "transactionType": "FastFund",
+    "cardPresent": false,
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 150.00,
+        "currencyCode": "GBP"
+    },
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"260000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030353\"/>\n  <field id=\"11\" value=\"433340\"/>\n  <field id=\"12\" value=\"030353\"/>\n  <field id=\"13\" value=\"0502\"/>\n  <field id=\"14\" value=\"2805\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"826\"/>\n  <field id=\"20\" value=\"826\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"123 5th Street           London       GB\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"260000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030353\"/>\n  <field id=\"11\" value=\"433340\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"19\" value=\"826\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"38\" value=\"504994\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"54\" value=\"0002764C000000003000\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "transactionId": 1000000004001,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate a Fast Funds transaction clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acceptorAddress": "123 5th Street",
+    "acceptorCity": "London",
+    "acceptorCountryCode": "GB",
+    "transactionType": "FastFund",
+    "cardPresent": false,
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 150.00,
+        "currencyCode": "GBP"
+    },
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"260000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030353\"/>\n  <field id=\"11\" value=\"433340\"/>\n  <field id=\"12\" value=\"030353\"/>\n  <field id=\"13\" value=\"0502\"/>\n  <field id=\"14\" value=\"2805\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"826\"/>\n  <field id=\"20\" value=\"826\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"123 5th Street           London       GB\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"260000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030353\"/>\n  <field id=\"11\" value=\"433340\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"19\" value=\"826\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"38\" value=\"504994\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"54\" value=\"0002764C000000003000\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0200\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"060000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030356\"/>\n  <field id=\"11\" value=\"436275\"/>\n  <field id=\"14\" value=\"2805\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"38\" value=\"504994\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"123 5th Street           London       GB\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\"/>\n  </isomsg>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0210\"/>\n  <field id=\"2\" value=\"4929960100746484\"/>\n  <field id=\"3\" value=\"060000\"/>\n  <field id=\"4\" value=\"000000015000\"/>\n  <field id=\"7\" value=\"0502030356\"/>\n  <field id=\"11\" value=\"436275\"/>\n  <field id=\"14\" value=\"2805\"/>\n  <field id=\"15\" value=\"0502\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682971433340\"/>\n  <field id=\"38\" value=\"504994\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"123 5th Street           London       GB\"/>\n  <field id=\"49\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168297143334083\"/>\n  </isomsg>\n</isomsg>\n",
+    "transactionId": 1000000004004,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+<Callout
+    calloutType={'info'}
+>
+    When clearing a Fast Funds transaction with the Simulation API, the transaction will be processed as a refund in the test environment. When E6 receives a Fast Funds transaction in production, the transaction will be processed as a load.
+</Callout>
+
+### FX DCC transaction
+
+Here is a sample request to simulate an authorization for an FX DCC transaction with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST). In the request, provide an acquirer `currencyCode` that is different than the program's billing currency. Include an `additionalFields` object with `path` set to `48`, `value` to `c6f7f8f0f5f0f2f0f1e8`, and `type` to `Binary`. Field 48 contains the indicator that flags the transaction for DCC. The binary value identifies the DCC indicator subfield of Field 48:
+
+```json
+{
+    "acceptorAddress": "101 W 5th ST",
+    "acceptorCity": "Austin",
+    "acceptorCountryCode": "HK",
+    "transactionType": "Purchase",
+    "cardPresent": false,
+    "additionalFields": [
+        {
+            "path": "48",
+            "value": "c6f7f8f0f5f0f2f0f1e8",
+            "type": "Binary"
+        }
+    ],
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 29.00,
+        "currencyCode": "USD"
+    },
+    "billingAmount": {
+        "amount": 700.00,
+        "currencyCode": "HKD"
+    },
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"7\" value=\"0428052543\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"743465\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0428\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST           Austin        HKG\"/>\n  <field id=\"48\" value=\"C6F7F8F0F5F0F2F0F1E8\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC743465\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"7\" value=\"0428052543\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"743465\"/>\n  <field id=\"15\" value=\"0428\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"907844\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"C6F7F8F0F5F0F2F0F1E8\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000028635\"/>\n  <field id=\"63\" value=\"MCC743465\"/>\n</isomsg>\n",
+    "transactionId": 1000000002002,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate an FX DCC transaction clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT). In the clearing request, include an `additionalFields` object with `path` set to `54` and `type` set to `String`. In the `value` attribute, include a 20-character string with the following details:
+
+| Position | Description |
+| -------- | ----------- |
+| 1-2      | Account type processing code, such as `00` for a purchase. See your payment network documentation for a full list of processing codes. |
+| 3-4      | Amount type. To indicate a DCC transaction, set this subfield to `58`. |
+| 5-7      | Three-digit currency code, such as `344` for HKD. |
+| 8        | Credit or debit. This subfield accepts two values: `C` for a credit transaction and `D` for a debit. |
+| 9-20     | Original billing amount of the transaction. |
+
+Here is a sample request:
+
+```json
+{
+    "acceptorAddress": "101 W 5th ST",
+    "acceptorCity": "Austin",
+    "acceptorCountryCode": "HK",
+    "transactionType": "Purchase",
+    "cardPresent": false,
+    "additionalFields": [
+        {
+            "path": "54",
+            "value": "0058344D000000000029",
+            "type": "String"
+        }
+    ],
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 29.00,
+        "currencyCode": "USD"
+    },
+    "billingAmount": {
+        "amount": 700.00,
+        "currencyCode": "HKD"
+    },
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"7\" value=\"0428052543\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"743465\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0428\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"02\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"35\" value=\"123456\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST           Austin        HKG\"/>\n  <field id=\"48\" value=\"C6F7F8F0F5F0F2F0F1E8\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"61\" value=\"00001\"/>\n  <field id=\"63\" value=\"MCC743465\"/>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"7\" value=\"0428052543\"/>\n  <field id=\"10\" value=\"30001000\"/>\n  <field id=\"11\" value=\"743465\"/>\n  <field id=\"15\" value=\"0428\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"32\" value=\"123456\"/>\n  <field id=\"33\" value=\"000000\"/>\n  <field id=\"37\" value=\"123456\"/>\n  <field id=\"38\" value=\"907844\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"48\" value=\"C6F7F8F0F5F0F2F0F1E8\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0002344C000000028635\"/>\n  <field id=\"63\" value=\"MCC743465\"/>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"1240\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"12\" value=\"230427162544\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"0000\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001682630744223\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"101 W 5th ST                                                          Austin                    HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0058344D000000000029\"/>\n  <field id=\"63\" value=\" MCC7434650428  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"1250\"/>\n  <field id=\"2\" value=\"4929960133800021\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000002900\"/>\n  <field id=\"6\" value=\"000000070000\"/>\n  <field id=\"12\" value=\"230427162544\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"22\" value=\"D10100C91005\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"24\" value=\"200\"/>\n  <field id=\"25\" value=\"0000\"/>\n  <field id=\"26\" value=\"0000\"/>\n  <field id=\"30\" value=\"000000000000000000000000\"/>\n  <field id=\"31\" value=\"00000000001682630744223\"/>\n  <field id=\"32\" value=\"00000000000\"/>\n  <field id=\"33\" value=\"00000000000\"/>\n  <field id=\"37\" value=\"000000000000\"/>\n  <field id=\"38\" value=\"000000\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"40\" value=\"000\"/>\n  <field id=\"41\" value=\"00000000\"/>\n  <field id=\"42\" value=\"000000000000000\"/>\n  <field id=\"43\" value=\"101 W 5th ST                                                          Austin                    HKG\"/>\n  <field id=\"48\" value=\"30303032303033444F53\" type=\"binary\"/>\n  <field id=\"49\" value=\"840\"/>\n  <field id=\"51\" value=\"344\"/>\n  <field id=\"54\" value=\"0058344D000000000029\"/>\n  <field id=\"63\" value=\" MCC7434650428  \"/>\n  <field id=\"71\" value=\"00000002\"/>\n  <field id=\"73\" value=\"000000\"/>\n  <field id=\"93\" value=\"014881\"/>\n  <field id=\"94\" value=\"999698\"/>\n  <field id=\"95\" value=\"999698\"/>\n  <field id=\"100\" value=\"014881\"/>\n  <field id=\"111\" value=\"014881\"/>\n</isomsg>\n",
+    "transactionId": 1000000002003,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### FX Cross Border transaction
+
+Here is a sample request to simulate an authorization for an FX Cross Border transaction with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST):
+
+```json
+{
+    "acceptorAddress": "101 W 5th ST",
+    "acceptorCity": "London",
+    "acceptorCountryCode": "GB",
+    "transactionType": "Purchase",
+    "cardPresent": false,
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 10.00,
+        "currencyCode": "CAD"
+    },
+    "billingAmount": {
+        "amount": 8.00,
+        "currencyCode": "GBP"
+    },
+    "partialAuth": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000000800\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820563\"/>\n  <field id=\"12\" value=\"194700\"/>\n  <field id=\"13\" value=\"0426\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST             London       GB\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"51\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820563\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"38\" value=\"808860\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"54\" value=\"0002826C000000099200\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "transactionId": 1000000002024,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate an FX Cross Border transaction clearing with the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT):
+
+```json
+{
+    "acceptorAddress": "101 W 5th ST",
+    "acceptorCity": "London",
+    "acceptorCountryCode": "GB",
+    "transactionType": "Purchase",
+    "cardPresent": false,
+    "pan": "1234567890123456",
+    "expiry": "20211230",
+    "acquirerAmount": {
+        "amount": 10.00,
+        "currencyCode": "CAD"
+    },
+    "billingAmount": {
+        "amount": 8.00,
+        "currencyCode": "GBP"
+    },
+    "originalMsgRequest": "<isomsg>\n  <field id=\"0\" value=\"0100\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000000800\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820563\"/>\n  <field id=\"12\" value=\"194700\"/>\n  <field id=\"13\" value=\"0426\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST             London       GB\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"51\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n",
+    "originalMsgResponse": "<isomsg>\n  <field id=\"0\" value=\"0110\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"000000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820563\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"05\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"38\" value=\"808860\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"54\" value=\"0002826C000000099200\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\" type=\"binary\"/>\n  </isomsg>\n</isomsg>\n"
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\n  <field id=\"0\" value=\"0200\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"050000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000000800\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820974\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"38\" value=\"808860\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST             London       GB\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"51\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\"/>\n  </isomsg>\n</isomsg>\n",
+    "responseMsg": "<isomsg>\n  <field id=\"0\" value=\"0210\"/>\n  <field id=\"2\" value=\"4929960100000111\"/>\n  <field id=\"3\" value=\"050000\"/>\n  <field id=\"4\" value=\"000000001000\"/>\n  <field id=\"6\" value=\"000000000800\"/>\n  <field id=\"7\" value=\"0426194700\"/>\n  <field id=\"11\" value=\"820974\"/>\n  <field id=\"14\" value=\"2804\"/>\n  <field id=\"15\" value=\"0426\"/>\n  <field id=\"18\" value=\"1234\"/>\n  <field id=\"19\" value=\"840\"/>\n  <field id=\"20\" value=\"840\"/>\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\n  <field id=\"23\" value=\"001\"/>\n  <field id=\"25\" value=\"02\"/>\n  <field id=\"32\" value=\"12345678901\"/>\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\n  <field id=\"37\" value=\"682534820563\"/>\n  <field id=\"38\" value=\"808860\"/>\n  <field id=\"39\" value=\"00\"/>\n  <field id=\"41\" value=\"12345678\"/>\n  <field id=\"42\" value=\"123456789012345\"/>\n  <field id=\"43\" value=\"101 W 5th ST             London       GB\"/>\n  <field id=\"49\" value=\"124\"/>\n  <field id=\"51\" value=\"826\"/>\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\n  <isomsg id=\"62\">\n    <field id=\"2\" value=\"0168253482056313\"/>\n  </isomsg>\n</isomsg>\n",
+    "transactionId": 1000000002025,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+### Raw message simulation
+
+Here is a sample request to simulate an authorization using a raw ISO 8583 message in XML format with the [Raw Message Simulator API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_processRawMessage_POST):
+
+```json
+{
+    "messageFormat": "XML",
+    "rawMessage": "<isomsg>\r\n  <field id=\"0\" value=\"0100\"/>\r\n  <field id=\"2\" value=\"4999990000000627\"/>\r\n  <field id=\"3\" value=\"000000\"/>\r\n  <field id=\"4\" value=\"000000000200\"/>\r\n  <field id=\"6\" value=\"000000000200\"/>\r\n  <field id=\"7\" value=\"0126182047\"/>\r\n  <field id=\"14\" value=\"2701\"/>\r\n  <field id=\"15\" value=\"0126\"/>\r\n  <field id=\"18\" value=\"1234\"/>\r\n  <field id=\"19\" value=\"840\"/>\r\n  <field id=\"20\" value=\"840\"/>\r\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\r\n  <field id=\"23\" value=\"001\"/>\r\n  <field id=\"25\" value=\"02\"/>\r\n  <field id=\"32\" value=\"12345678901\"/>\r\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\r\n  <field id=\"37\" value=\"123456\"/>\r\n  <field id=\"41\" value=\"12345678\"/>\r\n  <field id=\"42\" value=\"123456789012345\"/>\r\n  <field id=\"43\" value=\"310 Congress\"/>\r\n  <field id=\"49\" value=\"392\"/>\r\n  <field id=\"51\" value=\"392\"/>\r\n  <field id=\"55\" value=\"5F2A020840820258008407A0000000041010950500000000009A031802119C01009F02060000000010009F1008010103250000DAC19F1A0208409F26080E721D498160BA7E9F2701809F3303E0E8E89F34034103029F360200039F370425EF70B5
+\"/>\r\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\r\n  <isomsg id=\"62\">\r\n    <field id=\"2\" value=\"0787249085351100\" type=\"binary\"/>\r\n  </isomsg>\r\n</isomsg>\r\n",
+    "authorization": true
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\r\n  <field id=\"0\" value=\"0100\"/>\r\n  <field id=\"2\" value=\"4999990000000627\"/>\r\n  <field id=\"3\" value=\"000000\"/>\r\n  <field id=\"4\" value=\"000000000200\"/>\r\n  <field id=\"6\" value=\"000000000200\"/>\r\n  <field id=\"7\" value=\"0126182047\"/>\r\n  <field id=\"14\" value=\"2701\"/>\r\n  <field id=\"15\" value=\"0126\"/>\r\n  <field id=\"18\" value=\"1234\"/>\r\n  <field id=\"19\" value=\"840\"/>\r\n  <field id=\"20\" value=\"840\"/>\r\n  <field id=\"22\" value=\"0200\" type=\"binary\"/>\r\n  <field id=\"23\" value=\"001\"/>\r\n  <field id=\"25\" value=\"02\"/>\r\n  <field id=\"32\" value=\"12345678901\"/>\r\n  <field id=\"35\" value=\"123456\" type=\"binary\"/>\r\n  <field id=\"37\" value=\"123456\"/>\r\n  <field id=\"41\" value=\"12345678\"/>\r\n  <field id=\"42\" value=\"123456789012345\"/>\r\n  <field id=\"43\" value=\"310 Congress\"/>\r\n  <field id=\"49\" value=\"392\"/>\r\n  <field id=\"51\" value=\"392\"/>\r\n  <field id=\"60\" value=\"100000000000\" type=\"binary\"/>\r\n  <isomsg id=\"62\">\r\n    <field id=\"2\" value=\"0787249085351100\" type=\"binary\"/>\r\n  </isomsg>\r\n</isomsg>\r\n",
+    "responseMsg": "<isomsg>\r\n  <field id=\"0\" value=\"0110\"/>\r\n  <field id=\"2\" value=\"4999990000000627\"/>\r\n  <field id=\"3\" value=\"000000\"/>\r\n  <field id=\"4\" value=\"000000000200\"/>\r\n  <field id=\"7\" value=\"0126182047\"/>\r\n  <field id=\"15\" value=\"0126\"/>\r\n  <field id=\"19\" value=\"840\"/>\r\n  <field id=\"23\" value=\"001\"/>\r\n  <field id=\"25\" value=\"02\"/>\r\n  <field id=\"32\" value=\"12345678901\"/>\r\n  <field id=\"37\" value=\"123456\"/>\r\n  <field id=\"38\" value=\"852260\"/>\r\n  <field id=\"39\" value=\"00\"/>\r\n  <field id=\"41\" value=\"12345678\"/>\r\n  <field id=\"42\" value=\"123456789012345\"/>\r\n  <field id=\"49\" value=\"392\"/>\r\n  <isomsg id=\"62\">\r\n    <field id=\"2\" value=\"0787249085351100\" type=\"binary\"/>\r\n  </isomsg>\r\n</isomsg>\r\n",
+    "transactionId": 1000000014027,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+Here is a sample request to simulate a transaction clearing using a raw ISO 8583 message in hexadecimal format with the [Raw Message Simulator API](/tech-specs/cards/card-payment-simulation/api?#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_processRawMessage_POST):
+
+```json
+{
+    "messageFormat": "HEX_BINARY",
+    "rawMessage": "3035203034393939393930303030303030363335202020202020313233343536202020202020202020202020202020202020202020202020202020202030303030303030323030303033393230303030303030323030303033393220202020202020202020202020202020202020202020202020202020202020202020202020203834303132333420202020202020202020202020202020202020202020202020202032303236200D0A3035203120202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020313233343536373839303132333435313233343536373820202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200D0A3035203537383732343934313131383031303020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200D0A",
+    "authorization": false
+}
+```
+
+This request returns the following response:
+
+```json
+{
+    "requestMsg": "<isomsg>\r\n  <field id=\"0\" value=\"0220\"/>\r\n  <field id=\"2\" value=\"4999990000000635\"/>\r\n  <field id=\"3\" value=\"050000\"/>\r\n  <field id=\"4\" value=\"000000000200\"/>\r\n  <field id=\"6\" value=\"000000000200\"/>\r\n  <field id=\"7\" value=\"0126000000\"/>\r\n  <field id=\"11\" value=\"05\"/>\r\n  <field id=\"15\" value=\"0126\"/>\r\n  <field id=\"17\" value=\"20220126\"/>\r\n  <field id=\"18\" value=\"1234\"/>\r\n  <field id=\"32\" value=\"23456 \"/>\r\n  <field id=\"37\" value=\"1\"/>\r\n  <field id=\"38\" value=\"      \"/>\r\n  <field id=\"41\" value=\"12345678\"/>\r\n  <field id=\"42\" value=\"123456789012345\"/>\r\n  <field id=\"43\" value=\"                                      US\"/>\r\n  <field id=\"49\" value=\"392\"/>\r\n  <field id=\"51\" value=\"392\"/>\r\n  <isomsg id=\"62\">\r\n    <field id=\"2\" value=\"0787249411180100\"/>\r\n  </isomsg>\r\n  <field id=\"90\" value=\"05   123456                       2026\"/>\r\n</isomsg>\r\n",
+    "responseMsg": "<isomsg>\r\n  <field id=\"0\" value=\"0230\"/>\r\n  <field id=\"2\" value=\"4999990000000635\"/>\r\n  <field id=\"3\" value=\"050000\"/>\r\n  <field id=\"4\" value=\"000000000200\"/>\r\n  <field id=\"6\" value=\"000000000200\"/>\r\n  <field id=\"7\" value=\"0126000000\"/>\r\n  <field id=\"11\" value=\"05\"/>\r\n  <field id=\"15\" value=\"0126\"/>\r\n  <field id=\"17\" value=\"20220126\"/>\r\n  <field id=\"18\" value=\"1234\"/>\r\n  <field id=\"32\" value=\"23456 \"/>\r\n  <field id=\"37\" value=\"1\"/>\r\n  <field id=\"38\" value=\"      \"/>\r\n  <field id=\"39\" value=\"00\"/>\r\n  <field id=\"41\" value=\"12345678\"/>\r\n  <field id=\"42\" value=\"123456789012345\"/>\r\n  <field id=\"43\" value=\"                                      US\"/>\r\n  <field id=\"49\" value=\"392\"/>\r\n  <field id=\"51\" value=\"392\"/>\r\n  <isomsg id=\"62\">\r\n    <field id=\"2\" value=\"0787249411180100\"/>\r\n  </isomsg>\r\n  <field id=\"90\" value=\"05   123456                       2026\"/>\r\n</isomsg>\r\n",
+    "transactionId": 1000000014028,
+    "authResult": {
+        "cvvInvalid": false,
+        "cvv2Result": "NA"
+    }
+}
+```
+
+## Appendix: Response codes
+
+Field 39 in the ISO 8583 response message contains a two-digit response message. When calling the Simulation API, the `responseMsg` attribute contains the ISO 8583 response message in Field 39. In the E6 platform, common Field 39 response codes are mapped to specific events.
+
+### Mastercard response codes
+
+For clients that have integrated with Mastercard as their card network, response codes in Field 39 map to the following common messages in the E6 platform:
+
+| Response code | Description                                                                             |
+| ------------- | --------------------------------------------------------------------------------------- |
+| 00            | Success                                                                                 |
+| 05            | Do not honor. This code is used as fallback when no other response code applies.        |
+| 10            | successPartialAuth                                                                      |
+| 12            | Unsupported operation                                                                   |
+| 14            | Not found                                                                               |
+| 30            | Invalid parameter                                                                       |
+| 51            | Insufficient funds                                                                      |
+| 54            | Expired card                                                                            |
+| 55            | Invalid PIN                                                                             |
+| 57            | Control rule exception                                                                  |
+| 58            | Not authorized                                                                          |
+| 61            | Withdrawal amount exceeded                                                              |
+| 63            | Security violation                                                                      |
+| 65            | Exceeds withdrawal count limit or Identity Check Soft-Decline of EMV 3DS Authentication |
+| 75            | Allowable PIN fail count exceeded                                                       |
+| 78            | Reversal                                                                                |
+| 85            | verificationOnly                                                                        |
+| 88            | Cryptographic failure                                                                   |
+| 94            | Duplicate                                                                               |
+| 96            | error                                                                                   |
+
+### Visa response codes
+
+For clients that have integrated with Visa as their card network, response codes in Field 39 map to the following common messages in the E6 platform:
+
+| Response code | Description                             |
+| ------------- | --------------------------------------- |
+| 00            | Success                                 |
+| 06            | Validation error                        |
+| 05            | Do not honor. This code is used as fallback when no other response code applies. |
+| 10            | successPartialAuth                      |
+| 12            | Invalid transaction                     |
+| 14            | Not found                               |
+| 19            | Format error                            |
+| 51            | Insufficient funds                      |
+| 54            | Expired card or expiration date missing |
+| 55            | PIN incorrect or missing                |
+| 57            | Control rule exception                  |
+| 59            | Suspected fraud                         |
+| 61            | Approval amount exceeded                |
+| 75            | Allowable number of PIN tries exceeded  |
+| 76            | Reversal error                          |
+| 78            | Blocked or unactivated new card         |
+| 82            | Incorrect CVV                           |
+| 85            | verificationOnly                        |
+| 94            | Duplicated message                      |
+| 96            | error                                   |
+| N7            | Decline for CVV2 failure                |
+
+### E6 control rule mapping
+
+When a transaction triggers E6 control parameters, the following response codes are displayed in Field 39 depending on whether Mastercard or Visa is the card network. For any control exceptions not listed in this table, the response code is 57.
+
+| Control exception                  | Mastercard response code | Visa response code |
+| ---------------------------------- | ------------------------ | ------------------ |
+| `block`                            | 57                       | 78                 |
+| `atm_limit`                        | 61                       | 61                 |
+| `atm_1d`                           | 61                       | 61                 |
+| `atm_7d`                           | 61                       | 61                 |
+| `atm_30d`                          | 61                       | 61                 |
+| `purchase_limit`                   | 61                       | 57                 |
+| `purchase_1d`                      | 61                       | 57                 |
+| `purchase_7d`                      | 61                       | 57                 |
+| `purchase_30d`                     | 61                       | 57                 |
+| `combined_purchase_1d`             | 61                       | 57                 |
+| `pos_purchase_limit`               | 61                       | 61                 |
+| `pos_purchase_1d`                  | 61                       | 61                 |
+| `pos_purchase_7d`                  | 61                       | 61                 |
+| `pos_purchase_30d`                 | 61                       | 61                 |
+| `online_purchase_limit`            | 61                       | 61                 |
+| `online_purchase_1d`               | 61                       | 61                 |
+| `online_purchase_7d`               | 61                       | 61                 |
+| `online_purchase_30d`              | 61                       | 61                 |
+| `withdraw_limit`                   | 61                       | 61                 |
+| `withdraw_1d`                      | 61                       | 61                 |
+| `withdraw_7d`                      | 61                       | 61                 |
+| `adjustment_limit`                 | 61                       | 61                 |
+| `adjustment_1d`                    | 61                       | 61                 |
+| `adjustment_7d`                    | 61                       | 61                 |
+| `arqc`                             | 88                       | 12                 |
+| `refund_purchase_period`           | 57                       | 59                 |
+| `smallAmount`                      | 57                       | 57                 |
+| `blacklisted`                      | 57                       | 57                 |
+| `recurringPayment`                 | 57                       | 57                 |
+| `payment_mode`                     | 57                       | 82                 |
+| `failed_3d_secure_check`           | 57                       | 82                 |
+| `securityCodeMismatch`             | 63                       | 82                 |
+| `cvv2Mismatch`                     | 63                       | N7                 |
+| `failed_token_check`               | 63                       | 57                 |
+| `over_purchase_no_cvm_limit`       | 65                       | 57                 |
+| Invalid PIN                        | 55                       | 55                 |
+| PIN fail count                     | 75                       | 75                 |
+| Card expired                       | 54                       | 54                 |
+| PIN fail count with temporary lock | 55                       | 55                 |

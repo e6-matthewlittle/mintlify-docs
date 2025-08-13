@@ -1,0 +1,54 @@
+---
+title: "Payoff Calculator"
+menu: Revolving credit
+route: /docs/revolving-credit/payoff-calculator
+excerpt: A payoff calculator projects a revolving credit balance to a future date, calculating a settlement figure necessary to fulfill the account's projected obligations on that date.
+
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - payoff calc
+  - charge off 
+  - future amount
+
+containerWide: true
+showHeadingsNav: true
+---
+
+# Payoff Calculator
+
+A payoff calculator projects a revolving credit balance to a future date, calculating a figure necessary to clear the account's projected obligations on that date. This tool aids customers in planning financial events and is a regulatory requirement in certain jurisdictions.
+
+## What we do
+
+Episode Six (E6) provides access to a payoff calculator for revolving credit customers. Payoff calculations can be performed by calling the Product Actions API, or from a revolving credit customer's Financials page in the Dashboard. For more information, see [Product actions](/docs/products/product-actions). 
+
+The payoff calculator will compute a payoff amount on a future payment date that sums:
+
+- Billed sub-balance principal amounts
+- Billed sub-balance interest amounts
+- Unbilled interest amounts
+- An application of a late payment fee
+
+To generate the payoff amount the calculation will make some assumptions. If a program operator's or customer's actions are different to the assumptions, then the payoff calculator cannot provide an accurate estimate.
+
+- No transactions to occur between current date and payoff date
+- No program or customer config changes between calculation date and payoff date
+- No delinquency actions applied between calculation date and payoff date
+- No interest forgiveness logic applied for customer (interest will charge)
+
+## Prerequisites
+
+Before performing a payoff calculation, a customer with revolving credit configurations is required. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+## Actions
+
+To perform a payoff calculation, call the [Payoff Calculation API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/calculatePayoffAmount). In the request, set `name` to `calculatePayOffAmount`.
+
+To specify a date for the calculation, provide a pay off time in UNIX epoch time. In the `attributes` object, set the `name` to `payoffTime` and provide the pay off time string in the `value` attribute. The pay off time string must be a time that occurs within the customers current billing cycle.
+
+## What's next
+
+After a payoff is calculated, you can view the existing account balances by calling the [Retrieve Revolving Credit Customer Summary API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/retrieveRevolvingCreditCustomerConfiguration).

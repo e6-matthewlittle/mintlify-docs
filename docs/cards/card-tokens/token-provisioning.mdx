@@ -1,0 +1,72 @@
+---
+title: "Token provisioning"
+menu: Cards
+route: /docs/cards/token-provisioning
+excerpt: Provisioning is the process of having a card token generated and adding it into a digital wallet.
+types: 
+  - guide
+_tags:
+  - tokenization
+  - push provisioning
+  - manual provisioning
+  - in-app push provisioning
+  - in-app push
+  - app push
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Token provisioning
+
+Provisioning is the process of having a card token generated and then added it into a digital wallet. Digital wallets support multiple types of provisioning to make it easy for cardholders to add their cards to their wallet. The two most common types of provisioning are manual provisioning and push provisioning.
+
+- **Manual provisioning**: A provisioning originated through the digital wallet application experience where the cardholder provides the card information either through manual entry or in some cases, tapping a near field communication (NFC) enabled card to the device's NFC interface.
+
+- **Push provisioning**: A provisioning request originated through the issuer application experience which involves the issuer generating a secure provisioning payload and then passing the payload to the digital wallet through a trusted integration. This is the type of provisioning used if you have used "Add to Apple Pay" or other similar feature. Push provisioning is most often preferred by the card networks and the digital wallets.
+
+In both cases, once the digital wallet has received the card information, a request is made to the appropriate token service provider (TSP) to have the card tokenized. Once the TSP receives the request, the token is created. Following token creation, provisioning [authorization](/docs/cards/token-authorization) is performed before the token is activated.
+
+## What we do
+
+Episode Six (E6) supports manual provisioning and in-app push provisioning flows across multiple digital wallets for all integrated TSPs. The below diagram provides a high level view of the token provisioning process, though details of token authorization and cardholder authentication are not included in this diagram.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/process/e6_dev_portal_process_provisioning.svg'}
+/>
+
+For push provisioning, E6 exposes APIs to generate provisioning request payloads for your applications to pass to the digital wallet. Different payload generation APIs need to be called depending on the digital wallet and TSP combination.
+
+## Prerequisites
+
+It is up to you to determine which provisioning flows that you want to support as part of your card product.
+
+Before certification with a digital wallet for provisioning, you must have completed the enablement and certification of your [IIN](/docs/cards/iin-procurement) with the card network [token service provider](/docs/cards/token-service-providers).
+
+In-app push provisioning requires that you develop, test, and certify an application in the app store associated with the digital wallet provider. You should take this process into account when developing your card token project plan. E6 is not involved in the process of getting applications launched into app stores.
+
+## Actions
+
+You do not need to complete any integration with E6 to support manual provisioning initiation since this process is managed between the digital wallet and the token service provider.
+
+Depending on the digital wallet and your token service provider, different APIs are needed to generate in-app push provisioning request payloads. Once the payload has been returned to your application, it should be passed to the digital wallet using their specified interface.
+
+Before a Visa card can be added to a digital wallet using push provisioning, it must first be enrolled in Visa In-App Provisioning (VIAP) using the [Enroll Card in VIAP API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.viap.ViapAPI_enrollCard_PUT) Enrolling a Visa Card will return a `vCardId` confirming that the card has been enrolled.
+
+| Card network | Digital wallet | API |
+| -- | -- | -- |
+| Mastercard | Apple Pay | [Generate Tokenization Payload - Mastercard - Apple Pay API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.PushProvisioningAPI_getCardDataForApplePay_POST) |
+| Mastercard | Google Pay | [Generate Tokenization Payload - Mastercard API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.PushProvisioningAPI_getCardDataForMastercard_GET) |
+| Visa | Apple Pay | [Generate Tokenization Payload - Visa - Apple Pay API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.viap.ViapAPI_getCardDataForApplePay_POST) |
+| Visa | Google Pay | [Generate Tokenization Payload - Visa - Google Pay API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.viap.ViapAPI_getCardDataForGooglePay_POST) |
+| JCB | Google Pay | [Generate Tokenization Payload - JCB - Google Pay API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenization.PushProvisioningAPI_getCardDataForJTPGooglePay_POST) |
+
+### Mastercard Token Connect
+
+Merchant and SRC push provisioning through Mastercard Connect works similarly to digital wallet push provisioning, but tokens are pushed to the merchant or SRC provider who act as token requesters. In this case, a list of token requestor options must be provided to the cardholder calling the [Retrieve Token Requestors - Mastercard API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenconnect.MastercardTokenConnectAPI_getEligibleTokenRequestors_POST). Once the cardholder has selected a token requestor and the accounts to be tokenized, a request is made to push the selected account for tokenization calling the [Push Card to Token Requestors - Mastercard API](/tech-specs/cards/card-tokenization/api?#operation/net.e6tech.h3.middletier.api.v1.partner.tokenconnect.MastercardTokenConnectAPI_pushMultipleAccountsTokenConnect_POST). Following this, a redirect to the token requestor interface should be performed using the `tokenRequestorId`. Additional fields may be needed depending on the token requestor being used. |
+
+## What's next
+
+As part of both manual and push provisioning processing, a call will be made to E6 to [authorize](/docs/cards/token-authorization) the provisioning request. The request can be approved, rejected, or additional cardholder verification may be required. Multiple types of cardholder verification methods exists and some will require integration with E6 on your part to support.

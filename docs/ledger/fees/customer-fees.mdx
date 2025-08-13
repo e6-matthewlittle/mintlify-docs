@@ -1,0 +1,40 @@
+---
+title: "Customer fees"
+menu: Fees
+route: /docs/fees/customer-fees
+excerpt: A customer fee is a fee rule that is assigned to a specific customer.
+types: 
+  - guide
+_tags:
+  - customer
+  - fee
+  - customer fees
+  - charge
+  - free fees
+  - add
+containerWide: true
+showHeadingsNav: true
+date: "02-27-2023"
+---
+
+# Customer fees
+
+A customer fee is a fee rule that is assigned to only a specific customer. Normally, fees are managed at the program level for all customers or certain segments of customers. In some cases, however, fee rules need to be associated with individual customers based on their behavior, unique business agreement, or issues related to the account.
+
+## What we do
+
+Episode Six (E6) provides the ability to add fee rules to individual customers. Customer fee rules operate in parallel with the fee plans to which the customer has been assigned.
+
+## Prerequisites
+
+To create a customer fee, you must first create a customer. You can learn more about creating a customer in [Customers](/docs/customers/customers).
+
+## Actions
+
+You can add a customer fee to a customer calling the [Create Customer Fee Rule API](/tech-specs/fees/customer-fee-rules/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createOrUpdateFee_POST). Fees must be setup in alignment with a transaction type. For information about fee calculation methods and a list of available fees, see [Fee rules](/docs/fees/fee-rules).
+
+## What's next
+
+Once a customer fee has been created, it can be managed calling the [Customer Fee Rules APIs](/tech-specs/fees/customer-fee-rules). After creating a customer, fees are calculated and assessed based on the triggering activity.
+
+You can also call the [Customer Fee Rules APIs](/tech-specs/fees/customer-fee-rules) to configure fee exceptions. E6 allows you to configure customer fee exceptions at the customer level. Optionally, you can configure a minimum amount under which fees are not charged by entering an amount in the `triggerAmount` field in the API request body.

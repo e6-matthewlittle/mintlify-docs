@@ -1,0 +1,58 @@
+---
+title: "Card tokens"
+menu: Cards
+route: /docs/cards/card-tokens
+excerpt: Card tokens give cardholders a way of accessing their card without having to have the original card with them.
+types:
+  - guide
+_tags:
+  - card tokens
+  - digital wallets
+  - tokenization
+  - token service providers
+  - token
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+# Card tokens
+
+A card token is a digital replacement of a payment card. Card tokens give cardholders a way of accessing their card without having to have the original card with them. The most well known example of card tokens are the payment cards stored in Apple Pay and Google Pay. Cards stored in these "digital wallets" allow the cardholder to tap their phone or other mobile device to a reader at a POS system or ATM to use the card.
+
+When a card is tokenized, the card token gets its own card-like details including a PAN and expiry. As card payments are made, the card token PAN is passed in like any other PAN. Unlike a normal PAN however, the card token PAN gets mapped back to the original payment card PAN by the TSP so that the issuer can process the payment as it usually would. This reduces the chance that detail of the original payment card are exposed reducing the potential of card payment fraud in the future.
+
+## What we do
+
+Episode Six (E6) provides issuers the ability to tokenize cards issued on the E6 platform and provision them to various digital wallets. E6 works with the card network token service providers (TSPs) to support tokenization for major digital wallets such as Apple Pay and Google Pay. You can allow your customers to provision their card tokens for these digital wallets through manual provisioning, in-app push provisioning, and web push provisioning.
+
+## How it works
+
+To learn more about how E6 manages card tokens for you, read through the following documentation.
+
+- [**Digital wallets**](/docs/cards/digital-wallets) - Integrating with different cardholder-facing card token requestor applications.
+- [**Token service providers**](/docs/cards/token-service-providers) - Enablement of card tokens using the card network provided systems.
+- [**Token provisioning**](/docs/cards/token-provisioning) - Provisioning of card tokens to a digital wallet.
+- [**Token authorization**](/docs/cards/token-authorization) - Issuer authorization of token provisioning requests so that a token can be activated for use.
+- [**Card token management**](/docs/cards/card-token-management) - Managing card token states and retrieving data about card tokens.
+
+## Common terms
+
+Below is a list of common and important terms that you will see throughout the card token domain.
+
+| Term | Definition | Other names |
+| -- | -- | -- |
+| **Card token** | When a card reaches the day after the card expiry month and year. At this point the card can no longer be used. ||
+| **Device token** | Card tokens which are generated and stored on a particular device using a special piece of hardware called a secure element. PANs generated for device tokens are referred to as device PANs, or DPANs. These are the types of tokens used for Apple Pay, Google Pay, etc. | Secure element token |
+| **Static token** | Card tokens which are generated per merchant where a card needs to be stored. These are generated directly from a card and not a device token. These tokens do not include cryptographic data and are simply used to not expose the original payment card PAN for merchants to store. This reduces the chance that sensitive card data such as PANs are exposed if the merchant data stores are breached. | Card on file token |
+| **Cloud token** | Card tokens which are generated from an original secure element/device token and used to supplement security measures for e-commerce activities. This token type includes companion card tokens and recurring payment cloud tokens.  ||
+| **Digital wallet** | A provider that holds a card token on behalf of a cardholder and enables it to be used for card payments either in person or online. | Token requestor |
+| **Token service provider (TSP)** | The system that generates the card token and stores the card token details including the associated original payment card. During card payment processing, the TSP is used to retrieve the original PAN when a card token PAN is received. ||
+| **Tokenization** | The process of replacing an object with an equivalent that does not include sensitive data. ||
+| **Provisioning** | The process of generating a card token and then adding the token to a digital wallet. ||
+| **Manual provisioning** | Provisioning requests which originate from the digital wallet experience. ||
+| **Push provisioning** | Push provisioning requests which originate from the issuer experience. ||
+| **In-app push provisioning** | Provisioning requests which use secure app-to-app integration on a device. ||
+| **Web push provisioning** | Push provisioning requests which originate from a issuer hosted web application in a web browser.  ||
+| **Token authorization** | The process of an issuer approving a provisioning request for a card token. ||
+| **Token activation** | The process of making a card token ready for use following token authorization. ||

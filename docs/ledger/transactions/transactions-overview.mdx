@@ -1,0 +1,78 @@
+---
+title: "Transactions overview"
+sidebarTitle: "Overview"
+route: /docs/transactions/overview
+excerpt: A transaction is a record of a funds movement from one account to another.
+types: 
+  - guide
+_tags:
+  - product ledger
+  - ledger
+  - overview
+  - accounts
+  - balances
+  - transactions
+containerWide: true
+showHeadingsNav: true
+date: "01-31-2023"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# Transactions overview
+
+A transaction is a record of a money movement which affects an account balance. A transaction is made of a credit and debit of equal amounts allowing for easy reconciliation of money movements.
+
+## Uses
+
+Transactions are used to view the historical payments which lead to the current account balance. Use cases for viewing balances and transactions include:
+
+- Allowing a customer to view their transaction history in your customer mobile or web experience
+- Allowing a customer service agent to see a customer's transaction history for customer inquiry support
+- Enabling data reporting and analytics through curation of custom transaction attributes
+
+## How it works
+
+Episode Six (E6) acts as a ledger and system of record for accounts managed by E6. This includes maintaining customer account balances and transaction histories which lead to the current balance.
+
+As a part of payment processing, E6 creates the transaction records related to the payment and posts transactions in the E6 ledger. A single transaction can have one or more transaction entries. A transaction entry is an individual credit or debit related to various sub-transactions of the root transaction. E6 also records declined transactions in order to support exception case support as needed.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+        linkPath="/docs/transactions/transactions"
+        title={"Transactions"}
+        body={"A transaction is a record of a funds movement from one account to another."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/transactions/transaction-attributes"
+        title={"Transaction attributes"}
+        body={"A transaction attribute allows for additional transaction metadata to be managed."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/transactions/authorization-holds"
+        title={"Authorization holds"}
+        body={"An authorization hold is a temporary debit placed on an account."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/transactions/external-transactions"
+        title={"External transactions"}
+        body={"An external transaction is an E6 tracking record of a funds movement which is not handled by E6."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/transactions/reversals"
+        title={"Reversals"}
+        body={"A reversal is an action that undoes a previously completed transaction."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+        linkPath="/docs/transactions/memo-templates"
+        title={"Memo templates"}
+        body={"Create custom memo templates to populate the memo fields of transactions."}
+        linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

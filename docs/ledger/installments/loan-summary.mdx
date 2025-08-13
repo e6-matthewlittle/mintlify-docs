@@ -1,0 +1,42 @@
+---
+title: "Loan summary"
+menu: Installments
+route: /docs/installments/loan-summary
+excerpt: A loan summary enables real-time access to detailed information about a customer's loan.
+types: 
+  - guide
+_tags:
+  - products
+  - customers
+  - installments
+  - loan
+  - retrieve
+  - periods
+  - summary
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Loan summary
+
+When an installments customer makes an eligible purchase and a loan is created, a loan summary becomes available. A loan summary enables real-time access to detailed information about a customer's loan. View a loan summary to assess a customer's current debt, review how repayments are applied to a customer's outstanding debt, and confirm a customer's repayment schedule.
+
+## What we do
+
+Episode Six (E6) generates a loan summary for each of a customer's loans. Loan summaries provide a real-time view into all activity that has occurred on the customer's loan at the time of retrieval, such as repayments.
+
+## Prerequisites
+
+For a loan summary to be available, the customer must have created at least one loan. For more information, see [Loan creation](/docs/installments/loan-creation).
+
+## Actions
+
+To retrieve a loan summary, call the [Retrieve Loan Summary API](/tech-specs/installments/installments-customers/api?#operation/retrieveLoanSummary). Provide the customer number of the parent installments customer in the `customer-number` path parameter. In the request body, set the `name` attribute to `getLoanSummary`. In the `subjectId` object, set `subject` to `Customer` and `id` to the parent customer’s `customerNumber`. In the `attributes` object, set the `name` to `loanCustomerNumber`. In the `value` attribute, provide the loan child customer’s `customerNumber`.
+
+A successful request returns the customer’s loan summary. The `amortizationSchedule` object in the response contains an array of period summaries showing the amounts due and repaid with due dates in each of the loan's periods.
+
+## What’s next
+
+Call the Retrieve Loan Summary API throughout the lifecycle of the customer's loan to track the customer's progress in repaying the loan. Customers can repay their loan using recurring payments or via load transactions. For more information, see [Loan repayment](/docs/installments/loan-repayment).

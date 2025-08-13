@@ -1,0 +1,179 @@
+---
+title: "Annual statement file"
+menu: Revolving credit
+route: /docs/revolving-credit/annual-statement-file
+excerpt: Revolving credit customers can receive an annual statement of account activity.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - statement
+  - annual statement
+  - customer accounts
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Annual statement file
+
+In addition to statements received each billing period, revolving credit customers can also receive an annual statement. This statement summarizes account activity over the last 12 billing periods, such as the total amount spent across each balance type, total repayments, and total fees charged. For clients using revolving credit functionality, Episode Six (E6) can generate an annual statement file containing information to be printed on each customer’s annual billing statement.
+
+## File behavior 
+
+An annual statement file is generated when at least one of a program's customers have received 12 billing statements since account opening or their last annual statement. The file is output at 4 AM in the program's local timezone on the date of the customer's twelfth billing statement. One annual statement file is produced per program. Once generated, the file is made available through the S3 service.
+
+When a customer's annual statement is generated, an [AnnualStatementCloseNotification](/docs/notifications/credit-notifications/#annualstatementclosenotification) is triggered containing details from the customer's annual statement.
+
+Each annual statement file uses JSON format and is generated into a .txt file. The annual statement file uses the following file name formatting:
+
+| Sample                            | Format                                                     |
+| --------------------------------- | ---------------------------------------------------------- |
+| CreditCardTest-20230102020000.txt | [programName] + “-” + [timestamp(yyyyMMddHHmmss)] + “.txt” |
+
+When a customer's annual statement becomes available, the annual statement details can also be retrieved via API by calling the [Annual Statement API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/annualStatement). In the request, set `name` to `annualStatement`. To limit the number of annual statements returned in the response, include an `attributes` object with `name` set to `limit` and `value` set to the maximum number of statements to return. 
+
+## Fields 
+
+Throughout the annual statement file, the following value formatting is used unless otherwise noted:
+
+- All numeric values are rounded to two decimal places
+- All dates are provided in `yyyyMMdd` format
+
+Each annual statement file is divided into the following sections for each customer account:
+
+1.	Customer
+2.	Address
+3.	Summary
+4.	Usage details
+5.	Fee details
+
+The following tables describe the fields included in each section. For an example of an annual statement file, see the appendix.
+
+### Customer 
+
+The `customer` section contains information about the customer, including the customer’s name, email, and customer number in the E6 platform.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Given Name | `givenName` | String | Customer’s given name. |
+| Family Name | `familyName` | String | Customer’s family name. |
+| Second Family Name | `secondFamilyName` | String | Customer’s second family name, if applicable. |
+| Suffix | `suffix` | String | Customer suffix, such as Jr or Sr. |
+| Email | `email` | String | Customer email address. |
+| Customer ID | `customerNumber` | String | E6-generated customer number. |
+
+### Customer addresses
+
+The `addresses` section contains information about the customer’s physical addresses.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Address Type | `addressType` | String | Address type, such as `ship` for a shipping address. |
+| Address Line 1 | `line1` | String | First line of the address. |
+| Address Line 2 | `line2` | String | Second line of the address. |
+| Address Line 3 | `line3` | String | Third line of the address. |
+| Neighborhood | `neighborhood` | String | Name of the customer neighborhood. |
+| Postcode | `postCode` | String | Customer postal code. |
+| City | `city` | String | Customer city. |
+| State | `state` | String | Customer state, as applicable. |
+| Country | `country` | String | Two-character country code for the customer. |
+
+### Summary 
+
+The `summary` section contains a summary of account usage during the annual statement period. 
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Statement period start date | `statementPeriodFrom` | String | Start date of the annual statement period. |
+| Statement period end date | `statementPeriodTo` | String | End date of the annual statement period. |
+| Total spend | `totalSpend` | BigDecimal | Total amount of all purchases, cash advances, and balance transfers or loans to banks that were made in the statement period, minus any merchant credits, refunds, chargebacks or fraud adjustments. |
+| Total interest incurred | `totalInterest` | BigDecimal | Total amount of all billed interest that was incurred during the statement period, minus any interest refunds or adjustments. |
+| Total charges incurred | `totalCharges` | BigDecimal | Total amount of all fees across all balance types that were charged in the statement period, minus any fee refunds or adjustments. |
+| Total repayments | `totalRepayments` | BigDecimal | Total of all repayments that were made on the account in the statement period, minus any payment reversals. |
+
+### Usage details 
+
+The `usageDetails` section contains subtotals of each sub-balance during the statement period.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Total purchases | `purchases` | BigDecimal | Total amount of all purchases made in the billing period, minus any merchant credits, refunds, chargebacks, or fraud adjustments. |
+| Total purchase interest incurred | `purchaseInterest` | BigDecimal | Total amount of all billed interest that was incurred on the customer's purchase balance during the statement period, minus any interest refunds or adjustments. |
+| Total cash advances | `cashAdvances` | BigDecimal | Total amount of all transactions classed as cash withdrawals, minus any merchant credits, refunds, chargebacks, or fraud adjustments. |
+| Total cash advance interest incurred | `cashAdvanceInterest` | BigDecimal | Total amount of all billed interest that was incurred on the customer's cash advance balance during the statement period, minus any interest refunds or adjustments. |
+| Total cash advance fees | `cashAdvanceFees` | BigDecimal | Total amount of all fees that were incurred on cash advances during the statement period, minus any fee refunds or adjustments. | 
+| Total balance transfer fees | `balanceTransferFees` | BigDecimal | Total amount of fees that were incurred on balance transfers and loan to bank transfers during the statement period, minus any fee refunds or adjustments. | 
+| Total balance transfer interest incurred | `balanceTransferInterest` | BigDecimal | Total amount of billed interest that was incurred on balance transfers during the statement period, minus any interest refunds or adjustments. |
+
+### Fee details 
+
+The `feeDetails` section contains subtotals for all fees and charges incurred during the statement period. If fee reversals or adjustments were applied on any fee balances during the statement period, the adjusted amounts are subtracted from the appropriate fee subtotal.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Total default fees | `totalDefaultCharges` | BigDecimal | Total amount of all default fees incurred during the statement period. |
+| Total late payment fees | `latePaymentFees` | BigDecimal | Subtotal of all late-payment fees charged during the statement period. |
+| Total over limit fees | `overLimitFees` | BigDecimal | Subtotal of all over-limit fees charged during the statement period. |
+| Total payment reversal fees | `paymentReversalFees` | BigDecimal | Subtotal of all payment-reversal fees charged during the statement period. |
+| Total foreign currency fees | `foreignCurrencyFees` | BigDecimal | Subtotal of all commissions or markups charged on foreign currency purchases during the statement period. |
+| Total annual fees | `foreignCurrencyFees` | BigDecimal | Subtotal of all annual fees charged during the statement period. |
+| Other fees | `otherFees` | BigDecimal | Subtotal of all other fees charged during the statement period. |
+
+## Appendix 
+
+Here is a sample annual statement file in JSON format: 
+
+```json
+[
+    {
+        "customer": {
+            "givenName": "Joe",
+            "familyName": "Test",
+            "email": "joetest@simulatortest.net",
+            "customerNumber": "6002X10000010160263"
+        },
+        "addresses": [
+            {
+                "addressType": "home",
+                "line1": "2702 Pterodactyl Lane",
+                "line2": "",
+                "line3": "",
+                "neighborhood": "",
+                "postCode": "81018",
+                "city": "Bedrock",
+                "state": "AZ",
+                "country": "US"
+            }
+        ],
+        "summary": {
+            "statementPeriodFrom": "20210718",
+            "statementPeriodTo": "20220718",
+            "totalSpend": -2400.00,
+            "totalInterest": -16.27,
+            "totalCharges": -129.35,
+            "totalRepayments": 2535.00
+        },
+        "usageDetails": {
+            "purchases": -1200.00,
+            "purchaseInterest": -9.29,
+            "cashAdvances": -1200.00,
+            "cashAdvanceInterest": -5.72,
+            "cashAdvanceFees": 0.00,
+            "balanceTransferFees": 0.00,
+            "balanceTransferInterest": 0.00
+        },
+        "feeDetails": {
+            "totalDefaultCharges": -129.35,
+            "latePaymentFees": -129.35,
+            "overLimitFees": 0.00,
+            "paymentReversalFees": 0.00,
+            "foreignCurrencyFees": 0.00,
+            "annualFees": 0.00,
+            "otherFees": 0.00
+        }
+    }
+]
+```

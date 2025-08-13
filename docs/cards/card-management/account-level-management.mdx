@@ -1,0 +1,59 @@
+---
+title: "Account Level Management"
+menu: Cards
+route: /docs/cards/account-level-management
+excerpt: Account level management enables card scheme product codes and services to be managed for specific cards.
+types: 
+  - guide
+_tags:
+  - ALM
+  - Account Level Management
+containerWide: true
+showHeadingsNav: true
+---
+
+# Account level management
+
+Account level management (ALM) enables card scheme product code and service utilization to be managed for specific cards. Managing these aspects at the card levels allow for more finite control of a card product without having to receive and underutilize multiple BINs/IINs. It also means card product codes and service utilization can be changed without having to reissue a card or order a new card. ALM actions can be used to drive the following types of product features:
+
+* **Rewards** - Drive reward program utilization through associating cards with specific rewards and incentive products.
+* **Portfolio Management** - Manage card product codes and definitions to reduce card portfolio management activities such as BIN/IIN acquisition and card reissuance.
+* **Spend Incentives** - Track and manage spend for one or more cards to drive spend-based interchange pricing.
+ 
+## What we do
+
+Episode Six (E6) integrates with card scheme ALM systems to provide access to these card change requests via E6 APIs. When E6 receives a request for a card change, the request is forwarded to the card scheme ALM system for card product code and service utilization updating. Once the card has been updated future card authorizations and transactions will be processed under the new card definition. The types of account level management actions vary by card scheme. E6 enables the following ALM actions:
+
+| Action | Product Feature | Description | Available Schemes |
+| -- | -- | -- | -- |
+| Product Code Change | Portfolio Management | Change the product code associated with a card for actions such as product promotion, product change, or interchange optimization. | Mastercard |
+| Card Grouping | Spend Incentive | Associated multiple cards with a single entity to establish aggregate spend tracking to drive spend incentives. | Mastercard |
+| PAN Closure | Spend Incentive | Notify the card scheme of a PAN closure or lost/stolen request to ensure spend tracking represents the actual spend of the card. | Mastercard |
+
+## Prerequisites
+
+You must enable account level management for your BINs/IINs as needed with the card scheme. This is done directly with the card scheme or through your BIN sponsor.
+
+E6 will need to enable automatic ALM processing for your program. Please contact your E6 representative to ensure this is enabled as expected.
+
+ALM is only available for cards which have been [issued](/docs/cards/issuance-overview).
+
+## Actions
+
+Once ALM has been activated by the card scheme, ALM requests can be submitted to E6 for issued cards. API calls vary by scheme, so be sure to call the correct endpoint as needed.
+
+### Product Code Change
+
+A Mastercard issued card product code change can be processed by calling the [Update Product Code - Mastercard API](/tech-specs/cards/account-level-management/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.MasterCardUSSAPI_switchCardProductCode_POST). This API interfaces with the Mastercard Product Graduation Plus (PGP) offering.
+
+### Card Grouping
+
+A Mastercard issued card can be grouped via the [Set Card Grouping - Mastercard API](/tech-specs/cards/account-level-management/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.MasterCardUSSAPI_setGroupId_POST). E6 uses a customer’s E6 account number or root parent account number depending on the account structure to create a "card grouping" in the Mastercard ALM platform. Whenever a card is issued in the E6 system for an account - the request is automatically triggered from E6 to Mastercard. Cards which have been reissued will also automatically be set to the same card grouping to which the card was associated.
+
+### PAN Closure
+
+A PAN closure notification for a Mastercard issued card can be submitted via the [Close PAN - Mastercard API](/tech-specs/cards/account-level-management/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.MasterCardUSSAPI_closePan_POST). This API does not need to be called for card lifecycle events such as cancellation as E6 will automatically trigger a close PAN notification.
+
+## What's next
+
+Once a successful ALM request has been made, all future spend tracking and [card payments](/docs/cards/card-payments) will reflect the updated settings for the card. Cards can receive multiple ALM requests as needed throughout the card lifecycle.

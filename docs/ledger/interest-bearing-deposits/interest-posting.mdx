@@ -1,0 +1,48 @@
+---
+title: "Interest posting"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/interest-posting
+excerpt: How accrued interest is posted to customer accounts.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - interest posting
+  - savings account
+  - customer setup
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Interest posting
+
+Interest posting is the process of posting a financial transaction for the amount of interest that has accrued on a customer account. At that point, the interest earned becomes part of the principal and can be accessed by the customer like any other portion of their account balance.
+
+## What we do
+
+Episode Six (E6) provides the ability to configure and automatically process interest posting for an interest-bearing deposit program. All customers within an interest-bearing deposit program will have interest posted at the same time. The timing of this process is based on the program `distributionFrequency` and `distributionOffset`. The posted interest amount will be rounded to the decimal point precision of the balance currency.
+
+<Callout
+    calloutType={'info'}
+>
+    E6 currently only supports monthly as a distribution frequency.
+</Callout>
+
+## Prerequisites
+
+Interest posting will only be processed on interest-bearing deposit customers that have been [configured](/docs/interest-bearing-deposits/customer-configuration).
+
+If there is a `closed` or `termination` block on a customer account, then interest posting will not be performed on that customer account. For more information, see [customer blocks](/docs/blocks/customer-blocks).
+
+## Actions
+
+Interest posting is done automatically on a daily basis and no action is needed by a user. Interest posting results in a transaction from the program operating account to the customer account with an `interest` transaction type code. Posting will include all interest accrued since the last interest posting.
+
+## What's next
+
+After interest has been posted, principal balances for a customer can be viewed in the `totalBalances` array returned from the [Retrieve Interest-Bearing Deposit Customer API](/tech-specs/interest-bearing-deposits/customers/api?#operation/retrieveInterestBearingDepositsCustomer). Customers can also view a detailed history of interest transactions. For more information, see [Transactions](/docs/transactions/transactions).
+
+Reports can be used to manage the interest-bearing deposits program and its customers. The [Program net positions report](/docs/reports/program-net-positions) will summarize all posted interest activity daily and provide a line-item reporting interest payments so that you are able to manage the operation of the product. The [Customer transactions report](/docs/reports/customer-transactions) can then be used to gain further understanding into the net positions found in the Invoice Report.

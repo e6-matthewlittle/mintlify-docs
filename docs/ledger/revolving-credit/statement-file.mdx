@@ -1,0 +1,501 @@
+---
+title: "Statement file"
+menu: Revolving credit
+route: /docs/revolving-credit/statement-file
+excerpt: E6 generates a statement file containing information to be printed on billing statements.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - statement
+  - fields
+  - file behavior
+  - statement file
+  - account
+  - customer
+  - addresses
+  - transactions
+  - child customer
+  - wallet
+  - default fee
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Statement file
+
+Every month, Episode Six (E6) generates a statement file in JSON format for clients using E6 revolving credit functionality. This file contains information to be printed on customer billing statements, such as customer account information, personal information, and transaction histories. This file is sent to your designated statement provider once generated.
+
+## File behavior
+
+A statement file is produced per program for every billing date. Each file includes every account under that program that was billed in that period. By default, Tritium® assigns a billing period by the date of account creation. However, a preferred billing date can also be specified during account creation.
+
+The statement file is generated at the end of the billing period at 2 AM on the billing date. For example, if a billing date is set for the 15th of each month, the statement file will be generated at 2AM on the morning of the 15th.
+
+When a customer's `billingDayOfMonth` is updated during a statement period, the statement for the current period is generated as scheduled on the original billing date. The end of the next billing period is then determined, ensuring a minimum span of 28 days for the billing cycle. For example, if the `billingDayOfMonth` is updated from `20` to `5`, the system will need to extends the billing period beyond the immediate next 5th day of the month to the second occurrence of the 5th day of month after the previous close to satisfy the 28-day requirement.
+
+Each statement file uses JSON format and is generated into a .txt file. The statement file uses the following file name formatting:
+
+| Sample                            | Format                                                     |
+| --------------------------------- | ---------------------------------------------------------- |
+| CreditCardTest-20230102020000.txt | [programName] + “-” + [timestamp(yyyyMMddHHmmss)] + “.txt” |
+
+## Fields
+
+Throughout the statement file, the following value formatting is used unless otherwise noted:
+
+- All numeric values are rounded to two decimal places
+- All dates are provided in `yyyyMMdd` format
+
+Each statement file is divided into the following sections for each customer account:
+
+1.	Customer
+2.	Address
+3.	Account
+4.	Transactions
+5.	Summary
+6.  Default fee information
+
+For an example of a statement file, see the appendix.
+
+  The following sections document the standard fields of the statement file. As needed, the statement file can also include region-specific fields to comply with local regulatory requirements. These regional values are also displayed in the <tt>attributes</tt> section of the billing history object. For more information on the region-specific fields that can be displayed in the statement file, see the [Appendix](#Appendix).
+
+### Account
+
+The Account block provides information about the customer’s account, including the customer’s credit limit, card information, and account lifecycle.
+
+| Field | Field name | Data type | Description |
+| - | -| - | - |
+| Account Number | `cardNumber` | String | E6-generated internal identifier number assigned to the card, if present. |
+| Currency | `currency` | String | Currency used by the account. |
+| Primary PAN (Masked) | `primaryPAN` | String | Primary Account Number (PAN). The first six and last four digits are exposed in the file. The rest of the PAN is masked. This field is populated in the statement file if the card's state is `activated` or `shipped`. For more information on card states, see [Card state management](/docs/cards/card-state-management). |
+| Card Type (Product) | `cardType` | String | Name of the E6 program associated with the customer account. |
+| Credit Limit | `creditLimit` | BigDecimal | Overall credit limit for the customer account. |
+| Charge Period From | `chargePeriodFrom` | String | Start date of the billing period. |
+| Charge Period To | `chargePeriodTo` | String | End date of the billing period. |
+| Payment Due Date | `paymentDueDate` | String | Date that funds will be taken from the customer’s bank account for repayment. |
+| Minimum Payment Due | `minimumPaymentDue` | BigDecimal | Minimum payment due at the end of the billing period. |
+| Minimum Payment Past Due | `minimumPaymentPastDue`  | BigDecimal | Sum of minimum payment amounts from previous billing periods that have not yet been paid. |
+| Minimum Payment Total Due | `minimumPaymentTotalDue` | BigDecimal | Sum of the customer's current minimum due and any unpaid minimum past due amounts. This value is equal to the sum of the `minimumPaymentDue` and `minimumPaymentPastDue` values. |
+| Payment Amount to Avoid Interest | `paymentToAvoidInterest` | BigDecimal | Amount the customer has to pay to avoid interest. This value is always a negative amount. If the customer's closing balance is in credit, this value is 0. |
+| Payment Amount | `projectedPaymentAmount` | BigDecimal | If the customer uses Automatic Load, this field contains the projected payment amount to be requested from the customer’s bank on the extraction date. The projected amount varies depending on the customer setup (for example, if the customer is a full payer, minimum payer, or 50% payer). This field can also vary depending on customer activity, such as if the customer goes over their credit limit. |
+| Payment Type | `paymentType` | String | Method used for payment. Valid values include Auto and Manual. Auto is used when payments are made automatically using automatic load, and Manual is used when payments are made manually. |
+| Total Cost of Credit | `totalCostOfCredit` | BigDecimal | Calculated total cost of credit for UK regulatory requirements. This value can be used so end customers can compare the relative costs between credit products. |
+| Estimated Interest | `estimatedinterest` | BigDecimal | Estimated interest for UK regulatory requirements. This value is the estimated amount of interest the customer will receive at their next billing period end if only the customer’s minimum payment is repaid this period and no purchases are made next period. |
+| External Reference | `externalReferences` | List | List of any external account references for the customer account. |
+| Annual Percentage Rate (APR) | `annualPercentageRate` | List | List of annual interest rates for each of the program's balance types. |
+| Monthly interest rate | `monthlyInterestRate` | List | List of monthly interest rates for each of the program's balance types. This value is equal to each balance's APR divided by 12. Each monthly interest rate value is calculated to five decimal points. |
+| Annual Effective Rate (AER) | `annualEffectiveRate` | List | List of calculated annual effective interest rates for each of the program's balance types. |
+| Purchase APR | `purchaseApr` | BigDecimal | Calculated regulatory APR for the purchase balance type. |
+| Delinquent Period Counter | `delinquentPeriodCounter` | Integer   | Number of periods with currently outstanding minimum payments, including the current period. |
+| Account Status | `accountBlocks` | String | Block reason code for any currently active blocks on the customer account. For more information, see [Customer blocks](/docs/blocks/customer-blocks). |
+| Statement preference | `statementPreference` | String | Customer's statement delivery preference. This field can be either `paperStatements` or `eStatements`. |
+
+### Customer
+
+The Customer block contains personal information about the customer, including the customer’s name, email, and customer number in the E6 platform.
+
+<Callout
+  calloutType={'warning'}
+>
+  If a field in the Customer block is not populated with values, the field will not be included in the file output. Only fields with values will be provided in the file output.
+</Callout>
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Title | `title` | String | Customer title, such as Mr or Mrs. |
+| Given Name | `givenName` | String | Customer’s given name. |
+| Family Name | `familyName` | String | Customer’s family name. |
+| Second Family Name | `secondFamilyName` | String | Customer’s second family name, if applicable. |
+| Suffix | `suffix` | String | Customer suffix, such as Jr or Sr. |
+| Email | `email` | String | Customer email address. |
+| Customer ID | `customerNumber` | String | E6-generated customer number. |
+
+### Customer addresses
+
+The Addresses block contains information about the customer’s physical addresses.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Address Type | `addressType` | String | Address type, such as ship for a shipping address. |
+| Address Line 1 | `line1` | String | First line of the address. |
+| Address Line 2 | `line2` | String | Second line of the address. |
+| Address Line 3 | `line3` | String | Third line of the address. |
+| Neighborhood | `neighborhood` | String    | Name of the customer neighborhood. |
+| Postcode | `postCode` | String | Customer postal code. |
+| City | `city` | String | Customer city. |
+| State | `state` | String | Customer state, as applicable. |
+| Country | `country` | String | Customer country. |
+
+### Transactions
+
+The Transactions block contains an array of customer transactions that occurred over the given billing period.
+
+| Field | Field name | Data type  | Description |
+| - | - | - | - |
+| Transaction Date | `transDate` | String | Transaction authorization date. |
+| Post Date | `postDate` | String | Transaction settlement date. |
+| Creation Date | `creationDate` | String | Creation date of the transaction entry in UTC time. |
+| Localized Creation Date and Time | `creationDateTime` | String | Creation date and time of the transaction entry in the program’s local time zone. The format is `yyyy-MM-dd'T'HH:mm:ss.SSS z`, in which `z` represents the local time zone. |
+| Transaction Merchant | `cardAcceptorName` | String | Card acceptor name or transaction memo. If the transaction is made over a payment network and an ISO 8583 message is received (such as for a purchase at a merchant), this field prints the card acceptor name. If the transaction is not coming from a payment network (such as for an internal load), this field prints the memo from the transaction entry. |
+| Transaction Merchant City | `cardAcceptorCity` | String | Card acceptor city. This field is only present if the transaction is made over a payment network. If the transaction is not made from a payment network, such as a system-generated fee, this field is not included in the file output. |
+| Transaction Merchant Country | `cardAcceptorCountry` | String | Card acceptor country code. This field is only present if the transaction is made over a payment network. If the transaction is not made from a payment network, such as a system-generated fee, this field is not included in the file output. |
+| Billing Amount | `billingAmount` | List | Amount used in the transaction. This attribute includes two fields: the `amount` and `currency` of the transaction. |
+| Acquirer Amount | `acquirerAmount` | List | Amount that the merchant receives in the transaction. This attribute includes two fields: the `amount` and `currency` of the funds received by the acquirer. For a foreign exchange transaction, the `acquirerAmount` currency will be different than the `billingAmount` currency. |
+| Transaction Card Number (Supplementary) | `txCardNumber` | String | Masked PAN of the card that performed the transaction. The first six and last four digits of the card number are clear. Cards in the `shipped` or `activated` states can be used for transactions. |
+| MCC | `mcc` | String | Merchant Category Code (MCC) for the merchant derived from the ISO 8583 message. |
+| Foreign Exchange Rate | `fxRate` | BigDecimal | Foreign exchange amount applied to the transaction, if applicable. This amount is provided by the card scheme. This attribute uses five decimal points. |
+| Foreign Exchange Amount | `fxAmount` | List | Markup that the customer will be charged because of the foreign exchange rate. This attribute includes two fields: the markup `amount` and `currency`. For a transaction without a markup fee, `amount` will be `0.00`. |
+| Amount Without Markup | `amountWithoutMarkup` | List | Amount in the transaction without the foreign exchange markup (`fxAmount`). This attribute includes two fields: the markup `amount` and `currency` of the transaction amount without markup. For a transaction without a markup fee, the `amountWithoutMarkup` will be equal to `billingAmount`. |
+| Markup Type | `markupType` | String | Type of markup applied to the foreign exchange transaction. This attribute can display three possible values: `DCC`, `CROSS_BORDER`, and `FOREIGN_CURRENCY`. `DCC` is displayed if the transaction is made using DCC. If `markupType` is `DCC`, the `fxRate` will be `0.00000`, and a percentage markup is applied to the transaction. `CROSS_BORDER` is displayed when a transaction is a cross border transaction, in which the acquirer country is different from the program’s country. If `markupType` is `CROSS_BORDER`, an `fxRate` value is shown. `FOREIGN_CURRENCY` is displayed if the transaction is made using a different currency than the acquirer currency. If the transaction occurs in the program's country using the program's compliance currency, this field displays an empty string. |
+| Transaction type | `transactionType` | String     | Type of transaction, such as `purchase`, `withdraw`, `interest`, or `latePaymentFee`. For a list of supported transaction types, see [Transactions](/docs/transactions/transactions). |
+| Transaction ID | `transactionReference` | Long | Static reference number for the customer transaction. |
+| Foreign Exchange Rate (Inverse) | `fxRateInverse` | BigDecimal | Inverse of the foreign exchange amount provided by the card scheme. This attribute uses five decimal points. |
+| Foreign Exchange Rate Including Markup  | `fxRateWithMarkup` | BigDecimal | Foreign exchange rate plus the markup amount. This value is equal to the `acquirerAmount` divided by the `billingAmount`. This attribute uses five decimal points. If the transaction is not a foreign exchange transaction or if the transaction uses DCC, `fxRateWithMarkup` will be 0.00000. For a transaction without a hidden fee, this attribute will display the same value as `fxRate`. |
+| Foreign Exchange Rate Including Markup (Inverse) | `fxRateWithMarkupInverse` | BigDecimal | Inverse of the `fxRateWithMarkup`. This value is equal to the `billingAmount` divided by the `acquirerAmount`. This attribute uses five decimal points. If the transaction is not a foreign exchange transaction or if the transaction uses DCC, `fxRateWithMarkupInverse` will be 0.00000. For a transaction without a hidden fee, this attribute will display the same value as `fxRateInverse`. |
+
+### Summary
+
+The Summary block provides information summarizing the customer’s account activity for the billing period, such as the customer’s total balances for the current period and previous periods, repayments during the billing period, and credits applied to the account.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Previous Closing Balance | `previousClosingBalance` | BigDecimal | Closing balance for the previous billing period. |
+| Payments | `payments` | BigDecimal | Total amount that the customer paid towards their account balance during the billing period. |
+| Credits | `credits` | BigDecimal | Total amount of credits applied to the account during the billing period. This field can include balances such as payments, refunds, and positive adjustments. |
+| Retail Purchase | `retailPurchase` | BigDecimal | Total amount of purchase transactions made by the customer during the billing period. |
+| Cash Advance | `cashAdvance` | BigDecimal | Total amount of cash advance funds withdrawn during the billing period. |
+| Financial Charge | `financialCharge` | BigDecimal | Total amount of annual fee during the billing period. |
+| Late Charge | `lateCharge` | BigDecimal | Total amount of late fees in the billing period. |
+| Fee/Adjustment | `feeAdjustment` | BigDecimal | Total amount of fees (minus annual and late fees) in the billing period. |
+| Default Fees | `defaultFees` | BigDecimal | Total amount of default fees applied to the customer during the billing period. |
+| Interest | `interest` | BigDecimal | Sum of interest accrued across all draw type balances during the billing period. |
+| New Closing Balance | `newClosingBalance` | BigDecimal | Closing balance for the billing period. |
+| Delinquency flag | `delinquent` | Boolean | Delinquency flag. If `true`, customer account is delinquent. If `false`, customer is not delinquent. |
+| Other Debits | `otherDebits` | BigDecimal | Total amount of all other debits on the customer account, such as debit adjustments. |
+| Debit Transaction Count | `debitTransactionCount` | Integer | Total number of transactions in the billing period that resulted in a debit on the customer account balance. |
+| Credit Transaction Count | `creditTransactionCount` | Integer | Total number of transactions in the billing period that resulted in a credit on the customer account balance. |
+| Billing Period Length | `numberOfDaysInTheCycle` | Integer | Number of days in the billing period. |
+| Pending Transaction Balance | `pendingTransactionsBalance` | BigDecimal | Total amount of pending transactions that have not been cleared at the time the statement is generated. |
+| Available Credit | `availableCredit` | BigDecimal | Customer's available credit at the time the statement is generated. |
+| Cash Limit | `cashLimit` | BigDecimal | Maximum amount that can be held in the customer's cash advance balance as a portion of the customer's total credit limit. |
+| Posted Rewards | `postedRewards` | BigDecimal | Amount of rewards which have been posted to the account as part of automated or manual rewards redemption. |
+| Child accounts | `children` | List | List of the customer's child customer accounts and their associated wallets. For information on the fields in each child customer object, see the Child customer wallets section. |
+
+### Child customer wallets
+
+The `children` field provides information about the balances held in each of a customer's child customer wallets. Each child customer object contains the following information:
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Program | `programName` | String | Name of the child customer’s program. |
+| Wallets | `wallets` | List | Array of wallet objects, with each object representing one of the child customer's wallets. |
+
+Each object in the `wallets` list contains the following information:
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Currency | `currencyCode` | String | Currency code for the wallet. This field displays a three-letter currency code for fiat currencies or a four-character code for non-fiat currencies, such as reward points. |
+| Starting Balance | `startingBalance` | BigDecimal | Wallet balance at the start of the billing period. |
+| Ending  Balance | `endingBalance` | BigDecimal | Wallet balance at the end of the billing period. |
+| Loaded | `loaded` | BigDecimal | Sum of positive transaction amounts on the wallet. For cashback rewards programs, this value is the total cashback amount that is loaded into the customer account at the start of the next billing period. |
+| Withdrawn | `withdrawn` | BigDecimal | Sum of negative transaction amounts on the wallet. |
+
+<Callout
+  calloutType={'info'}
+>
+  If the customer is part of a rewards program, then the child customer will have at least two wallets: one for the program’s compliance currency and one for the rewards balance.
+</Callout>
+
+## Default fee information
+
+The Default Fee Information block contains information about any default fees applied to the customer during the billing period. This block of information is only required for clients in the UK. For clients where default fees are not required, the `defaultFeesDetail` object in the statement file will be empty.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Default fee name | `defaultFeeName` | String | Name of the default fee applied to the customer. |
+| Default fee amount | `defaultFeeAmount` | String | Amount of the default fee applied. |
+| Date | `dateApplied` | String    | Date and time the fee was applied to the customer. This timestamp is in the program’s local time zone. The format is `yyyy-MM-dd'T'HH:mm:ss.SSS z`, in which `z` represents the local time zone. |
+
+## Sample file
+
+The following is a sample statement file in JSON format:
+
+```json 
+[
+    {
+        "account": {
+            "cardNumber": "",
+            "currency": "USD",
+            "primaryPAN": "",
+            "cardType": "credit-card-1692828426586",
+            "creditLimit": 10000,
+            "chargePeriodFrom": "20230722",
+            "chargePeriodTo": "20230817",
+            "paymentDueDate": "20230907",
+            "minimumPaymentDue": 10.00,
+            "minimumPaymentPastDue": 0.00,
+            "minimumPaymentTotalDue": 10.00,
+            "paymentToAvoidInterest": -56.40,
+            "projectedPaymentAmount": 0.00,
+            "paymentType": "Manual",
+            "totalCostOfCredit": 250.20,
+            "estimatedInterest": -1.74,
+            "externalReferences": [
+                {
+                    "externalReference": "externalReference1692828463037"
+                },
+                {
+                    "externalReference": "externalReference1692828463044"
+                }
+            ],
+            "annualPercentageRate": {
+                "purchase": 36.50,
+                "cash_advance": 36.50,
+                "fee": 36.50
+            },
+            "monthlyInterestRate": {
+                "purchase": 3.04167,
+                "cash_advance": 3.04167,
+                "fee": 3.04167
+            },
+            "annualEffectiveRate": {
+                "purchase": 43.27,
+                "cash_advance": 43.27,
+                "fee": 43.27
+            },
+            "purchaseApr": 36.50000,
+            "delinquentPeriodCounter": 0,
+            "accountBlocks": "",
+            "statementPreference": "paperStatements"
+        },
+        "customer": {
+            "givenName": "Joe",
+            "familyName": "Test",
+            "email": "nobody16928284617920@nowhere.com",
+            "customerNumber": "10000010080636"
+        },
+        "addresses": [
+            {
+                "addressType": "home",
+                "line1": "211 Walter Seaholm Dr.",
+                "line2": "",
+                "line3": "",
+                "neighborhood": "",
+                "postCode": "787-0199",
+                "city": "Austin",
+                "state": "TX",
+                "country": "US"
+            }
+        ],
+        "transactions": [
+            {
+                "transDate": "",
+                "postDate": "20230729",
+                "creationDate": "20230729",
+                "creationDateTime": "2023-07-29T02:00:00.000 CDT",
+                "cardAcceptorName": "123 Main St.",
+                "billingAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "acquirerAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "txCardNumber": "",
+                "fxRate": 0.00000,
+                "fxAmount": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "amountWithoutMarkup": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "markupType": "",
+                "transactionType": "purchase",
+                "transactionReference": 1000000002008,
+                "fxRateInverse": 0.00000,
+                "fxRateWithMarkup": 0.00000,
+                "fxRateWithMarkupInverse": 0.00000
+            },
+            {
+                "transDate": "",
+                "postDate": "20230729",
+                "creationDate": "20230729",
+                "creationDateTime": "2023-07-29T02:00:00.000 CDT",
+                "cardAcceptorName": "Fee",
+                "billingAmount": {
+                    "amount": -11.00,
+                    "currency": "USD"
+                },
+                "acquirerAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "txCardNumber": "",
+                "fxRate": 0.00000,
+                "fxAmount": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "amountWithoutMarkup": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "markupType": "",
+                "transactionType": "withdraw",
+                "transactionReference": 1000000002009,
+                "fxRateInverse": 0.00000,
+                "fxRateWithMarkup": 0.00000,
+                "fxRateWithMarkupInverse": 0.00000
+            },
+            {
+                "transDate": "",
+                "postDate": "20230729",
+                "creationDate": "20230729",
+                "creationDateTime": "2023-07-29T02:00:00.000 CDT",
+                "cardAcceptorName": "Withdraw",
+                "billingAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "acquirerAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "txCardNumber": "",
+                "fxRate": 0.00000,
+                "fxAmount": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "amountWithoutMarkup": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "markupType": "",
+                "transactionType": "withdraw",
+                "transactionReference": 1000000002009,
+                "fxRateInverse": 0.00000,
+                "fxRateWithMarkup": 0.00000,
+                "fxRateWithMarkupInverse": 0.00000
+            },
+            {
+                "transDate": "",
+                "postDate": "20230729",
+                "creationDate": "20230729",
+                "creationDateTime": "2023-07-29T02:00:00.000 CDT",
+                "cardAcceptorName": "Load",
+                "billingAmount": {
+                    "amount": 5.00,
+                    "currency": "USD"
+                },
+                "acquirerAmount": {
+                    "amount": 5.00,
+                    "currency": "USD"
+                },
+                "txCardNumber": "",
+                "fxRate": 0.00000,
+                "fxAmount": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "amountWithoutMarkup": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "markupType": "",
+                "transactionType": "load",
+                "transactionReference": 1000000002010,
+                "fxRateInverse": 0.00000,
+                "fxRateWithMarkup": 0.00000,
+                "fxRateWithMarkupInverse": 0.00000
+            },
+            {
+                "transDate": "",
+                "postDate": "20230729",
+                "creationDate": "20230729",
+                "creationDateTime": "2023-07-29T02:00:00.000 CDT",
+                "cardAcceptorName": "Fee",
+                "billingAmount": {
+                    "amount": -10.00,
+                    "currency": "USD"
+                },
+                "acquirerAmount": {
+                    "amount": -20.00,
+                    "currency": "USD"
+                },
+                "txCardNumber": "",
+                "fxRate": 0.00000,
+                "fxAmount": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "amountWithoutMarkup": {
+                    "amount": 0.00,
+                    "currency": "USD"
+                },
+                "markupType": "",
+                "transactionType": "purchase",
+                "transactionReference": 1000000002008,
+                "fxRateInverse": 0.00000,
+                "fxRateWithMarkup": 0.00000,
+                "fxRateWithMarkupInverse": 0.00000
+            }
+        ],
+        "summary": {
+            "previousClosingBalance": 0.00,
+            "payments": 5.00,
+            "credits": 0.00,
+            "retailPurchase": -20.00,
+            "cashAdvance": -20.00,
+            "financialCharge": 0.00,
+            "lateCharge": 0.00,
+            "feeAdjustment": -21.00,
+            "defaultFees": 0.00,
+            "interest": -0.40,
+            "newClosingBalance": -56.40,
+            "delinquent": false,
+            "otherDebits": 0.00000,
+            "debitTransactionCount": 4,
+            "creditTransactionCount": 1,
+            "numberOfDaysInTheCycle": 26,
+            "pendingTransactionsBalance": 0.00000,
+            "availableCredit": 9943.60000,
+            "cashLimit": 9000.00000,
+            "postedRewards": 9.00000
+        },
+        "defaultFeesDetail": []
+    }
+]
+```
+
+## Appendix
+
+### UK-specific fields
+
+The following fields can be included in the Account section of the statement file for programs affected by UK regulations.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| NOSIA Statement | `nosiaStatement` | String | Notice of Sums in Arrears (NOSIA) statement. If a customer has missed two minimum payments, this field is added to the customer’s statement file. This field lists the customer’s last two missed minimum payments and shows the total amount due, the sum of repayments made, and the remaining amount due for each minimum payment. |
+| Nine months of persistent debt | `nineMonthPersistentDebtFlag` | Boolean | Flag indicating that the customer has nine months' worth of persistent debt. Persistent debt occurs when the amount of the customer’s billed interest and fees is greater than half of the total amount of repayments made during the given time period. |
+| Nine month persistent debt start date | `nineMonthPersistentDebtStartDate` | Integer | Date the customer met the criteria for nine months of persistent debt. |
+| 18 months of persistent debt | `eighteenMonthPersistentDebtFlag` | Boolean | Flag indicating that the customer has 18 months' worth of persistent debt. |
+| 18 month persistent debt start date | `eighteenMonthPersistentDebtStartDate` | Integer | Date the customer met the criteria for 18 months of persistent debt. |
+| 36 months of persistent debt | `thirtySixMonthPersistentDebtFlag` | Boolean | Flag indicating that the customer has 36 months' worth of persistent debt. |
+| 36 month persistent debt start date | `thirtySixMonthPersistentDebtStartDate` | Integer | Date the customer met the criteria for 36 months of persistent debt. |
+| Recommended payment | `recommendedPayment` | BigDecimal | Minimum payment amount that the customer can make to avoid meeting the criteria for persistent debt. |
+
+### Vietnam-specific fields
+
+The following field can be included in the Account section of the statement file for programs affected by Vietnam regulations.
+
+| Field | Field name | Data type | Description |
+| - | - | - | - |
+| Cards | `cards` | List | All of the customer’s cards that were active during the billing period. Each card is displayed as a masked PAN, where the first six and last four digits of the PAN are exposed and the rest are masked. |

@@ -1,0 +1,105 @@
+---
+title: "Transactions"
+route: /docs/transactions/transactions
+excerpt: A transaction is a record of a funds movement from one account to another.
+types: 
+  - guide
+_tags:
+  - transactions
+  - transaction entries
+  - money movement
+  - credit
+  - debit
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Transactions
+
+A transaction is a record of a money movement from one account to another. Each transaction is made of a credit and debit of equal amounts allowing for easy reconciliation of money movements.
+
+The opposing side of the credit or debit to an account could be a customer account, the program account, or a partner account.
+
+## What we do
+
+Episode Six (E6) provides transaction processing and histories within the product ledger. This includes the creation of transactions as part of card and non-card payments. Transaction types can vary depending on the source and reason for the transaction. For more information, see the [Appendix](#Appendix). E6 supports dual entry for financial transactions where each financial transaction has two entries: one for the destination and one for the source of funds.
+
+## Prerequisites
+
+Before retrieving transactions for a given account, the `portfolioId` must first be obtained. The `portfolioId` is the unique identifier of the account within the product ledger. This identifier is the encrypted `id` from a customer, program, or partner object.
+
+## Actions
+
+Depending on the use case, transactions can be retrieved in different patterns. The most basic form of transaction retrieval is to call the [Generate Transaction List API](/tech-specs/transactions/transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listTransactions_POST). This provides a paginated list of transactions for the target `portfolioId`. If the transaction use case requires card payment data from the ISO8583 messages, then an expanded DTO option exists which can be retrieved using the [Generate Transaction List with ISO8583 API](/tech-specs/transactions/transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listTransactionsWithISODTOs_POST). These APIs use standard E6 [pagination](/tech-specs/getting-started/pagination).
+
+Authorization holds and transactions can be displayed is a single list using the [Retrieve Customer Auth Holds and Transactions API](/tech-specs/transactions/authorization-holds/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_listAuthorizationsAndTransactions_GET). For more information, see [Authorization holds](/docs/transactions/authorization-holds).
+
+## Appendix
+
+### Source codes
+
+The following table lists the transaction source codes used in TRITIUM:
+
+| Code | Definition | Description |
+| -- | -- | ---- |
+| **0** | Unknown | Unknown origination point. Should not be expected as part of normal processing. |
+| **1** | InWalletPOS | Card payment originated at a point-of-sale (POS) and where the acquirer currency is the same as one of the E6 customer account currencies. |
+| **2** | OutOfWalletPOS | Card payment originated at a point-of-sale (POS) and where the acquirer currency is *not* the same as one of the E6 customer account currencies. |
+| **3** | InWalletATM | Card payment originated at an automated teller machine (ATM) and where the acquirer currency is the same as one of the E6 customer account currencies. |
+| **4** | OutOfWalletATM | Card payment originated at an automated teller machine (ATM) and where the acquirer currency is *not* the same as one of the E6 customer account currencies. |
+| **5** | Online | Card payment originated through an online checkout experience and where the acquirer currency is the same as one of the E6 customer account currencies. |
+| **6** | Partner | Payment originated by an E6 payment API call where the target is an E6 partner account. |
+| **7** | Customer | Payment originated by an E6 payment API call where the target is an E6 customer account. |
+| **8** | Internal | Payment originated by the E6 platform. |
+| **9** | Static | Payment originated by an end customer by scanning a static reference such as a QR code, sonic code, or other method. |
+| **10** | MobileCommerce | Payment originated by an end customer by initiating payment through a mobile application. |
+| **11** | OnUs | Payment originated within a closed-loop client payment ecosystem. |
+| **12** | OutOfWalletOnline | Card payment originated through an online checkout experience and where the acquirer currency is *not* the same as one of the E6 customer account currencies. |
+
+### Type codes
+
+The following table lists the transaction type codes used in a variety of scenarios in TRITIUM:
+
+| Code | Definition | Description |
+| -- | -- | ---- |
+| **0** | unknown |
+| **1** | newAccount | A new account is created. For more information about creating accounts, see [Customers](/docs/customers/customers). |
+| **2** | cardSale | A new card is ordered. |
+| **3** | purchase | A purchase is made through a point of sale (POS) by using funds currently available or unavailable in the customer's wallet, or made absent a POS or physical presentation of the card, typically through an online retailer, or initiated by the customer using a mobile app. |
+| **4** | refund | A purchase is refunded to a card or wallet. |
+| **5** | account funding | A load of funds from a POS is made into the wallet using currency either supported or unsupported by the wallet. For more information about funding accounts, see [Load](/docs/payments/account-funding).|
+| **6** | withdraw | A withdrawal of funds is made through a POS when those funds are available or unavailable in the requested currency in the customer's wallet, either through an ATM when those funds are available or unavailable in the requested currency in the customer's wallet, or without physical presence of the card required. For example, a bank transfer made from a mobile app. |
+| **7** | balanceInquiry | The customer performs a balance inquiry, usually through a mobile or web application. For more information about performing a balance inquiry, see [Customer balances](/docs/balances/customer-balances). |
+| **8** | p2p | A transfer of funds occurs between peer accounts. For more information about peer-to-peer transfers, see [P2P transfer](/docs/payments/p2p-transfer). |
+| **9** | walletTransfer | A transfer of funds occurs between wallets. For more information about wallet transfers, see [FX transfer](/docs/fx/fx-transfer). |
+| **10** | exchange | An exchange is performed as a buySide or sellSide transaction. For more information about exchange transactions, see [FX transfer](/docs/fx/fx-transfer). |
+| **11** | exchangeMargin | An exchange is performed between two different currency types. For more information about exchange margins, see [Exchange margins](/docs/fx/exchange-margins).|
+| **12** | secondPresentment | A presentation of information by one party to another occurs, such as a bill of exchange. |
+| **13** | chargeback | A chargeback from a retailer to a customer account occurs to make good the loss on a fraudulent or disputed transaction. |
+| **14** | adjustment | An adjustment occurs on the available funds in a customer account. |
+| **15** | exchangeAdjustment | An adjustment occurs on the exchange rate of an exchange between two different currency types. |
+| **16** | maintenance | A maintenance period was performed on the account. |
+| **17** | chargeoff | The funds owed by a customer account are considered delinquent. |
+| **18** | withholding | Withholding occurs on a customer account. |
+| **19** | closeAccount | An account is closed. |
+| **20** | reward | A reward is given to a customer account. |
+| **21** | shipping | Shipping the card to the customer occurs by using standard delivery methods. |
+| **22** | expeditedShipping | The card is being sent to the customer with expedited shipping, such as when rushing the delivery of a card replacement. |
+| **23** | addressing | A customer ID is registered for Faster Payment Service (FPS). |
+| **24** | settlement | A settlement is paid to a customer account. |
+| **25** | consolidated | The funds of different accounts are consolidated into one account. |
+| **26** | interest | Interest is paid to a customer account. |
+| **27** | cashback | A cashback refund is paid to a customer account. |
+| **28** | fee | A fee is paid from a customer account. For more information about fees, see [Fee plans](/docs/fees/fee-plans). |
+| **29** | monthly fee | The monthly fee charged to the customer. |
+| **30** | annual fee | The annual fee charged to the customer. |
+| **31** | fastFund | Visa payment transaction with funds available within 30 minutes. |
+| **32** | loadReversal | A load reversal is used for credit cards to reverse a payment. The repayment being reversed should be unwound with the credits reapplied to the sub-balances that were previously undone. |
+| **33** | expiry | The transfer of expired funds from a customer account to the original funding partner. |
+| **34** | moneyReceive | Inbound account to account (A2A) payment made over card scheme. For example, a bank transfer received via an ATM. |
+| **35** | latePaymentFee | A fee charged when a customer does not pay off a required minimum payment amount before the due date. |
+| **36** | DCCFee | A fee charged for dynamic currency conversion (DCC) as part of a card payment. |
+| **37** | moneySend | Outbound A2A payment made over card scheme. For example, a bank transfer sent from an ATM. |

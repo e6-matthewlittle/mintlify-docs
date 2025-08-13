@@ -1,0 +1,172 @@
+---
+title: "PIN management"
+menu: Cards
+route: /docs/cards/pin-management
+excerpt: A PIN is used to verify the cardholder for in-person payments.
+types: 
+  - guide
+_tags:
+  - cards
+  - card states
+  - orders
+  - card payments
+  - update
+  - card pin
+  - pin management
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# PIN management
+
+A Personal Identification Number (PIN) is a confidential code set for a card. The PIN is used to verify the cardholder for in-person payments. Some payment events do not require a card PIN. PIN requirements depend on the card payment type, the type of card being used for the transaction, and the regulatory requirements regarding cardholder authentication for in-person payments.
+
+## What we do 
+
+Episode Six (E6) supports two different aspects of PINs, PIN management and PIN verification. For PIN management, E6 ensures secure PINs are used by enforcing PIN [length and pattern requirements](#PIN-requirements) during PIN setup and generation. This can optionally be disabled if a client prefers to manage their own PIN requirements. Once a PIN is setup, E6 supports both online PIN verification, where the PIN is verified against the value held by the issuer processor system, and offline PIN verification, where the PIN is stored in the card and verified at the point-of-sale (POS) terminal. If offline PIN verification is utilized, E6 receives an identifier in the transaction message to inform that the PIN has been successfully verified already. For online PIN verification, E6 manages PINs for any card issued using the E6 platform. Each PIN created through E6 is maintained in the E6 system's Hardware Security Modules (HSMs). During card payment processing, E6 validates the PIN provided by the cardholder against the card PIN on record in the E6 system.
+
+## Prerequisites 
+
+To begin managing PINs, set up a card profile. During card profile setup, set the required PIN length for cards issued using the profile. A PIN is typically 4 to 6 digits long. For more information on creating card profiles and configuring PIN settings, see [Card profiles](/docs/cards/card-profiles). 
+
+A plain-text PIN can be set on a card during the [card issuance](/docs/cards/issuance-overview) process. This will set the card PIN to the provided value rather than randomly generating an initial PIN. During card reissuance, if the same PIN is desired then it must be provided as part of the card issuance request, otherwise a randomly generated PIN will be used. For offline PINs, the PIN will be sent as part of the [card embossing file](/docs/cards/physical-cards).
+
+To set a card PIN using an encrypted PIN, the PIN must be encrypted before calling the E6 API. To encrypt a PIN, a public key is required. To retrieve a public key, call the [Retrieve Public Key API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getPinCryptoPublicKey_GET). Once they key has been retrieved, it should be [encrypted](#PIN-encryption).
+
+## Actions 
+
+A card PIN can be set with a plaintext PIN or with an encrypted PIN. To set a card PIN using a plaintext PIN, call the [Set Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPin_POST). To set a card PIN using an encrypted PIN, call the [Create Encrypted Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPinEncrypted_POST) with the encrypted PIN and encrypted symmetric key in the request body.
+
+Following a successful request, the PIN provided in the request is saved in the E6 HSMs. If the card was not yet activated, successfully setting a PIN for the first time changes the card state to `activated`. Card activation will only occur if the card was in a `shipped` state and not if it is only in a `created` state. For security purposes, no response data is returned in a successful response.
+
+## What's next 
+
+### Card payments 
+
+Once a PIN has been set for a card and the card has been activated, the card can be used to make card payments with PIN verification. For more information see [Card payment decisioning](/docs/cards/card-payment-decisioning).
+
+### Retrieving a card PIN
+
+To display a card PIN to an end customer, a client system for delivering the secure card details must be established. This system can be a user interface such as a customer mobile application, web application, or customer communication delivery channels such as text or email. If you are not PCI-compliant, then your host / server-side systems are **not** allowed to process secure card details such as the card PIN.
+
+For clients that are PCI-compliant, the encrypted PIN can be directly retrieved using the [Retrieve Encrypted PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getPin_POST). The API takes in a `pinKeyHex` which is used to encrypt the PIN. Upon a successful request, the API returns `pinEncrypted` and an initialization vector (`iv`).  which along with the `pinKeyHex` can be used to get the plain PIN.
+
+For clients which are non-PCI-compliant, the card PIN can be retrieved using the following flow:
+
+1. Call the [Generate PIN Token API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_generatePinToken_POST) to receive a token in the `tokenId` attribute and a callback URL in the `callbackUrl` attribute.
+2. Call the [Retrieve Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.mobile.MobileAuthAPI_accessPIN_POST). Use the callback URL from the previous call as the base URL for this endpoint. In the request body, include the `tokenId` that was returned in the previous API call. This call consumes the token and returns the requested PIN.
+
+### Updating card PIN - online
+
+You can also update a PIN after it has been set. You can update a PIN with the same [Set Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPin_POST) used to set the PIN. In the request body, include the new PIN in the `pin` field. In the optional `existingPin` field, include the original PIN that is being changed.
+
+The `existingPin` field can be included to validate the card's current PIN. If the user does not remember the current PIN, the `existingPin` can be omitted. The current PIN will be changed to the value provided in the `PIN` field.
+
+For example, if a user wants to change their PIN from `1234` to `9476`, the request will include the following information
+
+```json
+{
+  "existingPin": "1234",
+  "pin": "9476",
+  "securityCode": "9476"
+}
+```
+
+### Updating card PIN - offline
+
+For clients that use offline PIN the PIN cannot be updated using the [Set Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPin_POST). The PIN must be updated at an online terminal, most commonly an ATM. An online terminal will ensure that the existing PIN is validated by E6. The new PIN will then be saved in the E6 HSM before sending a script back to the card to update the new PIN on the card.
+
+### Updating card PIN - online / offline hybrid
+
+In some countries only an issuers own-brand cards can be updated via their ATM network. In these cases issuers without their own ATM network may struggle to provide their customers with a convenient method to change their PIN. In this scenario, E6 offers a hybrid PIN change solution for our clients. Using the hybrid approach, customers with offline PIN’s can update their PIN using the [Set Card PIN API](/tech-specs/cards/card-pins/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_setPin_POST). When the online PIN is changed E6 will schedule a script to be sent back to the card. The next time the card is used at an ATM we will respond back to update the PIN on the card. Use the [Get Card Attributes API](/tech-specs/cards/card-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getCardAttributes_GET) to check if the online and offline PI’s are synchronized. If the `PIN_IN_SYNC` attribute is present in the api response and the value is `true` then the PINs are synchronized. If the attribute is present with a value of `false` then the PINs are not synchronized. The attribute is not present if you do not use this method of PIN synchronisation.
+
+## Appendix
+
+### PIN Requirements
+
+E6 validates each PIN that is set to ensure a minimum level of PIN security. E6 uses the following default rules for PIN validation:
+
+-   The PIN must not be one of the following values: `0000`, `1111`, `2222`, `3333`, `4444`, `5555`, `6666`, `7777`, `8888`, and `9999`
+-   The PIN length must match the PIN length requirements set by the card profile
+-	Where Y, M, and D represent the customer's date of birth with the following format Y1Y2Y3Y4-M1M2-D1D2, the PIN digits should not use these formats: `Y1Y2Y3Y4`, `M1M2D1D2`, `Y3Y4M2D2`, `Y3Y4M1M2`
+-	The PIN digits should not be the same as the last four digits of the PAN
+-	The PIN digits should not match any part of the customer's phone number(s)
+-	The PIN digits should not match any part of any external reference number for the customer
+
+<Callout
+    calloutType={'info'}
+>
+   Clients that find these requirements too restrictive can opt out of E6's default PIN validation rules. For more information, please contact your E6 representative.
+</Callout>
+
+### PIN Encryption
+
+Once the key has been retrieved, use the following Java code to encrypt the PIN:
+
+```java
+import net.e6tech.h3.middletier.api.v1.dto.PublicKeyDTO;
+import net.e6tech.h3.middletier.api.v1.dto.SetPinEncryptedDTO;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.X509EncodedKeySpec;
+
+class Sample {
+    private SetPinEncryptedDTO createSetPinEncryptedPayload(PublicKeyDTO publicKeyDTO, String plainPin) throws Exception {
+        final String AES_CIPHER_TRANSFORMATION = "AES/CBC/PKCS5PADDING";
+        final String ECC_CIPHER_TRANSFORMATION = "ECIES";
+        // encrypt PIN with AES
+        byte[] aesKey = generateAESKey(256).getEncoded();
+        byte[] encryptedPin = encrypt(AES_CIPHER_TRANSFORMATION, aesKey, plainPin.getBytes(StandardCharsets.UTF_8), new byte[16]);
+        // encrypt AES key with ECC using the received public key. Public key is encoded with Base64
+        PublicKey publicKey = readEncodedECCPublicKey(Base64.decodeBase64(publicKeyDTO.getPublicKey()));
+        byte[] encryptedAesKey = eccEncrypt(ECC_CIPHER_TRANSFORMATION, publicKey, aesKey);
+        // create a payload
+        SetPinEncryptedDTO setPinDTO = new SetPinEncryptedDTO();
+        setPinDTO.setPin(Base64.encodeBase64String(encryptedPin)); // encode encrypted PIN with Base64
+        setPinDTO.setEncryptedSymmetricKey(Base64.encodeBase64String(encryptedAesKey));// encode encrypted AES key with Base64
+        setPinDTO.setChecksum(new HmacUtils(HmacAlgorithms.HMAC_SHA_256, aesKey).hmacHex(plainPin.getBytes(StandardCharsets.UTF_8)));
+        return setPinDTO;
+    }
+
+    public static SecretKey generateAESKey(int length) throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(length);
+        return keyGen.generateKey();
+    }
+
+    public static byte[] encrypt(String cipherTransformation, byte[] keyBytes, byte[] message, byte[] ivBytes) throws Exception {
+        SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        Cipher aesCipher = Cipher.getInstance(cipherTransformation);
+        aesCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        return aesCipher.doFinal(message);
+    }
+
+    public static ECPublicKey readEncodedECCPublicKey(byte[] bytesKey) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME);
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(bytesKey);
+        return (ECPublicKey) keyFactory.generatePublic(x509EncodedKeySpec);
+    }
+
+    public static byte[] eccEncrypt(String eccCipherTransformation, PublicKey publicKey, byte[] plainBytes) throws Exception {
+        Cipher cipher = Cipher.getInstance(eccCipherTransformation, BouncyCastleProvider.PROVIDER_NAME);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey, new IESParameterSpec(null, null, -1));
+        return cipher.doFinal(plainBytes);
+    }
+}
+```

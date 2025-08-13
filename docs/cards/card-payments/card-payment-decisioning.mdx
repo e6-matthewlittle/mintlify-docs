@@ -1,0 +1,98 @@
+---
+title: "Card payment decisioning"
+menu: Cards
+route: /docs/cards/card-payment-decisioning
+excerpt: A card payment is a payment made from a payer to a payee through a card network.
+types:
+  - guide
+_tags:
+  - response code
+  - decisioning
+  - authorization
+  - card payment
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Card payment decisioning
+
+Card payments have to be approved by the issuer at some point during the card payment lifecycle. For dual-message card networks, this is when an authorization request is received. For single message card networks, this is when an online financial transaction request is received.
+
+## What we do
+
+During card payment decisioning, Episode Six (E6) performs a series of checks based on the card, the card token (if used), the customer account, and the program. Most of the checks can be configured by E6 clients in order to meet their needs. If all checks pass, then an approval response code is returned to the card network. If any checks fail, then the appropriate response code is returned based on the reason for the decline.
+
+## Prerequisites
+
+Some card payment decisioning checks, such as [controls](/docs/controls/controls-overview), have to be configured before they are enforced. Controls are available for configuration at the program, customer segment, customer, and card levels.
+
+If required by your local market regulations, [3DS](/docs/cards/3DS) should be established in order to authenticate cardholders for online purchases.
+
+If your system acts as the system of record for the account or additional processing is needed, then [cooperative authorization](/docs/cards/cooperative-authorization) will need to be setup prior to card payments being processed.
+
+E6 can work with you to ensure that checks are being performed in alignment with your card product use cases. For more information, contact your E6 representative.
+
+## Actions
+
+E6 performs card payment decisioning as needed without any required intervention. When a card payment request is received which requires decisioning, E6 will execute all enabled checks. Decisioning is applied at the following points:
+
+| Card network type | Payment type | Decisioning point |
+| -- | -- | -- |
+| Dual-message | Purchase | Authorization - MTI `x100` |
+| Dual-message | Cash withdrawal | Financial Transaction Request - MTI `X200` |
+| Single message | Purchase | Financial Transaction Request - MTI `X200` |
+| Single message | Cash withdrawal | Financial Transaction Request - MTI `X200` |
+
+### Card payment request checks
+
+Does the information sent in the payment request match the details known to the card issuer?
+
+- Card expiry match
+- Cardholder name match
+- Billing address match
+- Security code (CVV/CVC) match
+- [PIN](/docs/cards/pin-management) match (if configured)
+- Cryptogram check (ARQC, ARPC) (if EMV chip or card token based)
+- [3D Secure](/docs/cards/3DS) (if configured)
+
+### Card checks
+
+Is the card in a place that the card payment can be approved?
+
+- [Card expiry](/docs/cards/card-expiration)
+- [Card state](/docs/cards/card-state-management)
+- [Card controls](/docs/controls/card-controls) (if configured)
+- [Card blocks](/docs/blocks/card-blocks)
+
+### Card token checks
+
+If a card token was used, is the card token in a place that the card payment can be approved?
+
+- [Card token](/docs/cards/card-token-management) state check
+
+### Account checks
+
+Is the associated customer account in a place that the card payment can be approved?
+
+- [Customer balance](/docs/balances/customer-balances) (if E6 is the system of record for the account balance)
+- [Customer controls](/docs/controls/customer-controls) (if configured)
+- [Customer blocks](/docs/blocks/customer-blocks)
+
+### Program checks
+
+Are there any card limitations that are configured for the program?
+
+- [Merchant controls](/docs/controls/merchant-controls) (if configured)
+- [Program controls](/docs/controls/program-controls) (if configured)
+
+### External checks
+
+Do any other systems need to provide input on the decisioning of the card payment?
+
+- [Cooperative authorization](/docs/cards/cooperative-authorization) (if used for additional decisioning logic)
+- Fraud checks (if integrated for real-time transaction fraud decisioning by E6)
+
+## What's next
+
+Decisioning will be enforced during the required points of card payment [processing](/docs/cards/card-payment-processing). It is recommended that you validate that all card payment decisioning checks are performing as expected using our [card payment simulator](/docs/cards/card-payment-simulation).

@@ -1,0 +1,67 @@
+---
+title: "Installments customer configuration"
+menu: Installments
+route: /docs/installments/installments-customer-configuration
+excerpt: Settings that apply to a customer account opened under an installments program.
+types: 
+  - guide
+_tags:
+  - products
+  - installments
+  - customer
+  - credit limit
+  - update
+  - delinquency lock
+  - delinquency
+  - create
+  - update
+containerWide: true
+showHeadingsNav: true
+---
+
+# Installments customer configuration
+
+Customer-level installments configurations are settings that apply to a customer account opened under an installments program. These configurations apply only to the customer account for which they are set. Customer settings let you define default behavior for overall credit limit and loan management.
+
+## What we do
+
+Episode Six (E6) provides the ability to add installments configurations to a customer. When installments configurations are added to a customer, the customer is updated to support installments behavior. Installments customer configurations are specific to the customer account, allowing you to set a specific credit limit for the customer within minimums and maximums defined by the program.
+
+## Prerequisites
+
+To create an installments customer account, an installments program is required. To create an installments program, see [Installments program configuration](/docs/installments/installments-program-configuration).
+
+Before creating an installments customer, a customer account is required. The customer must be created under the installments program. To create a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To create an installments customer, call the [Create Installments Customer API](/tech-specs/installments/installments-customers/api?#operation/createInstallmentsCustomerConfiguration). This call adds installments configurations to a customer account, enabling installments program behavior for that customer.
+
+In the request, define the customer's credit limit using the `overallCreditLimit` attribute. The credit limit is the maximum amount that the customer is able to borrow across all loans. The customer's credit limit must be a value within the minimum and maximum credit limit range of the program.
+
+Credit limit enforcement is provided throughout the customer lifecycle. If the customer's credit limit is met or exceeded, payment authorization will be denied. Once loan repayment is made, the customer's corresponding available credit is regained.
+
+## What's next
+
+After adding installments configurations to a customer, the installments customer summary will be available. For more information, see [Installments customer summary](/docs/installments/installments-customer-summary). After account opening, the installments customer can be updated calling the [Update Installments Customer API](/tech-specs/installments/installments-customers/api?#operation/updateInstallmentsCustomerConfiguration). Settings that can be updated following customer creation include the customer's overall credit limit and delinquency lock status.
+
+### Update credit limit
+
+A customer's credit limit can be updated by providing a new value in the `overallCreditLimit` attribute. When the customer's credit limit is updated, then the customer's credit limit and available credit are updated in real time and can be viewed in the summary.
+
+### Update installment customer loan preferences
+
+When an installment customer is created, they will inherit the installment program preconfigured loan rules. To create customer level loan preferences that differ from the installment programs configuration, call the [Update Installments Customer API](/tech-specs/installments/installments-customers/api?#operation/retrieveInstallmentsCustomer). Provide the following customer loan preferences:
+
+| Attribute                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `periodCount`              | The number of installments for each eligible transaction is determined by the `periodCount` attribute. For example, if `periodCount` is set to 6, then all eligible purchases are split into six installments.                                                                                                                                                                                                                                                                                                                       |
+| `periodLength`             | The length of each installments period. The following values are eligible period lengths (`DAY`, `WEEK`, `FORTNIGHT`, `MONTH`, `QUARTER`, `YEAR`). For example, if `periodLength` is set to `MONTH`, each installments period will be one month long.                                                                                                                                                                                                                                                                                |
+| `loanGroupingPeriodLength` | The `loanGroupingPeriodLength` attribute determines the duration in days that transactions group before creating an installment loan. For example, if `loanGroupingPeriodLength` is set to 0, then eligible purchases will immediately create an installment loans. For values 1 or more, transactions will group for the `loanGroupingPeriodLength` amount of days until a loan is created.                                                                                                                                         |
+| `firstPaymentDaysOffset`   | The due date of the first installment payment can be configured using the `firstPaymentDaysOffset` attribute. This attribute determines the number of days after a loan is created on which to set the first payment due date. Subsequent payment due dates are scheduled according to the `periodLength`. For example, if a loan is created on February 15th and the `firstPaymentDaysOffset` is set to 2, the first payment is due on February 17th. If `periodLength` is set to `MONTH`, the next payment will be due March 17th. |
+
+### Update delinquency lock
+
+Each installments customer account is created with a delinquency lock. The delinquency lock determines whether delinquency actions can be automatically applied to that customer if the customer becomes delinquent. Delinquency actions are defined at the program level. For more information, see [Installments program configuration](/docs/installments/installments-program-configuration).
+
+By default, when an installments customer account is opened, the customer's `delinquencyLock` attribute is set to `false`. When `delinquencyLock` is `false`, delinquency actions can be enforced for the customer automatically. After customer account opening, the customer's `delinquencyLock` setting can be updated to `true`. When `delinquencyLock` is set to `true`, the customer's delinquency lock is toggled off and delinquency actions will not be triggered for the customer account.

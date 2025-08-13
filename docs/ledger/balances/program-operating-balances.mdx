@@ -1,0 +1,43 @@
+---
+title: "Program operating balances"
+route: /docs/balances/program-operating-balances
+excerpt: Management of program operating currency accounts and balances.
+types: 
+  - guide
+_tags:
+  - account
+  - balance
+  - program account
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+---
+
+# Program balances
+
+Program balances are the operating balances of a given program. The program operating balance includes funds which source certain types of transactions such as rewards, earned interest, and credit adjustments as well as collect funds such as billed interest, fees, and adjustments.
+
+## What we do
+
+Episode Six (E6) fully manages balances for program accounts in real-time as part of transaction processing. E6 allows programs to manage one or more currency accounts as needed depending on the product type. The following types of actions impact a program operating balance:
+
+* Fee processing - operating account will be credited
+* Credit interest posting - operating account will be credited
+* Customer balance adjustment - operating account will be credited or debited depending on the adjustment type
+* Deposit interest posting - operating account will be debited
+* Reward posting - operating account will be debited
+
+## Prerequisites
+
+A program must first be created before balances for that program can be retrieved. The desired currencies must be provided during program setup or added later for the balances to be managed. To learn more about creating a program, see [Programs](/docs/programs/programs).
+
+## Actions
+
+Additional program operating accounts can be added using the [Create Program Operating Account API](/tech-specs/balances/program-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingProgramSetupAPI_addOperatingProgramAccount_POST).
+
+Once a program operating currency account exists, the `settlementOnly` flag can be toggled using the [Update Program Operating Account API](/tech-specs/balances/program-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingProgramSetupAPI_updateOperatingProgramAccount_PUT).
+
+## What's next
+
+Changes in value to the program operating balance can be viewed as part of the [Program net positions report](/docs/reports/program-net-positions).

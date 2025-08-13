@@ -1,0 +1,42 @@
+---
+title: "P2P transfer"
+menu: Payments
+route: /docs/payments/p2p-transfer
+excerpt: A P2P transfer allows a customer to send funds to another customer in the same SOR.
+types: 
+  - guide
+_tags:
+  - funds
+  - transfer
+  - transferring funds between peers
+  - funds between peers
+  - P2P estimate
+  - transfer
+  - A2A
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# P2P transfer
+
+A peer-to-peer (P2P) transfer is an account-to-account (A2A) payment that occurs within the same ledger or system of record (SOR). A P2P transfer allows a customer to send funds to another customer in the same system of record. P2P transfers can be used for social payments, retail payments, or other use cases, as long as both the payee and the payer are in the same system of record.
+
+## What we do
+Episode Six (E6) enables the transfers of funds between E6-managed customer accounts. When funds are transferred between accounts, the initiator customer account is debited and the target customer account is credited.
+
+## Prerequisites
+
+To make a P2P transfer, more than one customer account must be set up. To learn more about setting up customer accounts, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To initiate a P2P transfer between accounts, call the [P2P API](/tech-specs/payments/p2p).
+
+Optionally, an amount to be withheld from available spend can be set on the customer balance as part of a P2P request. Withholding of funds can be used to delay spend of newly loaded funds or to "quarantine" funds for a required amount of time. When a `witholding` is provided in the request then an authorization hold will be placed on the account for the specified amount. The `withholding` can have a `releaseTime` set so that the funds can be made available again at a specified time.
+
+Default fee rules can also be overridden as part of the payment request. In the case where specific fee amounts should override program or customer level fee rules, the `feeAmount` and `feeTypeCode` fields should be set as needed.
+
+## What's next
+
+After making at P2P transfer, each customer can view their updated account balance. For more information, see [Customer balances](/docs/balances/customer-balances). Customers can also view a detailed history of payments by accessing their respective transaction histories. For more information, see [Transactions](/docs/transactions/transactions).

@@ -1,0 +1,262 @@
+---
+title: "Q2 2023 release notes"
+menu: Release
+route: /docs/release/q2-2023-release-notes
+excerpt: Q2 2023 platform release notes.
+_tags:
+  - docs
+  - release
+  - release notes
+  - release documentation
+  - fund transfers
+  - revolving credit program configuration
+  - physical cards
+  - ISO 8583 Message Authorization Daily Report
+  - statement file
+  - standard notificatio
+  - credit notification
+  - minimum principal
+  - loan repayment
+  - payment schedule repayment order
+  - quarterly mastercard reporting
+  - sub balance adjustments
+  - customer block detail report
+  - cash payment handling
+  - update customer delinquency lock
+  - payment reversal
+  - delinquency actions
+  - grace days
+  - update customer credit limit
+  - mastercard
+  - card blocks
+  - revolving credit detail report
+  - customer memo notification
+  - 3ds
+  - enhancements
+  - ISO 8583
+containerWide: true
+showHeadingsNav: true
+date: "02-28-2023"
+---
+
+# Q2 2023 release notes
+
+Release notes highlight new functionalities, enhancements, and updates to the Tritium® platform. Releases become available to client deployments around the globe at different times. Your Episode Six (E6) representative will inform you when a release has impacted your test or production environments.
+
+## Week of June 26, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Added the ability to process, track, and manage fund transfers as part of revolving credit programs and customer accounts. For more information, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+- Updated Dashboard revolving credit views across programs and customers to support fund transfers, including a new table view for customer sub-balances.
+- Created a new plugin that allows cards to be used for online purchases and tokenized transactions before the corresponding physical card has been activated. This plugin must be configured as part of the initial product setup for new clients.
+
+### Enhancements
+
+- Corrected the system timezone calculation method to ensure that reports run at the programmed timeframes as expected.
+- Implemented the Updated Program API to allow clients to adjust certain program configurations such as timezone and language.
+- Updated the PAN Count APIs to support program_manager, risk_agent, and risk_manager roles.
+- Implemented a custom plugin for card embossing that allows for up to 25 characters with the removal of characters from the end of the last name until the length is less than or equal to 25. For more information, see [Physical cards](/docs/cards/physical-cards).
+- Expanded the Validate Account Holder API to support secondary account holders instead of only the primary account holder.
+- Corrected an issue affecting some clients where 05 response codes were incorrectly being returned for different authorization exception cases such as block, suspended, and failed_token_check. 57 response codes will now be returned as part of authorization processing in these cases.
+- Added a new externalReference field to the Wallet Transfer API to support external payment identifiers for FX wallet transfer payments. Standard duplicate external reference checks are performed when an external reference is provided.
+- Corrected an issue where a nullPointerException was being returned when attempting to update a secondary account holder's information.
+- Enhanced the revolving credit customer billing period close functions to improve consistency of close transactions such as interest posting and late fees.
+- Corrected an issue where HK APR was not being correctly displayed in the statement file for revolving credit customers.
+- Added human-readable dates and date-time columns to the ISO 8583 Message Authorization Daily Report. For more information, see [Card authorization messages report](/docs/reports/card-authorization-messages).
+- Corrected an issue where risk measurement for atm_international_1d and atm_domestic_1d did not take into account whether the transaction was international or domestic.
+- Corrected an issue where certain risk measurements did not correctly compare authorization and clearing amounts for inclusion in measurement.
+- Added additional fields to the revolving credit statement files, including these fields: fxRateInverse, fxRateWithMarkup, fxRateWithMarkupInverse, markupType. For more information, see [Statement file](/docs/revolving-credit/statement-file).
+- Corrected repayment due date display discrepancies in the Dashboard for revolving credit customers.
+- Corrected an issue where some revolving credit customer accounts did not experience a billing period end as expected.
+- Corrected an issue where Invoice Reports were empty or missing expected values.
+- Corrected an issue with Customer Over Credit Limit, Negative Balance, and Invoice Reports that caused these reports to be empty.
+- Corrected an issue that caused the New Account Report to contain data delayed by one day.
+
+## Week of June 19, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements
+
+- Added new sections to the Mastercard QMR report for A2. Funding MCC 4829, A3. Funding MCC 6540, and A4. Funding MCC 6538. For more information, see [Quarterly Mastercard Reporting](/docs/reports/quarterly-mastercard-reporting).
+- Added new sections to the Mastercard QMR report for C2. Payment Consumer, C3. Payment Government, and C4. Payment Gaming Gambling transactions.
+- Automated the Mastercard MMR report as part of scheme mandated reporting.
+- Corrected issue in the Mastercard QMR report where the count of accounts was higher than the count of cards.
+- Corrected issue in the Mastercard QMR report where counts MV-compliant Chip-enabled Cards and Contactless (physical plastic cards only) is greater than total number of cards.
+- Corrected issue where HK APR was not being correctly displayed in the statement file for revolving credit customers.
+
+## Week of June 12, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Added the ability to make bulk adjustments against revolving credit customer sub-balances using a bulk adjustment file provided via SFTP. For more information, see [Sub-balance adjustments](/docs/revolving-credit/sub-balance-adjustments/#bulk-adjustments).
+
+### Enhancements
+
+- Added additional fields to the Revolving Credit Billing Report to align with statement files including: `feeInterestRate`, `purchaseInterestRate`, `cashAdvanceInterestRate`, `purchaseApr`, `otherDebits`, `pendingTransactionsBalance`, `availableCashLimit`, `debitTransactionCount`, `creditTransactionCount`, `delinquentPeriodCounter`, `accountBlocks`, `monthlyInterestRatePurchase`, `monthlyInterestRateCashAdvance`, `monthlyInterestRateFee`, `annualEffectiveRatePurchase`, `annualEffectiveRateCashAdvance`, and `annualEffectiveRateFee`. For more information on these fields, see [Revolving credit - customer billings report](/docs/reports/rc-customer-billings).
+- Added additional fields to the revolving credit customer statement file including: `availableCredit`, `pendingTransactionBalance`, `cashLimit`, `delinquencyPeriodCounter`, `debitTransactionCount`, `creditTransactionCount`, `accountBlocks`, and `numberOfDaysInTheCycle`. For more information on these fields, see [Statement file](/docs/revolving-credit/statement-file).
+- Added transaction notifications for additional transaction types including: `interest`, `monthlyfee`, `annualfee`, and `latePaymentFee`. For more information, see [Standard notifications](/docs/notifications/standard-notifications).
+- Added the ability to enable the resend notifications to ensure delivery to established endpoints as needed.
+- Added customer external reference data validation for automatic load setup.
+- Corrected issue where non-processing day shifting was not being taken into account for repayment end date.
+- Corrected issue where unmatched cash withdraw reversals were not being posted to revolving credit customer accounts. Unmatched cash withdraw reversals will now be treated as credits to cash advance balance hierarchies.
+- Corrected issue where refunded cross border fees were debited instead of credited to revolving credit customer accounts.
+- Corrected issue where billing history details could not be retrieved for revolving credit customers.
+
+## Week of May 22, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Added the ability to support cardholder out-of-band (OOB) authentication for 3DS. For more information, see [3DS](/docs/cards/3DS).
+- Added new notification types for revolving credit customers, including CreditBalanceNotification and ExitCreditBalanceNotification. For more information, see [Credit notifications](/docs/notifications/credit-notifications).
+- Installments - Added the ability to match refunds and apply refund credits to a particular installments loan. For more information, see [Loan repayment](/docs/installments/loan-repayment).
+- Installments - Added the ability to process disqualified installments transactions by either declining the transaction or creating a single deferred payment. For more information, see [Minimum principal](/docs/installments/installments-program-configuration/#minimum-principal).
+- Installments - Added the ability to set repayment order preference for an installments program. Repayments can apply to payment schedules sequentially or in a term shortening fashion. For more information, see [Payment schedule repayment order](/docs/installments/installments-program-configuration/#payment-schedule-repayment-order).
+- Installments - Added the ability to identify leaked cash transactions, which would otherwise be blocked. Cash transactions can be processed by either allowing for an installments loan to be created or creating a single deferred payment. For more information, see [Cash payment handling](/docs/installments/installments-program-configuration/#cash-payment-handling).
+- Installments - Added the ability to lock an installment customer from having automatic delinquency actions applied to that customer account. For more information, see [Update customer delinquency lock](/docs/installments/installments-customer-configuration/#update-delinquency-lock).
+- Installments - Added the ability to set up automatic delinquency actions, which change a customer's control level or create a customer block after a configured number of days late on a payment due. For more information, see [Delinquency actions](/docs/installments/installments-program-configuration/#delinquency-actions).
+- Installments - Added the ability to set grace days for an installments program, which gives customers an additional number of days to make payments before penalization is applied. For more information, see [Grace days](/docs/installments/installments-program-configuration/#grace-days).
+- Installments - Added the ability to update the credit limit of an installments customer. For more information, see [Update customer credit limit](/docs/installments/installments-customer-configuration/#update-credit-limit).
+- Installments - Added the ability to set up late fees for installments programs. For more information, see [Late payment fee](/docs/installments/installments-program-configuration/#late-payment-fee).
+
+### Enhancements
+
+- Added additional fields to the following tokenization notifications: CardExternalTokenActivatedNotification, CardExternalTokenUpdatedNotification, and CardExternalTokenDeliverTokenActivationCode. For more information, see [Tokenization notifications](/docs/notifications/standard-notifications/#tokenization-notifications).
+- Added `complianceBalance` and `complianceCurrency` columns to the Customer Account Balance Report.
+- Added additional processing support for card tokenization with SamsungPay. For more information, see [Card tokens](/docs/cards/card-tokens).
+- Corrected issue where Card Activity Monthly Summary Report did not contain data. Reports have been retroactively generated where data was not present.
+- Added new product code to card profile object in support of mandated card scheme quarterly reporting. For more information about this field, see [Card profiles](/docs/cards/card-profiles).
+- Corrected issue where Mastercard authorizations were being declined due to card acceptor country format variations.
+- Updated 3DS APIs to be more generic in support of multiple ACS providers. For more information, see [3DS](/docs/cards/3DS).
+- Extended exception minor codes for 3DS to provide for more detailed exception case definitions.
+- Corrected issue where Raw Data API Log Report was not being delivered as expected.
+- Redefined statement file field rules to ensure statement balances were in alignment with one another.
+- Corrected issue where automatic load rules were not deleting when requested for revolving credit customers.
+- Added new fields to the statement file summary section, including `annualPercentageRate`, `monthlyInterestRate`, `annualEffectiveRate`, and `purchaseApr`. Transactions also now include `transactionType` in the transaction section. For field specifications, see [Statement file](/docs/revolving-credit/statement-file).
+- Added UK revolving credit customer support for NOSIA tracking attributes in the billing history summary under a new billing history attributes object. For more information about billing history attributes, see [Billing history](/docs/revolving-credit/billing-history).
+- Added null filter for field 127 in ISO 8583 Message reports in order to avoid display of PANs in certain cases.
+- Added human readable dates and date-time columns to the Customer Block Detail Report.
+- Added human readable dates and date-time columns to the Detail Report.
+- Added support for customer control measurement for count based control rules.
+- Added support for access fee transactions (MTI 1740).
+- Corrected issue where over limit report was not containing any records.
+- Corrected issue where customer primary PAN was not being populated in revolving credit customer statement files.
+- Added a new memo field for revolving credit customer sub-balance adjustments. For more information about setting the memo field, see [Sub-balance adjustments](/docs/revolving-credit/sub-balance-adjustments).
+- Corrected issue where automatic load extraction date scheduling was not taking shift settings into account for non-processing days.
+- Corrected various Dashboard issues for the customer revolving credit summary view.
+- Added the ability to provide an `externalReference` field to revolving credit customer sub-balance adjustment requests. For information about adding an external reference, see [Sub-balance adjustments](/docs/revolving-credit/sub-balance-adjustments).
+- Corrected issue where merchant controls could not be added in the Dashboard.
+- Corrected issue in Dashboard where parent installment customers were not rendering.
+- Added Dashboard support for excess credit handling configuration for installments programs.
+- Added Dashboard support for automatic load configuration for installment customers.
+- Corrected repayment order processing issue for credits made to a parent installment account.
+- Corrected issue where minimum and maximum allowed credit limits were not inclusive during customer creation.
+- Added new CustomerMemoNotification type for the following customer memo lifecycle events: `CREATE`, `UPDATE`, and `DELETE`. For more information, see [CustomerMemoNotification](/docs/notifications/standard-notifications/#customermemonotification).
+- Added automatic load setup and configuration in the installments customer simulator API.
+- Corrected issue that allowed more than one default customer external reference to be set.
+- Adjusted card payment response code to 57 for disqualified loans where the `disqualifiedDebitHandling` program configuration is set to `DECLINE`.
+- Added the ability to simulate failed payment retry through the payment simulator.
+
+## Week of May 8, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Added the ability to label fees as “default fees,” which will only have interest accrued after a minimum set number of days per local regulation (at least 28 days for the UK). For more information, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+- Added the ability to archive partners in a soft-delete
+
+### Enhancements
+
+- Enhanced logic in the Dashboard so that revolving credit event date-times, such as billing period close and repayment period end, are displayed the day before the midnight timestamp. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+- Corrected issue where late fees were being incorrectly applied to revolving credit customers in the case of excess repayment on previous periods, despite the current repayment being paid on time
+- Added new `nosiaStatement` field to the revolving credit statement file in support of Notice of Sums in Arrears (NOSIA). For more information, see [Statement file](/docs/revolving-credit/statement-file).
+- Implemented a new revolving credit repayment hierarchy mechanism, which allows for more flexible configuration of sub-balance ranking to support future additional balances and sub-balances. For more information, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+- Enabled customer servicing agents to update the billing period offset of a revolving credit customer via the Dashboard
+- Added new `defaultFeeSum` field to the Revolving Credit Billing Report. For more information, see [Revolving credit - customer billings report](/docs/reports/rc-customer-billings).
+- Corrected issue where billing period closing balance didn’t take into account newly billed interest
+- Fixed issue where retrieving billing history for a revolving credit customer would return an error
+- Corrected issue in Dashboard where password reset could not be completed after initiating the request
+- Corrected issue in Visa QOC report where row 173 and row 199 were showing as non-positive numbers
+- Updated Visa QOC report to be split by IIN and Visa product code
+- Corrected issue where settlement date was not being populated in the ISO 8583 Message Settlement Daily Report
+
+## Week of April 24, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Created new Revolving Credit Billing Report that summarizes all billing period closes for revolving credit customers. For more information, see [Revolving credit - customer billings report](/docs/reports/rc-customer-billings).
+- Added support for UK NODS regulation including the ability to specify different fee types as default fees, ignoring default fees from interest accrual for a set number of days, and the separation of default fees in billing period summaries. For more information, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+- Added the ability to add an external reference to an existing transaction in support of transaction labeling
+
+### Enhancements
+
+- Corrected issue where `creationDateTime` fields were displayed incorrectly when the corresponding customer was using certain languages
+- Reversed implementation which caused customer activation block to be released when a virtual card was ordered and activated
+- Enhanced revolving credit minimum payment due configurations to allow for separate inclusion of newly billed interest versus previously billed interest in the same period
+- Updated ISO 8583 Message Settlement Daily Report `pds146Currency` and `pds146Amount` data fields to display the interchange fee amount and currency in support of interchange fee understanding. For more information, see [Card clearing messages report](/docs/reports/card-clearing-messages).
+- Corrected issue where ATM withdrawal fee was not being applied to ATM withdrawal transactions despite fee configuration
+- Corrected issue where billed interest was not included in closing balance of period
+- Corrected issue where revolving credit customer billing history was failing to be returned
+- Added the ability for a customer's billing day of month to be changed after customer creation. Billing periods will be updated to the specified day of month, with the new period always being a minimum of 28 days in length. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+- Added ability to retrieve transaction based on a static transaction identifier. Transaction identifier will no longer be encrypted per session.
+- Added the ability to set an external reference when making an adjustment or reversal for a revolving credit customer. For more information, see [Sub-balance adjustment](/docs/revolving-credit/sub-balance-adjustments) and [Payment reversal](/docs/revolving-credit/payment-reversal).
+- Corrected an issue in the Dashboard that caused the customer detail page to not render after finding a customer in search
+- Enhanced reversal API to consistently order transaction line items and authorizations to ensure that partial reversals are applied correctly
+- Furthered translation coverage on the Dashboard
+- Corrected Dashboard issue where users were not pushed to the login screen after timeout
+
+### Week of April 17, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements
+
+- All Mastercard transactions will now have DE48.SE77 and PDS0043 captured and stored in the raw ISO 8583 message so that these fields can be referenced for the purpose of the QMR production
+- Changed the Invoice Report to use the transaction creation time instead of the transaction settlement time. For more information, see [Program net positions report](/docs/reports/program-net-positions).
+- Added `authCode` and `callerReference` fields to ISO 8583 Message Authorization Daily Report and ISO 8583 Message Settlement Daily Report. For more information, see [Card authorization messages report](/docs/reports/card-authorization-messages) and [Card clearing messages report](/docs/reports/card-clearing-messages).
+
+## Week of April 10, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### New features
+
+- Implemented features in support of strong customer authentication (SCA) as part of PSD2 in addition to existing OTP features, including the management of security questions and answers. For more information, see [3DS](/docs/cards/3DS).
+- Added the ability to manage free fee rules as part of program fee plans and customer fee rules so that exclusions from fee application can be established through self-service configuration
+- Added the ability to authenticate Tritium users with client OAuth providers in order to receive a bearer token from Tritium to be used for subsequent API calls
+
+### Enhancements
+
+- Added charge off transactions to the list of enabled transaction completion and transaction auth notification event types. These transactions will now trigger notifications when processed.
+- Corrected issues with inconsistent display of dates within the revolving credit customer billing history side drawer
+- Corrected issue in the Dashboard where previously established customer fee rules were not appearing until a new customer fee rule was added
+- Corrected various user experience issues in the Dashboard for revolving credit customers, including automatic load data being inconsistently displayed, extra component rendering, and responsiveness of configuration save operations
+- Added the ability to establish minimum amounts under which fees will not be charged to a customer at the program fee plan and customer fee rule levels
+- Implemented additional control rules for limiting number of transactions allowed per transaction type, including `load_count_1d`; `load_count_30d`; `p2p_count_1d`; `p2p_count_7d`; `p2p_count_recv_1d`; `withdraw_count1d`; `withdraw_count_7d`;` withdraw_count_30d`. For more information on these control rules, see [Program controls](/docs/controls/program-controls).
+- Corrected error that caused withdraw API calls to not be successfully completed due to incorrect processing of Withdrawal Limit for 1 Day rule
+- Corrected issue where `adjustment_limit` measurement was not appearing in customer control measurement
+- Corrected issue where `adjustment_1d` control was not preventing adjustments over the limit despite the cumulative amount exceeding the limit
+- Enhanced ISO 8583 processing to support TLV format and variable length for Field 34
+- Changed decimal places for Icelandic Krona (ISK) from 2 to 0 effective 15 April 2023 14:05:00 CST
+- Added support for checking the TAVV Verification Result to determine whether the case of ECI5 occurring without a valid CAVV is caused by token transaction or bad data. This change includes enhancing the parsing of ISO 8583 Field 123 Usage 2 and ISO 8583 Field 125 Usage 2.
+
+## Week of April 3, 2023
+
+This week’s releases include the following changes to the E6 platform:
+
+### Enhancements
+
+- Modified Mastercard QMR reports to ensure that the count of cards at the end of the quarter does not exceed the count of cards at the beginning of the quarter + new cards created in the quarter
+- Updated card blocks so that deactivation blocks cannot be removed from a card in support of Mastercard QMR card count reporting
+- Updated Mastercard QMR reports to be generated per IIN instead of ICA and applied naming convention and structure to align to new separation
+- Modified Mastercard QMR reports to ensure more accurate accounting of cards terminated in a quarter

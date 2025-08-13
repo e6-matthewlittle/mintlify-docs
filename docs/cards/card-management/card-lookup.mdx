@@ -1,0 +1,42 @@
+---
+title: "Card Lookup"
+excerpt: Cards can be looked up in a variety of ways to retrieve the details of the target cards.
+route: /docs/cards/card-lookup
+types: 
+  - guide
+_tags:
+  - cards
+  - customer cards
+  - card lookup
+  - card search
+containerWide: true
+showHeadingsNav: true
+date: "11-30-2022"
+---
+
+# Card lookup
+
+At various points across the card lifecycle, it may be required to find the details of a card which has been issued. This includes for card program operators as well as for the cardholders. Looking up the card provides basic details of the card, which may be needed for card identification or to drive further actions on that card.
+
+## What we do
+
+Episode Six (E6) provides the ability to lookup cards using various approaches depending on the use case. This includes retrieving lists of card related to various entities or looking up a specific card based on different card identifiers including `PAN`, the E6 generated `cardNumber`, or the `shippingNumber`.
+
+## Prerequisites
+
+Before a card can be located, it must first be [issued](/docs/cards/issuance-overview).
+
+## Actions
+
+E6 allows cards to be location with a variety of scopes to facilitate different card use cases using the [Card Lookup API](/tech-specs/cards/card-lookup). The following options are available for retrieving cards:
+
+| Lookup Method | Description |
+| ---------- | ------------------- |
+| Retrieve customer cards | Retrieves all of the cards for a given customer account, regardless of cardholder. |
+| Retrieve customer cards - paginated | Retrieves all of the cards for a given account, regardless of cardholder. |
+| Retrieve cardholder cards | Retrieves all of the cards associated with a particular cardholder for an account. |
+| Perform card search | Looks for a card based on card identifier such as PAN, card number, or card id and expiration. |
+
+## What's Next
+
+Once the card is retrieved, other API calls related to the card will use the `id` from the response to identify the card. This is often as a path parameter called `card-id`.

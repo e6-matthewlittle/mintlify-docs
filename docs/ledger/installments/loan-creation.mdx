@@ -1,0 +1,51 @@
+---
+title: "Loan creation"
+menu: Installments
+route: /docs/installments/loan-creation
+excerpt: Installment loan creation. Repay a defined amount of funds on a set repayment schedule.
+types: 
+  - guide
+_tags:
+  - products
+  - installments
+  - loans
+  - p2p
+  - withdraw
+  - card purchase
+  - child customer
+  - parent customer
+  - create
+  - methods
+containerWide: true
+showHeadingsNav: true
+---
+
+# Loan creation
+
+A loan is an agreement between a borrower and a lender to repay a defined amount of funds on a set repayment schedule. A loan can be created at any point in the customer experience, including on-demand, at the time of payment, or transaction conversion.
+
+## What we do
+
+Episode Six (E6) enables the creation of installments loans via card payments, non-card payments, and API. E6 provides the ability to generate any number of loans for an installments customer. Upon loan creation, loan balances are tracked and a payment schedule is generated to determine how a customer's repayments are handled.
+
+## Prerequisites
+
+Before a loan can be created, a customer must be created with installments configurations. For more information, see [Installments customer configuration](/docs/installments/installments-customer-configuration).
+
+## Actions
+
+Loan creation is triggered at the parent account level when the customer makes an eligible transaction. A transaction is eligible for installments when it meets or exceeds the minimum principal requirement set by the customer's program. Loans can be created through the following methods:
+
+| Method | Description |
+| ---------- | ------------------- |
+| P2P Transfer | A payment from an E6 managed account to another E6 managed account. This payment must be triggered from the loan account and reference the destination E6 customer account. See [P2P](/docs/payments/p2p-transfer) for more details. |
+| Withdraw | A payment made from an E6 managed account to an external account. This payment must be triggered from the loan account and must use an external reference for the destination external account. This method uses payment rails that have been integrated with the E6 platform. See [Withdraw](/docs/payments/withdraw) for more details. |
+| Card Purchase | If cards have been issued for the account, then purchases made with the card can be used to create a loan. For card-initiated loans, configurations must be established that predetermine how loans will be set as the customer is not able to provide those details as part of the purchase. In this case, disbursement to the merchant is handled through the card network. For more information, see [Card payments](/docs/cards/card-payments). |
+
+When the parent customer makes an eligible purchase, a loan child customer will be created. A P2P transaction is created that moves the principal amount from the child customer to the parent customer, allowing the transaction to complete. The loan customer will then have a negative principal balance that must be repaid. The loan customer's negative balance is split into installments based on the program's period configurations.
+
+## What’s next
+
+Once a loan is created, the loan amortization schedule will be generated showing the customer's upcoming payments. For more information, see [Loan summary](/docs/installments/loan-summary).
+
+Customers can start repaying their loan using recurring payments or via load transactions. For more information, see [Loan repayment](/docs/installments/loan-repayment).

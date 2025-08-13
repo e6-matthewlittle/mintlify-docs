@@ -1,0 +1,410 @@
+---
+title: 3DS
+menu: Cards
+route: /docs/cards/3DS
+excerpt: 3D Secure (3DS) is a process for authenticating cardholders.
+types: 
+  - guide
+_tags:
+  - 3DS
+  - 3D Secure
+  - ACS
+  - SCA
+  - strong customer authentication
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# 3DS
+
+3D Secure (3DS) is a framework for authenticating cardholders for online or card-not-present (CNP) transactions. 3DS reduces the probability of fraudulent transactions and identity theft. 3DS is required in many regulatory jurisdictions, including Europe and the UK, and is being adopted in additional regions to create a more secure card payment experience.
+
+*3D* stands for the three domains of the cardholder authentication process:
+
+| Domain | Description |
+| ---------- | ------------------- |
+| Acquirer domain | Bank and merchant to which money is being sent. |
+| Issuer domain | Card issuer partnered with an access control server (ACS). |
+| Interoperability domain | Infrastructure provided by the card network or payment type to support 3D. |
+
+### Cardholder authentication process
+
+The ACS is used by issuing banks to fulfill their cardholder authentication requirements. The ACS exists in the issuing bank’s domain. The issuing bank is the bank that issued the card used by the cardholder. The bank helps authenticate whether the card being used is attached to the authorized cardholder.
+
+An online transaction involving 3DS has two components: authentication and authorization. During the authentication stage, the ACS performs cardholder authentication to verify that the cardholder is legitimate. During authorization, the interoperability domain and issuer processor approve or decline the transaction.
+
+Cardholder authentication can take place using a variety of methods, including:
+
+- Verifying the cardholder’s user password for the issuing bank
+- Verifying a one-time password sent via SMS or email
+- Verifying the cardholder’s secret or security question with a personal answer or static passcode
+- Verifying the customer’s fingerprint or facial recognition, such as with in-app push notifications
+
+### Strong customer authentication
+
+Additional 3DS authentication methods are needed for issuers that implement Strong Customer Authentication (SCA). SCA is a requirement of the second Payment Services Directive (PSD2) used to increase security of electronic payments. SCA is only required for European and UK online payments, in which both the merchant and the cardholder’s bank are in Europe. To comply with SCA, customers must provide two forms of identification from the following categories when making an online payment:
+
+| Category | Description |
+| ---------- | ------------------- |
+| Knowledge | Something the customer *knows*, such as a password, PIN, passphrase, or secret. |
+| Possession | Something the customer *owns*, such as a mobile device, smart card, or token. |
+| Inherence | Something the customer *is*, such as a fingerprint or facial recognition. |
+
+Common examples of SCA methods include:
+
+- Customer’s fingerprint or facial recognition (from the inherence category) provided with their mobile device or smartphone (possession)
+- A one-time-passcode sent to the customer’s mobile device (possession) with a personal passcode (knowledge)
+- A one-time-code sent to the customer's mobile device (possession) with a personal security question and answer (knowledge)
+
+## What we do
+
+Episode Six (E6) is an issuer processor that acts as the system of record for card and cardholder data. E6 integrates with an ACS, which is responsible for executing the cardholder authentication. Both the issuer processor and the ACS are part of the issuer domain.
+
+Integration between E6 and the ACS will take place using the common integration model that has been agreed upon with the ACS partner. This model encompasses integrations using the E6 cardholder information API specifications for cardholder and card status queries. For the ACS to verify the cardholder, E6 provides all necessary card and cardholder information relevant to the card payment.
+
+<Callout
+    calloutType={'info'}
+>
+E6 will typically complete ACS partner setup, user setup, and partner linking during initial setup of the Tritium platform. Not all 3DS vendors will use E6's APIs however, depending on the required setup for your selected ACS provider. For more information, inquire about 3DS ACS requirements with your E6 representative.
+</Callout>
+
+E6 allows a cardholder's authentication data, such as phone numbers, card numbers, and security questions and answers, to be created and stored in the E6 platform.  When an ACS calls Tritium® as part of the 3DS cardholder authentication process, the cardholder's authentication data and preferred verification methods are shared with the ACS. The ACS can then use this data as part of the subsequent authentication flow.
+
+E6 supports providing cardholder information for the following cardholder authentication methods:
+
+| Method | Description |
+| ------ | --------------------- |
+| One-time passcode SMS (OTPSMS) | A unique passcode is texted to the cardholder's mobile device. |
+| Out-of-band (OOB) | Cardholder receives a push notification on their mobile device to perform in-app authentication using their fingerprint, facial recognition, or PIN validation. |
+| One-time passcode security question (OTPSQ) | Cardholder is asked a security question with a predetermined answer specified by the cardholder. |
+| One-time passcode (OTP) | Enables both SMS and Email verification OTP methods to be used, additional attributes will determine if these are masked or not depending on the requestor. |
+| Static password (STATIC_PASSCODE) | A shared static authentication password must be provided. Primarily used for B2B use cases and is less secure than other authentication methods. The `STATIC_PASSCODE` must be set as a [partner attribute](/docs/platform-access/partner-attributes) with a `name` of `3DSStaticPasscode`. |
+
+Each cardholder in the E6 platform can be assigned a primary and secondary (fallback) verification method. For issuers required to implement SCA, multiple verification methods can be used to ensure that cardholders can provide the required identification details during authentication.
+
+## Prerequisites
+
+An ACS must be selected to support 3DS for online card payments. Once an ACS provider is selected, the ACS must be registered as a partner. A user with the **System** role for the ACS should then be set up to be used by the ACS processing system for authenticating with the Tritium platform.
+
+A partner linkage must be established between the ACS partner and the partner which owns the card program in order for the ACS partner to get access to the relevant data scope. For more information, see [Data segregation](/tech-specs/getting-started/data-segregation).
+
+3DS support will only work for an active customer account for which a card has been [issued](/docs/cards/issuance-overview).
+
+### ACS API implementation
+
+The ACS should be configured to support the following API endpoints depending on the authentication methods you intend to support:
+
+| API | Description |
+| --- | --------------------- |
+| [Retrieve Cardholder Information](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_getCardHolderInformation_POST) | An ACS retrieves a cardholder’s information from Tritium. This information is used to identify the cardholder’s verification methods and provide the information needed to host the challenge page. This API is required for all five authentication methods. |
+| [Create Authentication Request](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_createAuthenticationRequest_POST) | An ACS initiates a challenge and creates an authentication request in Tritium. This call provides the information needed to host the challenge page in the cardholder's app. This API is only required for OOB authentication. |
+| [Retrieve Authentication Request Status](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_getAuthenticationStatus_GET) | An ACS retrieves the status of an authentication request using the `acsTransactionId`. This API is only required for OOB authentication. |
+| [Cancel Authentication Request](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_cancelAuthenticationRequest_POST) | An ACS cancels an authentication request due to failed cardholder authentication. This API is only required for OOB authentication. |
+
+### SCA requirements
+
+For issuers who require solutions for OTPSMS, OOB, OTPSQ, OTP or STATIC_PASSCODE in compliance with regional regulatory requirements, cardholders' primary and fallback methods must be set as follows depending on your PSD2 and SCA requirements:
+
+| PSD2 and SCA requirements | Methods set up |
+| ---------- | ------------------- |
+| PSD2 Issuer with OOB | Primary method must be set to OOB for push in-app authentication, where the cardholder is authenticated by fingerprint, facial recognition, or PIN validation. Fallback must be set to OTPSQ for compliance with PSD2 regulatory requirements. If OOB fails, the transaction should be cancelled and there should be no fallback. It is an issuer’s business decision to set up fallback to OTPSQ. |
+| PSD2 Issuer without OOB | Primary method must be set to OTPSQ. If OTPSQ fails, issuers should cancel the transaction, because fallback to OTPSMS is not PSD2 compliant. |
+| Non-PSD2 Issuer with OOB | Primary method must be set to OOB push in-app authentication, where the cardholder is authenticated by fingerprint, facial recognition, or PIN validation. Fallback should be to OTPSMS. |
+
+## Actions
+
+An integrated ACS will need to reach out to Tritium when an online card payment requires 3DS to retrieve card and cardholder information. Cardholder information is obtained by calling the [Retrieve Cardholder Information API](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_getCardHolderInformation_POST). The API responds with the cardholder's card status, card number, language, verification methods, and primary verification method.
+
+<Callout
+    calloutType={'info'}
+>
+If the ACS is configured to support multiple languages, the challenge page is displayed using the cardholder’s preferred language. When a customer account is created, the customer inherits the program’s language by default. To update the cardholder’s preferred language, call the <a href="/tech-specs/customers/customers/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_updateCustomer_PUT"> Update Customer Account API</a> and enter the desired language in the <tt>language</tt> attribute.
+</Callout>
+
+Once the cardholder's information is retrieved, authentication is performed according to the cardholder's primary verification method. If a technical issue or a system timeout occurs and fallback is required, authentication is performed using the second verification method listed by the API. Cardholders can be set up with the following authentication methods:
+
+### OTPSMS
+
+To enable OTPSMS cardholder authentication, the cardholder must be set up with a phone number with `type` set to `mob`. This information can be provided during cardholder onboarding or updated after the cardholder is set up. For more information, see [Phone numbers](/docs/persons/phone-numbers).
+
+The cardholder's card must also be in the `activated` state. If the card is in any other state, the Cardholder Information API returns an invalid response. To update a card's state, see [Card state management](/docs/cards/card-state-management).
+
+### OOB
+
+To enable OOB cardholder authentication, the following details must be provided to E6:
+
+- A root HTTP address to which the E6 endpoints can be appended
+- A standard static bearerToken used for authentication when making requests to the 3DS Authentication APIs
+
+As an issuer, you must implement three API endpoints to manage OOB authentication requests in Tritium. These APIs map to the following events during the authentication process:
+
+| API | Description |
+| --- | --------------------- |
+| `POST acs/authrequest` | Tritium initiates a challenge and creates an authentication request from the ACS in the issuer host. This call provides the information needed to host the challenge page in the cardholder's app. |
+| `GET acs/authrequest/{acsTransactionId}` | Tritium retrieves the status of an authentication request from the ACS in the issuer host using the `acsTransactionId`. |
+| `POST acs/authrequest/{acsTransactionId}/cancel` | Tritium cancels an authentication request from the ACS in the issuer host due to failed cardholder authentication. |
+
+<Callout
+    calloutType={'info'}
+>
+  The OOB Authentication APIs for Issuers use the same request and response bodies as the ACS OOB Authentication APIs.
+</Callout>
+
+With these APIs, Tritium acts as a pass-through between the ACS and the issuer. When the ACS creates an authentication request, Tritium passes the information from the ACS API request to the issuer to provide in the issuer API request payload.
+
+When the ACS invokes an OOB challenge to E6, E6 subsequently creates an authentication request to the host mobile app server. When E6 requests authentication, the cardholder's authentication and transaction details are provided to the server. These details can be used to create the content of the push notification and allow you to perform in-app authentication. During the OOB authentication process, the Get Authentication Status API can be used to see whether the authentication request has been approved, declined, or if technical issues have occurred.
+
+<Callout
+    calloutType={'info'}
+>
+  E6 clients are responsible for managing the second factor of OOB in-app authentication in mobile app development. This responsibility includes registering a cardholder's devices and mapping to a common <tt>cardNumber</tt> provided by Tritium.
+</Callout>
+
+You should also implement the following response codes that are sent to E6 when calling these endpoints:
+
+| Response Code | Description |
+| ---------- | ------------------- |
+| `HTTP 200` | For a successful request returned with response payload for Create Authentication and Get Authentication Status APIs. |
+| `HTTP 204` | For a successful request returned with empty for Cancel Authentication API. |
+| `HTTP 400` | For an unsuccessful or bad request returned with response code and message. |
+
+If E6 receives a 400 response code, Tritium will return to the ACS with the response code and message received from the Issuer.
+
+### OTPSQ
+
+To enable OTPSQ cardholder authentication, security questions must exist for the cardholder's program. To create a security question, call the [Create Program Security Question API](/tech-specs/security-questions/questions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingAPI_createSecurityQuestion_POST). Set the `label` attribute to `otpsqQuestion` to identify that the question is used for OTPSQ. The `securityQuestionTexts` object must contain at least one text object with the `locale` set as the program's language, such as `en-US`.
+
+When at least one security question has been created, create the cardholder's answer to the program security question with the [Create Person Security Answer API](/tech-specs/security-questions/person-answers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_createSecurityAnswer_POST). Provide the answer to the question in the `answer` attribute.
+
+If multiple security questions exist under a program, the cardholder's desired security question for OTPSQ can be configured by setting a person attribute. To set a cardholder's selected security question with a person attribute, call the [Create Person Attribute API](/tech-specs/persons/person-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_createPersonAttribute_POST). In the request, set `name` to `selectedOtpsqQuestion` and set `value` to the label of the desired security question. When a `selectedOtpsqQuestion` has been provided, the ACS will use the cardholder's desired security question during the challenge flow.
+
+### OTP
+
+OTP has been implemented to support both SMS and Email authentication under a single `OTP` type. This functionality allows issuers to manage the OTP delivery method, either through ACS or their own external systems, with flexibility to mask sensitive information and specify delivery preferences.
+
+#### OTP Type & Method Information
+
+When the `OTP` type is returned in the `/cardholderInformation` response. The `methodInformation` field indicates how the OTP should be handled:
+- `DEFAULT`: OTP is handled by ACS, supporting both SMS and Email.
+- `OTP_EXT`: OTP is managed by the issuer or client, with SMS and Email details provided externally.
+
+The `additionalMethodInformation` object contains the relevant details for the OTP delivery method:
+- If `methodInformation = OTP_EXT`, masked values are returned `maskedPhoneNumber` and `maskedEmailAddress` restricting sensitive PII.
+- If `methodInformation = DEFAULT`, clear values are returned `phoneNumber` and `emailAddress`.
+
+If no phone or email information is available, the `additionalMethodInformation` object will be returned empty.
+
+#### Example OTP Response (External)
+
+```json
+{
+  "acsTransactionId": "12345678",
+  "cardStatus": 0,
+  "verificationMethod": [
+    {
+      "type": "OTP",
+      "methodInformation": "OTP_EXT",
+      "additionalMethodInformation": {
+        "maskedPhoneNumber": "******6060",
+        "maskedEmailAddress": "***oe@gmail.com"
+      }
+    }
+  ],
+  "language": "en-HK",
+  "primaryMethod": "OTP",
+  "cardNumber": "4444000099998888777"
+}
+
+```
+
+#### Example OTP Response (DEFAULT)
+
+```json
+{
+  "acsTransactionId": "12345678",
+  "cardStatus": 0,
+  "verificationMethod": [
+    {
+      "type": "OTP",
+      "methodInformation": "DEFAULT",
+      "additionalMethodInformation": {
+        "phoneNumber": "+6590906060",
+        "emailAddress": "joe@gmail.com"
+      }
+    }
+  ],
+  "language": "en-HK",
+  "primaryMethod": "OTP",
+  "cardNumber": "4444000099998888777"
+}
+
+```
+
+### STATIC_PASSCODE
+
+To enable STATIC_PASSCODE cardholder authentication, a static password must be established as a partner attribute. To create a partner attribute, call the [Create or Update Partner Attribute API](/tech-specs/partners/partner-attributes/api#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_createOrUpdatePartnerAttributes_POST). Set the `name` attribute to `3DSStaticPasscode` and the `value` attribute to `<Passcode value>` in clear text.  
+
+#### Example STATIC_PASSWORD Response
+
+```json
+{
+    "acsTransactionId": "123456asda",
+    "cardStatus": 0,
+    "verificationMethod": [
+        {
+            "type": "STATIC_PASSCODE",
+            "methodInformation": "654321"
+        }
+    ],
+    "language": "en-US",
+    "primaryMethod": "STATIC_PASSCODE",
+    "cardNumber": "4834884376087801661"
+}
+```
+
+
+### Primary and secondary verification methods
+
+Each cardholder can be be configured with a primary method and secondary method for authentication. During the challenge process, the ACS will initiate authentication using the cardholder’s primary method. In the event of a technical error or system timeout, fallback can proceed using the cardholder’s secondary method. The following values can be used for a cardholder’s primary and secondary methods:
+
+- `OTPSMS`
+- `OOB`
+- `OTPSQ`
+- `OTP`
+- `STATIC_PASSCODE`
+
+During initial setup, E6 can register a plugin in your environment that determines a default `primaryMethod` and `secondaryMethod` for all of your cardholders.
+
+A cardholder’s `primaryMethod` and `secondaryMethod` can also be configured manually by defining attributes for the person associated with the cardholder. Create person attributes for the cardholder's person with the [Create Person Attribute API](/tech-specs/persons/person-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_createPersonAttribute_POST). In the request, set `name` to `primaryMethod` and set `value` to `OTPSMS`, `OOB`, `OTPSQ`, `OTP` or `STATIC_PASSCODE`. This attribute and its value identifies that the cardholder's primary verification method is either OTPSMS, OOB, OTPSQ, OTP or STATIC_PASSCODE. A secondary method can be configured by calling the same API with `name` set to `secondaryMethod` and `value` set to `OTPSMS`, `OOB`, `OTPSQ`, `OTP` or `STATIC_PASSCODE`.
+
+When the ACS calls the Cardholder Information API, the plugin will check if the cardholder has valid `primaryMethod` and `secondaryMethod` person attributes. If the plugin finds valid `primaryMethod` and `secondaryMethod` person attributes, these attributes will override the default values from the plugin and the API response will populate with verification methods from the person attributes. If the cardholder does not have `primaryMethod` and `secondaryMethod` person attributes, authentication will be performed using the default primary and secondary method configured by the plugin.
+
+<Callout
+    calloutType={'info'}
+>
+  If a secondary method is mandated by regulatory requirements, a <tt>secondaryMethod</tt> person attribute will not need to be set. E6 will configure a default <tt>secondaryMethod</tt> for the program by a plugin registration.
+</Callout>
+
+## What's next
+
+Once the cardholder's authentication methods are set up, the [Retrieve Cardholder Information API](/tech-specs/cards/3DS/api?#operation/net.e6tech.h3.payment.secure3d.acs.api.v1.Secure3dAcsAPI_getCardHolderInformation_POST) will populate with the cardholder's data for the ACS. This information enables to the ACS to proceed with cardholder authentication by hosting the challenge page requiring the cardholder’s input to validate. The cardholder’s required input will vary depending on the cardholder’s primary verification method.
+
+Once the cardholder is successfully authenticated, E6 will process the card payment as normal in the authorization lifecycle. For more information, see [Card payments](/docs/cards/card-payments).
+
+## Appendix
+
+### OOB authentication API flow
+
+Here is a sample request for Tritium to create an authentication request from the ACS in the issuer host:
+
+```
+REQUEST ----------------------------
+POST http://localhost:10002/restful/v1/mock_issuer/acs/authrequest
+Authorization: Bearer ...
+Accept: application/json
+Content-Type: application/json
+{
+  "acsTransactionId" : "123456asda",
+  "authenticationDetail" : [ {
+    "primaryMethod" : "OOB",
+    "cardNumber" : "3396280872509399004"
+  } ],
+  "transactionInformation" : [ {
+    "merchantName" : "Bob's",
+    "merchantCountryCode" : 0,
+    "acquirerMerchantID" : "12345678910",
+    "maskedPAN" : "************1234"
+  } ]
+}
+```
+
+This request returns the following response:
+
+```
+RESPONSE ----------------------------
+HTTP/1.1 200 OK
+Response Code=200
+Content-Type: application/json
+{
+  "acsTransactionID" : "123456asda"
+}
+```
+
+Here is an example request to return the authentication status for this authentication request:
+
+```
+REQUEST ----------------------------
+GET http://localhost:10002/restful/v1/mock_issuer/acs/authrequest/123456asda
+Authorization: Bearer ...
+Accept: application/json
+```
+
+This request returns the following response:
+
+```
+RESPONSE ----------------------------
+HTTP/1.1 200 OK
+Response Code=200
+Content-Type: application/json
+{
+  "confirmationStatus" : "ACCEPTED"
+}
+```
+
+Here is an example request to cancel this authentication request:
+
+```
+REQUEST ----------------------------
+POST http://localhost:10002/restful/v1/mock_issuer/acs/authrequest/123456asda/cancel
+Authorization: Bearer ...
+Accept: application/json
+Content-Type: application/json
+```
+
+This request returns the following response:
+
+```
+RESPONSE ----------------------------
+HTTP/1.1 204 No Content
+Response Code=204
+```
+
+### OOB validity period
+
+During OOB setup, your ACS can configure the length of the OOB validity period, which is how long OOB authentication sessions last before timeout occurs. By default, the OOB validity period is set to 570 seconds. If needed, the ACS can configure the validity period to a different length of time.
+
+When an authentication request is created and the validity period begins, the ACS repeatedly calls the Get Authentication Status API to retrieve the current authentication status. By default, the Get Authentication Status API is called every six seconds during an authentication request. This frequency can also be configured during ACS setup.
+
+### OOB authentication status
+
+When the ACS calls the Get Authentication Status API, the `confirmationStatus` attribute in the response contains the status of the payment authentication request. The `confirmationStatus` attribute can return six different statuses that correspond to the following behavior:
+
+| Status | Behavior |
+| ------ | --------------------- |
+| `ACCEPTED` | OOB authentication is successful.  |
+| `DECLINED` | Cardholder has declined authentication and OOB authentication is cancelled. No fallback occurs and the transaction results in a failure. |
+| `CANCELLED` | OOB authentication is cancelled. No fallback occurs and the transaction results in a failure. |
+| `FAILED` | OOB authentication has failed. The ACS calls the Cancel Authentication API and authentication proceeds using the cardholder's `secondaryMethod` as fallback. |
+| `IN_PROGESS` | OOB authentication is currently in progress. |
+| `TIMEOUT` | OOB authentication timeout has occurred. As an issuer, you can design a timeout scenario that is performed when a `TIMEOUT` response is received. When the issuer API responds with `TIMEOUT`, the ACS calls the Cancel Authentication API and authentication proceeds using the cardholder's `secondaryMethod` as fallback. |
+
+<Callout
+    calloutType={'info'}
+>
+  There is no retry mechanism for the OOB Authentication APIs. If a bad request is received that returns an <tt>HTTP 400</tt> response code for any of these APIs, the ACS does not cancel the transaction. Instead, the OOB session is aborted and the link to the cardholder's fallback method is still alive on the challenge screen so that authentication can proceed.
+</Callout>
+
+### OOB authentication cancellation
+
+In the event of a fallback, the ACS calls the Cancel Authentication Request API. The ACS calls this API in the following scenarios:
+
+- The OOB validity period timeout is reached
+- Issuer authentication status responses (`TIMEOUT` or `FAILED`) leads to fallback on the ACS
+- Cardholder manually selects a fallback option on the challenge screen
+
+### Challenge screen
+
+During 3DS setup, your ACS can configure how fallback links display on the cardholder's challenge screen. For example, links to fallback authentication methods can always be present on the challenge screen, or visible only when the authentication fails or timeout occurs.

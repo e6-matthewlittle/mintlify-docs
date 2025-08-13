@@ -1,0 +1,56 @@
+---
+title: "Purchase"
+menu: Payments
+route: /docs/payments/purchase
+excerpt: A purchase is a transaction that is associated with a retail payment made to a merchant.
+types: 
+  - guide
+_tags:
+  - purchase
+  - transactions
+  - payments
+  - merchant
+  - customer
+  - account
+  - retail payment
+  - line items
+  - record
+  - add
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Purchase
+
+A purchase is a transaction type that is typically associated with a retail payment made to a merchant. This association distinguishes purchases from other transaction types, such as a withdraw or P2P.
+
+## What we do
+
+Episode Six (E6) allows for purchases to be recorded for an E6-managed customer account with the [Purchase API](/tech-specs/payments/purchase). When a purchase transaction is made, the customer account is debited and the target account is credited. The purchase target account represents the merchant receiving the funds as part of the purchase. A purchase can target another customer account or a partner entity. A partner should be used when a merchant is in an external system of record (SOR). Purchase requests can include multiple line items, each with their own currency and amount.
+
+## Prerequisites
+
+Before recording a purchase for a customer account, a customer account must be created. To create a customer account, see [Customers](/docs/customers/customers).
+
+The target account of the purchase must also exist. To create a purchase targeting a partner, a partner must exist. For more information, see [Partners](/docs/platform-access/partners). To create a purchase targeting a customer, a customer must exist. For more information, see [Customers](/docs/customers/customers).
+
+<Callout
+    calloutType={'info'}
+>
+   To enable purchase transactions, a purchase plugin must be registered in your environment. For more information about registering this plugin, ask your E6 representative.
+</Callout>
+
+## Actions
+
+To record a purchase for an E6 customer account, call the [Purchase API](/tech-specs/payments/purchase/api?#operation/net.e6tech.h3.middletier.api.v1.partner.commerce2.MerchantAPI_purchase_POST). In the request, the `merchantLocator` object identifies the target account of the purchase. To identify a customer as the target account, provide a `customerNumber` attribute in the `merchantLocator` object. To identify a partner as the target account, provide a `partnerName` attribute in the `merchantLocator` object.
+
+To add purchase line items, provide an array of amount objects in the `lineItems` object. Each amount object should specify the amount and currency of the purchase line item. Each line item in the API request will create a separate purchase transaction entry. For all purchase requests, the transaction currency must be a currency available for both the target account and the customer account.
+
+When a purchase transaction is created, the resulting transaction entry will have a `transactionTypeCode` of 3 for a purchase.
+
+## What's next
+
+After recording a purchase, the customer can view their updated account balances. For more information, see [Customer balances](/docs/balances/customer-balances). The customer can also view a detailed history of payments by accessing their transaction history. For more information, see [Transactions](/docs/transactions/transactions).

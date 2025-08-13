@@ -1,0 +1,55 @@
+---
+title: "Product rewards setup"
+menu: Rewards
+route: /docs/rewards/product-rewards
+excerpt: Flexible configurations for earn, distribution, and redemption are required in order to enable the product needs.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2024"
+---
+
+# Product rewards setup
+
+Product programs typically each have their own unique reward needs and requirements. Flexible configurations for earn, distribution, and redemption are required in order to enable the product needs. Each product will also typically have multiple reward plans to support various use cases.
+
+## What we do
+
+Episode Six (E6) allows any product program to be setup for rewards as a feature. Multiple customer reward plans can be created for the product program. Plans can be setup to cover introductory, basic, penalty, and many other use cases. Each reward plan can have multiple rules configured to account for different types earn activities.
+
+## Prerequisites
+
+A [rewards program](/docs/rewards/rewards-setup) must be created before product programs are onboarded to it.
+
+A product program must be created before rewards are added as a feature. For more information, see [Programs](/docs/programs/programs).
+
+## Actions
+
+The below actions must be completed in order for product program rewards to be activated.
+
+### Product program enablement
+
+Prior to plan and rules setup, the product program must be enabled for rewards using the [Enable Program Rewards API](/tech-specs/rewards/rewards-programs/api?#operation/enableProgramRewards) referencing the product `programName` in the path and the rewards `programName` as the `rewardsOfferingProgramName` in the request body. Distribution configurations need to be provided including `rewardFrequency`, which most often is set to `monthly`, and `offset` which is the default day offset for distribution within the frequency period. An `offset` of `1` for example would be the first day of the calendar month.
+
+This request also includes parameters for automatic rewards customer creation and rewards distribution. If you want automatic rewards customer account creation, then set the `autoCustomerOnboarding` field to `true`. If setting this field to `true`, then `defaultGroupName` and `defaultPlanName` should be included as well.
+
+### Plans and rules
+
+You can use the [Update Reward Program API](/tech-specs/rewards/rewards-programs/api?#operation/updateRewardProgramConfiguration) to add reward plans and their rules for a product program. The product program `programName` should be set as the `name` and the `programName` within a `group` object.
+
+Each group has an array of `plan` objects within the group. Each `plan` also has `name`, a `refundRate`, and then a set of earn rules.
+
+A rule is defined primarily by the `transactionType`. The earn `currency` should be set to a target currency, such as fiat or custom loyalty point, which has been configured for the rewards program. If using rewards for automated statement credit, then the `currency` should always be set to match a currency supported by the product program. Restrictions on where the earn rules will apply can be included either as merchant category or merchant identifiers.
+
+## What's next
+
+After product program plans have been established, customers can begin to be onboarded to the product program with rewards enabled. This includes new and existing customers. Fore more information, see [Customer enrollment](/docs/rewards/customer-enrollment).
+
+Plans and rules can also be updated in real-time by a user with the `system` role or through the [change order](/docs/change-orders/change-orders-overview) process for users with other roles.
+

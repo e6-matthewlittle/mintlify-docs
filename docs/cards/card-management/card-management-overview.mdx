@@ -1,0 +1,46 @@
+---
+title: "Card management overview"
+menu: Cards
+route: /docs/cards/card-management
+excerpt: How E6 allows you to manage cards across their lifecycle after issuance.
+types:
+  - guide
+_tags:
+  - cards
+  - card management
+  - card lifecycle
+  - issuance
+containerWide: true
+showHeadingsNav: true
+date: "01-31-2023"
+---
+
+# Card management
+
+A card may require servicing at various points throughout its lifecycle once it has been issued. This can include actions to be taken by a customer service agent or directly by the cardholder. This requires cards to be able to be located via lookup and then operated upon as needed including updating the card state, updating the PIN, and more.
+
+## What we do
+
+Episode Six (E6) provides the ability to locate cards using various lookup methods and then take action on those cards as needed.
+
+## How it works
+
+To learn more about how you can manage cards with E6, read through the following documentation.
+
+- [**Card lookup**](/docs/cards/card-lookup) - Locating cards based on various identifiers or relationships to other entities
+- [**PIN management**](/docs/cards/pin-management) - Setting or updating card PINs
+- [**Card state management**](/docs/cards/card-state-management) - Updating the state of a card or view the history of card states
+- [**Card attributes**](/docs/cards/card-attributes) - Setting of additional, non-E6 standard attributes for cards
+- [**Account level management (ALM)**](/docs/cards/account-level-management) - Setting of card-level processing configurations offered by the card networks
+- [**Card expiration**](/docs/cards/card-expiration) - End of card lifecycle management when a card reaches its expiry
+
+## Common terms
+
+Below is a list of common and important terms that you will see throughout the card management process.
+
+| Term | Definition | Other names |
+| -- | -- | -- |
+| **Expiration** | When a card reaches the day after the card expiry month and year. At this point the card can no longer be used. ||
+| **Card attribute** | An additional attribute that be set on a card which is not part of the base E6 card object definition. ||
+| **Card state** | A defined state in which a particular card exists. This drives what actions such as card payments are available to make on a card. ||
+| **Card cancellation** | Making it so that a card can no longer be used. ||

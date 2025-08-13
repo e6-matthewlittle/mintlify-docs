@@ -1,0 +1,95 @@
+---
+title: "Fee rules"
+menu: Fees
+route: /docs/fees/fee-rules
+excerpt: Fees allow a program manager to monetize the products they offer to their customers.
+types: 
+  - guide
+_tags:
+  - assessment
+  - fee
+  - fee rules
+  - payment
+  - calculations methods
+  - calculate
+  - api parameters
+  - type
+containerWide: true
+showHeadingsNav: true
+date: "03-29-2023"
+---
+
+# Fee rules
+
+Fees allow a program manager to monetize the products that they offer to their customers. Fees can be triggered by different event types such as payments or recurring dates. These triggers allow fees to align to events that a program manager might want to disincentivize for their customers, such as late repayment.
+
+## What we do
+
+Episode Six (E6) manages a catalog of fees that can be charged to partners or customers. E6 also manages the triggering of the fee calculation and the posting of the fee to the partner or customer account in the E6 ledger.
+
+### Fee calculation methods
+
+Fee rules can be set up using various calculation patterns, including fees that are a flat amount, a percentage, or a combination of both. With the `fixFee`, `percentage`, and `calculationMethod` fields, you can configure how fees are applied to transactions made using your fee plan. The following types of fee calculation methods are available:
+
+| Fee Calculation Method | Description |
+| ---------- | ------------------- |
+| Flat Amount | A flat currency amount to charge as the fee, such as $15. |
+| Percentage | The percentage of the transaction to charge as a fee, such as 3% of the transaction balance. |
+| Flat + Percentage | A combination of a currency amount and percentage to charge as the fee. For example, if a $100 purchase has a flat amount fee of $10 and a percentage amount fee of 5%, the total fee is $15. |
+| Greater Of | The fee amount is the larger of either the flat amount or percentage amount. For example, if a $50 purchase has a $5 fee flat amount and a 5% fee percentage, the $5 flat fee amount is charged. |
+| Lesser Of | The fee amount is the lesser of either the flat amount or percentage amount. For example, if a $50 purchase has a $5 fee flat amount and a 5% fee percentage, the 5% fee percentage amount is charged. |
+
+To realize these calculation methods, refer to the following pattern of API parameters.
+
+| Dashboard value | API value |
+| --------------- | --------- |
+| Flat amount     | fixFee > 0, percentage = 0, calculationMethod = 0 |
+| Percentage      | fixFee = 0, percentage > 0, calculationMethod = 0 |
+| Flat + Percentage | fixFee > 0, percentage > 0, calculationMethod = 0 |
+| Greater Of      | fixFee > 0, percentage > 0, calculationMethod = 1 |
+| Lesser Of       | fixFee > 0, percentage > 0, calculationMethod = 2 |
+
+## Actions
+
+Once fee rules have been selected for configuration, the fee can be added to a program’s fee plan for all the customers created under that program. For more information, see [Fee plans](/docs/fees/fee-plans). The fee can also be added to a single customer as a customer fee. For more information, see [Customer fees](/docs/fees/customer-fees). Fees can also be set up as partner fees.
+
+## What's next
+
+Fee transactions can be viewed along with other transactions for a customer. For more information, see [Transactions Overview](/docs/transactions/transactions-overview).
+
+## Appendix
+
+The following is a list of available fee rule types that can be set up for a partner, program, or customer.
+
+| Fee type | Description |
+| -- | -- |
+| In wallet POS - Purchase | Purchases made through Point of Sale (POS) using funds currently available in the customer's wallet. |
+| In wallet POS - Load | Loading of funds from a POS into the wallet using currency supported by the wallet. |
+| In wallet POS - Withdraw | Withdrawals from a POS from the wallet using currency supported by the wallet. |
+| In wallet POS - Money Receive | Funds received from MasterCard in the currency supported by the wallet. |
+| Out of wallet POS - Purchase | Purchases made through a POS using funds currently unavailable in the customer's wallet. |
+| Out of wallet POS - Load | Loading of funds from a POS into the wallet using funds unsupported by the current wallet. |
+| Out of wallet POS - Withdraw | Withdrawals of funds through a POS using funds unavailable in the requested currency in the customer's wallet. |
+| Out of wallet POS - Money Receive | Funds received from MasterCard in currency unsupported by the wallet. |
+| In wallet ATM - Balance Inquiry | Balance inquiry from an ATM. |
+| In wallet ATM - Withdraw | Withdrawals of funds balance from an ATM. |
+| Out of wallet ATM - Balance Inquiry | Balance checks performed from an ATM that supports a currency unavailable in the customer's wallet. |
+| Out of wallet ATM - Withdraw | Withdrawal of funds through an ATM when those funds are unavailable in the requested currency in the customer's wallet. |
+| Out of Wallet Online - Purchase | Purchases made without a POS or physical presentation of the card, typically through an online retailer in a currency unavailable to the customer’s wallet. |
+| Out of Wallet Online - Withdraw | Withdrawals made without the physical presence of the card required in a currency unavailable to the customer’s wallet. For example, a bank transfer made from a mobile app. |
+| Online - Purchase | Purchases made without a POS or physical presentation of the card, typically through an online retailer. |
+| Online - Withdraw | Withdrawals made without the physical presence of the card required. For example, a bank transfer made from a mobile app. |
+| Customer - Balance Inquiry | Customer performs a balance inquiry, usually through a mobile or web application. |
+| Customer - Card sale | Customer orders a new card. |
+| Customer - P2P | Customer performs a P2P transfer of funds. |
+| Customer - Wallet transfer | Transfer of currencies within the same wallet. |
+| Customer - Maintenance | Fee applies to cover the costs of maintenance. |
+| Customer - Shipping | Fee applies to cover the costs of shipping the card to the customer using standard delivery methods. |
+| Customer - Expedited shipping | Fee applies to cover the costs of expediting shipping. For example, rushed delivery on a card replacement. |
+| Customer - Purchase | Purchases initiated by the customer using a mobile app. |
+| Partner - Purchase | Purchases initiated by a partner user using a mobile app. |
+| Partner - Withdraw | Withdrawals initiated by a partner user using a mobile app. |
+| Partner - Card Sale | Cards ordered on behalf of a customer. |
+| Internal - Payment Reversal | Reversals of credit card payments. |
+| Monthly Fee | The monthly fee charged to the customer. |
+| Annual Fee | The annual fee charged to the customer. |

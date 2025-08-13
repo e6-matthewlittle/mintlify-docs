@@ -1,0 +1,37 @@
+---
+title: "Partner balances"
+route: /docs/balances/partner-balances
+excerpt: Management of partner currency accounts and balances.
+types: 
+  - guide
+_tags:
+  - account
+  - balance
+  - partner account
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+---
+
+# Partner balances
+
+Partner balances are balances which are held by a partner for net position tracking and invoice purposes. These balances are associated with a partner acting as a payment provider such as a payment rail, payment hub, or funding partner which is used to track pre-funding of future customer accounts. Tracking these balances allows a program operator to understand their net position with a payment processor and perform reconciliation and settlement with the payment provider as needed.
+
+The partner balance includes funds which are tracked as part of payments made to and from a customer account with an external account. It can also include funds from partner-to-partner transfers.
+
+## What we do
+
+Episode Six (E6) fully manages balances for partner accounts, in real-time as part of transaction processing. E6 allows partners to manage one or more currency accounts as needed depending on the product type. Partner balances can be retrieved in real-time as needed.
+
+## Prerequisites
+
+A partner must first be created before balances for that partner can be retrieved. The desired currencies must be provided during partner setup or added later for the balances to be managed. To learn more about creating a partner, see [Partners](/docs/platform-access/partners).
+
+## Actions
+
+Partner account balances can be retrieved in real-time using the [Retrieve Partner Balances API](/tech-specs/balances/partner-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_getBalances_GET). This will return a list of balances for each of the currencies configured for the partner.
+
+## What's next
+
+Additional partner accounts can be added to a partner using the [Create Partner Account API](/tech-specs/balances/partner-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_addCurrencyAccount_PUT). The new currency account must be one which exists within the program's parent bank but does not yet exist for the partner.

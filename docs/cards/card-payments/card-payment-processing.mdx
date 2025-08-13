@@ -1,0 +1,284 @@
+---
+title: "Card payment processing"
+menu: Cards
+route: /docs/cards/card-payment-processing
+excerpt: Card payment processing using a dual-message or single message card network.
+types: 
+  - guide
+_tags:
+  - card payments
+  - dual message
+  - dual-message
+  - single message
+  - authorization
+  - clearing
+  - purchase
+  - cash withdrawal
+  - reversal
+  - refund
+  - pre-authorization
+  - partial authorization
+  - incremental authorization
+  - multiple clearing
+  - account inquiry
+  - balance inquiry
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Card payment message processing
+
+Depending on the card network type and the payment type, card payment message processing is performed in one of two ways, dual-message or single message.
+
+Dual-message card payment processing uses two requests to complete a purchase. The first message is an authorization where the issuer decisions the purchase request and the merchant receives a confirmation that the consumer funds have been promised to them.  At this point, a hold is placed on the account so that the funds cannot be spent again. During clearing, the authorization hold is released and the account is debited for the merchant’s final sale amount. Dual-message card networks are used for credit and signature debit products.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/process/e6_dev_portal_process_card_purchase.svg'}
+    caption={'Card purchase'}
+/>
+
+Single message processing uses a single request to complete a purchase or cash withdrawal. The request is sent through the card network online processing endpoint. When a request is received, an issuer must both decision the payment and post a transaction as needed to the cardholder account. Cash withdrawals are always processed as single message regardless of card network type. Single message card networks are used for most prepaid and PIN debit card products.
+
+## What we do
+
+Episode Six (E6) processes dual-message requests on behalf of the issuer, including maintaining card network connectivity, receiving and processing ISO 8583 messages, performing card payment decisioning, generating the appropriate response as necessary,a nd processing batch clearing files. No action is required of you for card payment message processing.
+
+<Callout
+    calloutType={'warning'}
+>
+    The below information is based on the behavior of "most" card networks. Different card networks, particularly regional networks may use different `MTI` codes for the below use cases.
+</Callout>
+
+
+## Prerequisites
+
+Before E6 is able to process card payments for live customers, E6 must first be [certified](/docs/cards/certification) as the issuer processor for any required [IINs](/docs/cards/iin-procurement).
+
+For customers to be able to use cards, the card must be [issued](/docs/cards/issuance-overview).
+
+## Authorizations
+
+Authorizations are requests for approval for a card payment as part of a dual-message processing where purchases are being made. Authorizations are processed automatically as E6 receives messages from a card network via the card network online processing endpoint. An authorization is defined by a request `MTI` of `x100`. After [decisioning](/docs/cards/card-payment-decisioning) of the authorization request is performed, a response is generated with an `MTI` of `x110`. E6 supports the following authorization use cases.
+
+### Authorization
+
+A real-time request for approval for a card payment which will be cleared at a later time.
+
+**Issuer actions**
+- If approved, place a temporary authorization hold for the requested amount. The authorization hold affects the available balance for the account. Authorization holds should be automatically released if not reversed or cleared within the release window. Release windows vary by region and card network.
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Pre-authorization
+
+A case where an authorization is made for an approximate amount instead of a final amount. This is often used by hotels and other similar merchants at the point of booking where the final payment amount is expected to grow or vary.
+
+**Differentiated by:** Transaction status flag set to pre-authorization (field varies by card network)
+
+**Issuer actions**
+- If approved, then create authorization hold as if it was a normal authorization. The release times for pre-authorizations may differ from final authorizations.
+
+### Refund authorization
+
+A case where an authorization is made for a credit against the cardholder account. This is being driven by card networks to provide cardholders better access to funds before a full refund is processed.
+
+**Differentiated by:** Processing code (`DE3`) value of `20`
+
+**Decisioning notes**
+- As this is for crediting the cardholder account, the balance check is typically not performed
+- Limits and other checks may limit the ability to approve a refund authorization
+
+**Issuer actions**
+- If approved, create a crediting authorization hold on the account associated with the card
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Incremental authorization
+
+A case where a request is made to increase the authorization hold placed on the account associated with a card. This method is often used by hotels, card rentals, and cruise lines as customers add on purchases before a final bill is generated. Multiple incremental authorizations can come in after the initial authorization is made and before the card payment is cleared. Incremental authorizations can be for pre-authorizations or final authorizations.
+
+**Differentiated by:** Message includes reference to original authorization (field varies by card network)
+
+**Decisioning notes**
+- E6 decisions an incremental authorization like it would a normal authorization, but only for the incremental amount
+
+**Issuer actions**
+- If approved, release the original authorization hold and create a new authorization hold on the account for the total outstanding authorization amount. The release time of the new authorization hold is based on the most recently received authorization request. Release times are based on the authorization being a pre-authorization or final authorization.
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Partial authorization
+
+A case where a request is made for an authorization, but the merchant has indicated that they will accept a lesser value than what was originally requested. If approved for less than the original amount, the issuer is able to return a different response code align with a lower amount than what is seen in the billing amount (`DE6`).
+
+**Differentiated by:** Message includes indicator of support for partial authorizations (field varies by card network)
+
+**Decisioning notes**
+- For the balance check, if the authorization amount exceeds the available balance, then the response includes the available balance back to the merchant as appropriate.
+
+**Issuer actions**
+- If approved, place a temporary authorization hold for the partially approved amount
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Zero amount authorization / account status inquiry (ASI)
+
+A case where a merchant wants to validate either the cardholder identity, the information provided, or the status of the account associated with the card without charging the cardholder any money.
+
+**Differentiated by:** Amounts set to `0` within `DE4`, `DE5`, or `DE6`
+
+**Decisioning notes**
+- The balance check is not performed for these requests
+- Most controls do not apply to these types of requests
+
+**Issuer actions**
+- Typically, no actions are required by an issuer unless specific controls have been established to manage status inquiries
+
+## Actions - Authorization advices
+
+An authorization advice is received when the card network has decisioned an authorization in place of the issuer. This can happen when card network provided stand-in processing (STIP) is used, a card network fraud rule has been triggered, or the acquirer has received an offline authorization, such as in the case of a signed coupon or updating a pre-authorization with the final amount for a fuel pump approval. Authorization advices are identified with an `MTI` of `x120`. No decisioning is required on the part of the issuer, though actions may be required. Responses are not returned to the card network for authorization advices.
+
+### Authorization advice - Approval
+
+A case where the card network has approved a card payment on behalf of an issuer.
+
+**Issuer actions**
+- If the authorization was approved by the card network, then create authorization hold as if it was a normal authorization with the release time relative to the authorization approval time
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Authorization advice - Decline
+
+A case where the card network has declined a card payment on behalf of an issuer.
+
+**Issuer actions**
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+## Financial transactions
+
+Financial transaction requests are made when the payee requests a transaction to be posted. A financial transaction request is defined by a request `MTI` of `x200`. Dual-message financial transactions are received in a batch clearing file. If the financial transaction If the financial transaction is provided in a batch clearing file, then the transaction is considered "force post" and there is no issuer [decisioning](/docs/cards/card-payment-decisioning), the transaction has to be posted, and no response is generated and returned to the card network. Single message financial transactions are received via the card network online processing endpoint and require issuer [decisioning](/docs/cards/card-payment-decisioning) and subsequent posting of a transaction as needed based on the decision. E6 generates a response to the single message financial transaction request with an MTI of `x210`. E6 supports the following financial transaction use cases.
+
+### Dual-message purchase clearing
+
+A request for posting of a previously authorized purchase on a dual-message card network. Purchase clearings can occur without prior authorization in some cases.
+
+**Received via:** Batch clearing file
+**Differentiated by:** Processing code of `00` for purchase
+
+**Issuer actions**
+- Release any authorization holds associated with the clearing request
+- Post a **debit** transaction for the final amount provided in the clearing request on the account associated with the card
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Multiple clearing
+
+A request for a partial clearing of a previously made authorization on a dual-message card network. This is often used for e-commerce use cases where orders may be fulfilled incrementally as purchased items become available.
+
+**Received via:** Batch clearing file
+**Differentiated by:** The first clearing received should contain an indicator if multiple clearings are expected. The clearing amount contained in the request will be less than the authorization amount.
+
+**Issuer actions**
+- Release any authorization holds associated with the clearing request
+- Create an authorization hold for the remaining amount less from the released authorization hold and the cleared amount. The release time should be updated based on when this authorization hold was created.
+- Post a **debit** transaction for the amount provided in the clearing request on the account associated with the card
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Single message purchase
+
+A synchronous request for decisioning and posting of a purchase received in a single message request.
+
+**Received via:** Card network online processing endpoint
+**Differentiated by:** Processing code of `00` for purchase
+
+**Decisioning notes**
+- All card payment [decisioning](/docs/card/card-payment-decisioning) is performed
+
+**Issuer actions**
+- Post a **debit** transaction for the final amount provided in the clearing request on the account associated with the card
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+### Dual-message refund
+
+An asynchronous request to post a credit to a cardholder account. This is often used when a merchant has failed to fulfill an order or if an item was returned. Refunds can be for the original transaction amount or for a lesser amount depending on the originating circumstances. Dual-message refunds will often correspond to a refund authorization.
+
+**Received via:** Batch clearing file (dual-message)
+**Differentiated By:** Processing code of `20` for refund
+
+**Issuer actions**
+- Release of any associated refund authorization
+- Post a **credit** transaction for the final amount provided in the clearing request on the account associated with the card
+- Increment or reduce any control measures that are in place where applicable based on matching control criteria
+
+### Single message refund
+
+A synchronous request to post a credit to a cardholder account. This is often used when a merchant has failed to fulfill an order or if an item was returned. Refunds can be for the original transaction amount or for a lesser amount depending on the originating circumstances.
+
+**Received via:** Card network online processing endpoint
+**Differentiated By:** Processing code of `20` for refund
+
+**Decisioning notes**
+- Includes card payment [decisioning](/docs/card/card-payment-decisioning)
+- As this is for crediting the cardholder account, the balance check is typically not performed
+- Limits and other checks may limit the ability to approve a refund authorization
+
+**Issuer actions**
+- Post a **credit** transaction for the final amount provided in the clearing request on the account associated with the card
+- Increment or reduce any control measures that are in place where applicable based on matching control criteria
+
+### Cash withdrawal
+
+A request for authorization and posting of a cash withdrawal at an ATM or bank branch. Cash withdrawals are always made using a single message via the card network online processing point and are processed synchronously. Some card networks may send the issuer cash withdrawal requests with an `MTI` of `x100`, but the processing remains the same.
+
+**Received via:** Card network online processing endpoint
+**Differentiated by:** Processing code of `01` for cash disbursement
+
+**Decisioning notes**
+- All card payment [decisioning](/docs/card/card-payment-decisioning) is performed
+
+**Issuer actions**
+- If approved, post a transaction for the final amount provided in the clearing request on the account associated with the card
+- Increment any control measures that are in place where applicable based on matching control criteria
+
+## Reversals
+
+Reversals are requests in which the issuer is expected to "undo" a previously processed authorization or financial transaction. There is no decisioning that occurs as part of reversal message processing. Reversal requests have an `MTI` of `x400` and can be used to reverse authorizations or financial transactions. Depending on the scenario, reversals can be received in the clearing file or via the card network online processing endpoint. Reversal amounts can be for the original amount or a lesser amount and need to be processed accordingly. Depending on the card network type and scenario, reversal requests can be received via a dual-message batch clearing file or via the card network online processing endpoint. Online, synchronous reversal requests will have a `x410` response message generated and returned to the card network. Reversals are different from refunds in that the reversal is always associated with original financial transaction.
+
+If an [adjustment](/docs/balances/adjustments) associated with the original transaction has already been made, then E6 will redirect credit transactions from a purchase or cash withdrawal reversal to the program operating account. An adjustment can be associated with an original transaction by passing in the E6 transaction identifier as `originalExternalRef` in the request.
+
+### Authorization reversal
+
+Authorization reversals occur when a merchant requests that a previously requested authorization be undone. These are matched to a specific original authorization as part of the request.
+
+**Received via:** Card network online processing endpoint
+
+**Issuer actions**
+- Release the authorization hold associated with the reversal request
+- If a partial reversal, then create a new authorization hold for the remaining authorization amount
+- Increment or reduce control measures that are in place where applicable based on matching control criteria
+
+### Dual-message reversals
+
+Purchase reversals occur when a merchant requests that a previously cleared dual-message purchase be undone.
+
+**Received via:** Batch clearing file
+
+**Issuer actions**
+- Post a transaction on the cardholder account for the reversal amount - note depending on the original transaction type this may be a **credit** or **debit** transaction
+- Undo any fees, interest charges, rewards or other downstream actions that were taken on the original transaction
+- Increment or reduce control measures that are in place where applicable based on matching control criteria
+
+### Single message reversals
+
+Single-message reversals occur when a request to undo a posted transaction is made for a single message financial transaction such as single message purchase or cash advance.
+
+**Received via:** Card network online processing endpoint
+
+**Issuer actions**
+- Post a transaction on the cardholder account for the reversal amount - note depending on the original transaction type this may be a **credit** or **debit** transaction
+- Undo any fees, interest charges, rewards or other downstream actions that were taken on the original transaction
+- Increment or reduce control measures that are in place where applicable based on matching control criteria
+
+## What's next
+
+After card payments are processed, customers are able to see their [balances](/docs/balances/customer-balances), [authorization holds](/docs/transactions/authorization-holds), and [transactions](/docs/transactions/transactions) in real-time.
+
+An issuer must reconcile and settle with the card network as needed. Settlement is the process of a making a payment to the card network for the net outflow of funds made by the card network on behalf of an issuer. For information on how to reconcile net settlement position, see the [Program net positions report](/docs/reports/program-net-positions).

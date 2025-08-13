@@ -1,0 +1,201 @@
+---
+title: "Roles and Permissions"
+menu: Users
+route: /docs/users/roles-permissions
+excerpt: Roles and permissions are a control mechanism which works to selectively allow access to a system based on a user's assigned roles.
+_tags:
+  - roles
+  - access
+  - permissions
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+Roles and permissions are a control mechanism which works to selectively allow access to a system based on a user's assigned roles. A permission is the ability to invoke a system processes exposed as external-facing APIs. A role is a label assigned to a user typically defined around user actor types. Each API is given a list of allowed roles which are able to invoke the API. When a user makes an API request, the allowed API roles are compared to that of the requesting user. If the user does not have a required role, then the request is declined.
+
+## What we do
+
+Episode Six (E6) provides a role and permissions framework for all users of the TRITIUM platform. Each user can be assigned on or more roles at the time of user creation or after the user has been created.
+
+## Prerequisites
+
+Roles can be assigned to a [user](/docs/users/users) at any point after that user has been created.
+
+## Actions
+
+A user's roles can be updated by calling the [Update User Roles API](/tech-specs/users/user-roles/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.UserAPI_updateRoles_POST).
+
+## What's next
+
+Once a user's roles have been set as required, the user can begin making API calls which are permitted by the user's roles.
+
+## Appendix
+
+The following roles are provided by E6 to be assigned to users.
+
+### Approver
+
+The **Approver** role gives the user the ability to approve change requests as well as to view and search history of change orders. This permission includes change requests across the customer, partner, and program levels. Users with the following roles can assign another user the **Approver** role: **PlatformManager** **ProgramManager**.
+
+### Auditor
+
+The **Auditor** role gives the user read-only access to the audit data logs. This role enables the following permissions:
+
+- Viewing partners and partner linkage
+- Viewing API access logs for partners and customers
+
+Users with the following roles can assign another user the **Auditor** role: **PlatformManager** **ProgramManager**.
+
+### CustomerAgent
+
+The **CustomerAgent** role enables a user with this role to manage customer accounts from a customer service perspective. This role enables the following permissions:
+
+- Creating, viewing, and updating customer information
+- Releasing a card block
+- Creating a chargeback to initiate the chargeback process
+- Viewing fees
+- Viewing programs
+- Viewing and resolving load (or fund in) issues
+- Viewing card profiles
+- Viewing and creating change orders
+- Viewing and managing cards
+- Ordering cards
+- Listing and executing actions
+- Viewing risk levels
+- Viewing risk configurations
+
+Users with the following role can assign another user the **CustomerAgent** role: **CustomerManager**.
+
+### CustomerManager
+
+The **CustomerManager** role grants all of the same permissions of **CustomerAgent** along with the ability to grant and manage users. This role enables the following permissions:
+
+- All permissions granted to the **CustomerAgent** role
+- Viewing, creating, and modifying partner users
+- Creating and updating user roles
+- Creating and viewing store associations with partner users
+- Locking and unlocking partner user accounts
+- Viewing fees
+- Viewing risk configurations
+
+Users with the following role can assign another user the **CustomerManager** role: **ProgramManager**.
+
+### FinancialManager
+
+The **FinancialManager** role gives users the ability to adjust customer accounts and access certain finance-related program information. This role enables the following permissions:
+
+- Making customer account adjustments
+- Viewing and resolving customer load issues
+- Viewing operating programs
+- Viewing partners
+- Viewing fee plans
+- Viewing fees
+- Viewing risk configurations
+
+Users with the following role can assign another user the **FinancialManager** role: **ProgramManager**.
+
+### PermitAll
+
+The **PermitAll** role is unlike the other roles in this list as it is not assigned to a person or group of persons, rather it is a value that enables all authenticated users to access that particular part of the API.
+
+### PlatformManager
+
+The **PlatformManager** role has access across the platform to create and manage partners, key roles, and to create linkages between partners. This is a key administrative role. This role enables the following permissions:
+
+- Accessing calls concerning key parties and partners connected to the platform:
+  - Banks
+  - Exchanges
+  - Partners
+  - Interchanges
+- Creating and managing other users:
+  - Approvers
+  - Auditors
+  - Program Managers
+  - System
+- Managing links between partners
+
+The **PlatformManager** role is assigned to users by Episode Six (E6) as part of client onboarding for clients who have installed TRITIUM in their infrastructure. For E6 Cloud clients, E6 users are assigned the **PlatformManager** role for administrative purposes.
+
+### ProgramManager
+
+The **ProgramManager** role is a critical management role within the platform. It enables the user to access and manage all key program parameters and information. This role enables the following permissions:
+
+- Creating and managing programs
+- Creating and removing fee plans
+- Setting risk parameters
+- Creating and managing exchanges
+- Creating and assigning roles to users
+- Viewing program reports
+- Viewing fees
+- Viewing risk configurations
+- Creating merchant control entries
+- Viewing merchant control entries
+- Updating merchant control entries
+- Deleting merchant control entries
+- Matching requests with merchant control entries
+- Creating and managing partners
+
+
+Users with the following roles can assign another user the **ProgramManager** role: **PlatformManager** **ProgramManager**.
+
+### ReadOnly
+
+The **ReadOnly** role allows users to only read customer data in the Customer section of the Dashboard. A partner user with the ReadOnly role should be able to call all GET methods with the exception of retrieving a card PAN and retrieving secure information for a card.
+
+Users with the following roles can assign another user the **ReadOnly** role: **PlatformManager**.
+
+### RetailManager
+
+The **RetailManager** role is responsible for creating locations and maintaining their information in the system. This includes updating their active state and assigning persons to a given location. This role enables the following permissions:
+
+- Creating and deleting locations
+- Listing store locations
+- Updating a location's active state
+- Updating a location's address and phone number
+
+Users with the following role can assign another user the **RetailManager** role: **ProgramManager**.
+
+### RiskAgent
+
+The **RiskAgent** role is given to agents that need to see information concerning risk configurations and levels, particularly as they relate to customers. This role enables the following permissions:
+
+- Retrieving a card's primary account number (PAN)
+- Adding a card holder to a customer account
+- Updating a customer's risk level
+- Creating change requests
+- Creating merchant control entries
+- Viewing merchant control entries
+- Updating merchant control entries
+- Deleting merchant control entries
+- Matching requests with merchant control entries
+- Viewing risk configurations
+
+Users with the following role can assign another user the **RiskAgent** role: **RiskManager**.
+
+### RiskManager
+
+The **RiskManager** role allows all of the permissions of the **RiskAgent** with the additional allowance of being able to create and manage **RiskAgent** roles.
+
+Users with the following role can assign another user the **RiskManager** role: **ProgramManager**.
+
+### StoreAgent
+
+The **StoreAgent** role is suited for agents at physical locations. Users with this role can create customer accounts and perform transactional services calling the Commerce API.
+
+Users with the following role can assign another user the **StoreAgent** role: **StoreManager**.
+
+### StoreManager
+
+The **StoreManager** role has all of the permissions of the **StoreAgent** with the additional allowance of being able to create and manage **StoreAgent** roles.
+
+Users with the following role can assign another user the **StoreManager** role: **RetailManager**.
+
+### System
+
+The **System** role is a specialized role that allows for third-party partner applications to perform limited tasks within the platform through the Commerce API. For example, a Point-of-Sale (POS) system loading or activating cards. 
+
+Users with the following role can assign another user the **System** role: **PlatformManager**.
+
+### Support
+
+The **Support** role is specialized E6 internal role used by TRITIUM to execute certain actions on behalf of a client.

@@ -1,0 +1,99 @@
+---
+title: "Installments overview"
+sidebarTitle: "Overview"
+menu: Installments
+route: /docs/installments/installments-overview
+excerpt: Convert a payment into a series of smaller repayments due over time.
+types: 
+  - guide
+_tags:
+  - products
+  - installments
+  - overview
+  - uses
+  - use cases
+  - loans
+  - features
+containerWide: true
+showHeadingsNav: true
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Installments overview
+
+Installments allow for a payment to be converted into a series of smaller payments to be repaid over time. Customers repay the amount that was loaned from another account until the loan is repaid in full. An installments loan can consist of deferred payment, split payments, or interest-bearing loans.
+
+## What we do
+
+Episode Six (E6) acts as the system of record (SOR) for installments loans, disburses the initial loan amount to the destination, and manages the repayment of the loan. Features that are available for installments include:
+
+- Funds disbursement
+- Loan transaction and balance management
+- Optional interest accrual and posting (tiered or customer-specific rates)
+- Repayment processing with configurable payment allocation
+- Amortization simulation, payment schedule management, and re-amortization
+- Credit limit management for accounts with more than one loan
+- Delinquency tracking
+
+## Uses
+
+Common use cases for installments include:
+
+- Buy now, pay later (BNPL)
+- Installment cards
+- Transaction splitting
+- Pre-purchase loan
+- Loan on card
+
+## How it works
+
+Installments configurations can be added at the program and customer levels. Program-level configurations include loan qualification requirements, payment schedule rules, and repayment processing rules. Customer-level configurations include an individual customer's credit limit, which defines the total amount a customer can borrow across all loans.
+
+When a customer makes a purchase or requests a loan that meets the program's qualifications, a loan is created. Each loan is created as a child customer account of the installments customer. Any number of loans can be created for a parent installments customer as long as the customer's overall credit limit is not exceeded. A repayment schedule is generated for each loan. Once a loan is created, the customer can begin repaying the loan. As repayments are made, the customer's available credit is restored.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/context/e6_dev_portal_context_installments.svg'}
+    caption={'Installments account'}
+/>
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/installments/installments-program-configuration"
+      title={<Trans i18nKey="home-resource-1-installments-title" />}
+      body={<Trans i18nKey="home-resource-1-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/installments/installments-customer-configuration"
+      title={<Trans i18nKey="home-resource-2-installments-title" />}
+      body={<Trans i18nKey="home-resource-2-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/installments/installments-customer-summary"
+      title={<Trans i18nKey="home-resource-3-installments-title" />}
+      body={<Trans i18nKey="home-resource-3-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/installments/loan-creation"
+      title={<Trans i18nKey="home-resource-4-installments-title" />}
+      body={<Trans i18nKey="home-resource-4-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/installments/loan-repayment"
+      title={<Trans i18nKey="home-resource-5-installments-title" />}
+      body={<Trans i18nKey="home-resource-5-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/installments/loan-summary"
+      title={<Trans i18nKey="home-resource-6-installments-title" />}
+      body={<Trans i18nKey="home-resource-6-installments-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

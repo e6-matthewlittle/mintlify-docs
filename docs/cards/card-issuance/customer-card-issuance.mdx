@@ -1,0 +1,62 @@
+---
+title: "Customer card issuance"
+menu: Cards
+route: /docs/cards/customer-card-issuance
+excerpt: Customer card issuance is the process of generating a payment card for a particular customer account.
+types: 
+  - guide
+_tags:
+  - cards
+  - card issuance
+  - card orders
+  - reissuance
+  - reissue
+  - new card
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+# Customer card issuance
+
+Customer card issuance is the process of generating a payment card for a particular customer account. This includes issuance of personalized physical cards, virtual only cards, and one-time use cards for a customer. Issuance may be performed because a new card is needed or because an existing card needs to be reissued. A reissued card can retain some details of the existing card such as the PAN or PIN if needed.
+
+## What we do
+
+When Episode Six (E6) receives a card issuance request for a customer account, E6 generates the card details and associates the card with the specified customer account and cardholder. There is no limit to the amount of cards that can be associated with a customer account nor cardholder.
+
+## Prerequisites
+
+Before ordering a card, a program with a card profile is required. The card profile determines how a card will be issued. For more information, see [Card profiles](/docs/cards/card-profiles). Issuance configurations for how the card should be generated including IIN, PAN lengths, PIN lengths, etc. are managed within the card profile.
+
+When placing a card order, a customer account and account holder must be provided in the request. For information about creating a customer account, see [Customers](/docs/customers/customers).
+
+## Actions
+
+E6 can support new card issuance and reissuance of existing cards using the following approaches.
+
+### New card issuance
+
+A card can be issued by calling the [Issue Card API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_orderPersonalized_POST). This call is not idempotent so multiple requests will create multiple cards.
+If you want to ensure that you create the card order only once, you can place a card order with the [Issue Card - Idempotent API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_orderPersonalizedPut_PUT). This call creates a card order or returns the card order created with a given external reference number by searching for the card order attribute with the name `orderReferenceNumber`. If a card order with the same external reference number is found, the existing card order associated with that external reference number is returned.
+
+### Card reissuance
+
+You can reissue an existing card using the same process as ordering a new card. To place a card reissue order, call the [Issue Card - Idempotent API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_orderPersonalizedPut_PUT). In the `cardId` parameter, you must include the `id` of the card you want to reissue. See the `Reissue Card` request example for a representative payload. When reissuing a card, the following reissuance-specific attributes can be set:
+
+| Field | Description |
+| -- | -- |
+| Deactivate Current | If this field is set to `true`, if a `cardID` is specified then the current card will be deactivated on reissue. |
+| Same PAN | If this field is set to `true`, the reissued card will use the same PAN as the current card. |
+| Same PIN | If this field is set to `true`, the reissued card will use the same PIN as the current card. |
+| Same Expiry | If this field is set to `true`, the reissued card will use the same expiration date as the current card. If this field is not selected, an Expiry Override value will need to be provided. |
+
+## What's next
+
+After ordering or reissuing a [physical card](/docs/cards/physical-cards), the card record will be added to E6's standard embossing file that is sent to your card manufacturing partner. When a one-time use or virtual only card is ordered, it is not added to the embossing file. Physical cards will also need to be [activated](/docs/cards/card-activation) prior to use.
+
+ Instantly upon issuance, card details can be retrieved virtually to enable card payments regardless of card factor. For more information, see [Virtual card access](/docs/cards/virtual-card-access).
+
+If a card is issued using a virtual card profile, that card can later be converted to a physical card. To convert a virtual card to a physical card, call the [Convert Virtual Card to Physical Card API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_migrateToPhysicalCard_POST). When this API is called, the virtual card is mapped to a new physical card profile and a card order is sent to the card manufacturer. The new physical card profile must have the same operating program ID, Issuer Identification Number (IIN), IIN segment, service code, and PAN length as the virtual card profile. A new expiry and a new CVC/CVV will be created for the card.
+
+You can understand how much card issuance has been performed both at the card profile level and the program level by calling the [Retrieve Card Profile PAN Counts API](/tech-specs/cards/pan-counts/api?#tag/PAN-Counts) and the [Retrieve Program PAN Counts API](/tech-specs/cards/pan-counts/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getUniquePanCountsByProgram_GET) respectively.

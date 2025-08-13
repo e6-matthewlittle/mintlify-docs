@@ -1,0 +1,67 @@
+---
+title: "Fees overview"
+sidebarTitle: "Overview"
+menu: Fees
+route: /docs/fees/fees-overview
+excerpt: A fee is an amount collected from a customer by a product provider based on trigger condition.
+types: 
+  - guide
+_tags:
+  - fee
+  - fee plans
+  - monthly
+  - late
+  - payment
+  - subscription
+  - uses
+containerWide: true
+showHeadingsNav: true
+date: "02-27-2023"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import WhiteSpace from "src/gatsby-theme-docz/components/WhiteSpace";
+import { Trans } from "react-i18next";
+
+# Fees overview
+
+A fee is an amount collected from a customer by a product provider based on trigger condition. Fees are calculated and applied based on qualifying actions such as making a payment of a certain type, the passing of a certain amount of time, or performing other types of activities.
+
+## Uses
+
+Fees can be charged for many reasons, depending on the construct or intended use of a product by a customer. One use is for product operators to monetize customers based on their usage of the product. Another use is to penalize customers for unwanted activity on an account.
+
+* **Late payment fee**: A fee is charged when a customer fails to make an on-time payment on their credit card. The fee is triggered at the end of the grace period and is set as a percentage-based fee.
+
+* **Monthly subscription fee**: A flat-rate fee is charged for all customers after their first full month of use of a product. Customers can choose to pay monthly or on an annual basis for a lower total amount of fees owed in a year.
+
+## How fees work
+
+Fees are defined for customers of a program either through fee plans, which affect assigned customers, or through customer fees, which affect only the target customer. Fees use established rule patterns and input configurations to determine the resulting fee amount that will be charged. Calculated fee amounts can be proportional to a single payment, proportional to a balance, a flat amount, or be the greater or lesser value of the two. When a customer is charged a fee, the customer account is debited and the program operating account is credited.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/fees/fee-plans"
+      title={<Trans i18nKey="home-resource-1-fees-title" />}
+      body={<Trans i18nKey="home-resource-1-fees-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fees/customer-fees"
+      title={<Trans i18nKey="home-resource-2-fees-title" />}
+      body={<Trans i18nKey="home-resource-2-fees-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fees/fee-rules"
+      title={<Trans i18nKey="home-resource-3-fees-title" />}
+      body={<Trans i18nKey="home-resource-3-fees-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+      <Highlights.Item
+      linkPath="/docs/fees/one-time-fees"
+      title={<Trans i18nKey="home-resource-4-fees-title" />}
+      body={<Trans i18nKey="home-resource-4-fees-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

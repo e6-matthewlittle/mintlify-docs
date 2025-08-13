@@ -1,0 +1,77 @@
+---
+title: "Revolving credit simulation"
+menu: Revolving credit
+route: /docs/revolving-credit/revolving-credit-simulation
+excerpt: A testing tool that shows how interest will accrue across a customer's account.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - simulation
+  - testing
+  - automatic load
+  - perform revolving credit simulation api
+  - program configuration
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Revolving credit simulation
+
+Revolving credit simulation is a testing tool that provides the ability to show how interest will accrue across a customer's account balances given a series of transactions. Simulation can be used to ensure that interest accrues on customer transactions as expected and that a program's interest settings are configured correctly.
+
+## What we do
+
+Episode Six (E6) provides the Revolving Credit Simulation API. The API allows you to simulate time passage and transaction events over the lifecycle of a customer account. Simulated transactions will accrue interest based on the program-level interest configurations.
+
+The API takes a list of scenarios in the request and returns an array of account summaries in the response. In the request, a timestamp is provided for each scenario and summary request. Optionally, you can provide automatic load attributes in the request so that revolving credit automatic load can be tested as part of simulation.
+
+<Callout
+    calloutType={'info'}
+>
+    The Revolving Credit Simulation API is only available in sandbox and testing environments. The API is not available in production environments.
+</Callout>
+
+## Prerequisites
+
+Before you run a revolving credit simulation, a program with revolving credit configurations is required. To create a revolving credit program, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+
+Optionally, if you want to simulate automatic load, an automatic load partner is required in your environment. For more information, see [Automatic load](/docs/payments/automatic-load).
+
+## Actions
+
+To perform revolving credit simulation, call the [Perform Revolving Credit Simulation API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.simulate.RevolvingCreditSimulatorAPI_simulate_POST). In the request, provide values for the `startTime` and `endTime` attributes in UNIX epoch time. These values define the time frame over which the simulation takes place.
+
+<Callout
+    calloutType={'warning'}
+>
+    Every timestamp in the API request must occur in the past. For example, if a simulation is run on September 2, 2022, at 9:00 AM GMT (UNIX epoch time: 1662109200), the start time and end time can be no later than September 1, 2022, 11:59 PM (UNIX epoch time: 1662076740).
+</Callout>
+
+To simulate automatic load, provide the following optional attributes in the request: `autoloadPartner`, and `autoLoadStrategy`.
+
+To create accounts that can be used beyond the simulation period set 'stopSimulationWhenOver' to false. This will allow you to continue using the account for future tests, or position accounts for current test cases. 
+
+To allow accounts to spend over limit, set 'overCreditLimitEnabled' to true. This will allow purchases to be approved up to the over limit settings for the program.
+
+To set a specific credit limit use the 'creditLimit' field. If no limit is specified, the maximum program limit will be allocated to the account.  
+
+To simulate customer events, provide an array of events in the `simulationEvents` attribute. Each event object requires an `eventTime` timestamp in UNIX epoch time. There are three categories of simulation events:
+
+| Category | Description |
+| ---------- | ------------------- |
+| `transaction` | Customer transaction. Each transaction object has a currency, amount, and type. The following transaction types are supported: `purchase`, `withdraw`, `fee`, `refund`, and `load`. |
+| `customerUpdate` | Used to modify a customer's `billingDayOfMonth` configurations during the simulation.|
+| `summary` | A summary of the credit customer account at the time of the given timestamp. The summary reflects all transactions that occurred prior to the summary timestamp. |
+
+A successful request returns an array of customer account summaries for each summary event specified in the request. Each account summary reflects all simulated transactions that took place before the account summary timestamp. At the end of the response, an array of billing history statements is returned. One billing history object is returned for each billing period that occurred throughout the simulated timestamps.
+
+## What's next
+
+After performing revolving credit simulation, you can check the customer’s account balances and list transactions to see how the simulations impacted the customer account.
+
+- Check an account's balance by calling the [Retrieve Customer Balances API](/tech-specs/balances/customer-balances/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getWallets_GET) and passing the customer ID in the `customer-identifier` path parameter.
+- List the customer's transactions by calling the [Generate transaction list API](/tech-specs/transactions/transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listTransactions_POST) and passing the customer ID in the `portfolioId` attribute in the request body.

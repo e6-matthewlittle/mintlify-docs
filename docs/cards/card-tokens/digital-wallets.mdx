@@ -1,0 +1,52 @@
+---
+title: "Digital wallets"
+menu: Cards
+route: /docs/cards/digital-wallets
+excerpt: Digital wallets are service providers who allow card tokens to be securely stored and used for making card payments.
+types:
+  - guide
+_tags:
+  - digital wallet
+  - Apple Pay
+  - Google Pay
+  - Click to Pay
+  - token requestor
+containerWide: true
+showHeadingsNav: true
+date: "02-02-2023"
+---
+
+# Digital wallets
+
+Digital wallets are service providers who allow card tokens to be securely stored and used for making card payments. Popular examples of digital wallets include Apple Pay and Google Pay, which use device tokens. Other forms of digital wallets also include e-commerce payment options including merchants using card tokens to store cards on file instead of plain cards and Click to Pay. Click to Pay is a card network provided solution for cross-merchant e-commerce enablement built using the EMV Secure Remote Commerce (SRC) framework. The card management feature allows a consumer to store card tokens in a common “wallet” instead of storing one card per merchant with each card being stored as a card token.
+
+Digital wallets supporting device tokens use some type of special hard to securely store the card token such as the secure element (SE) for Apple devices and in-app+ eSE or host card emulation (HCE) for Android devices. These security measures allow supported devices to perform cardholder verification using biometric or device password checks when using the digital wallet.
+
+## What we do
+
+Episode Six (E6) provides the ability to generate card tokens for Apple Pay, Google Pay, Click to Pay, and other digital wallets across supported card networks. During the launch of your card product, E6 will work with you to ensure that all card token features and flows are supported for available digital wallets.
+
+Provisioning entitlement, manual or in-app push, with the digital wallet must be obtained as part of this process. Once the entitlement has been granted, E6 APIs are used to integrate with your mobile app and with the digital wallet for push provisioning. After the issuer mobile application has been integrated with the E6 APIs, certification with the digital wallet provider must be completed. Apple certification is performed through a third party lab appointed by Apple. Google certification is enacted by you sending a self-recorded video and answering a questionnaire.
+
+## Prerequisites
+
+You must have a [certified](/docs/cards/certification), live IIN before card tokenization can be supported.
+
+In-app push provisioning requires that you develop, test, and certify an application in the app store associated with the digital wallet provider. You should take this process into account when developing your card token project plan. E6 is not involved in the process of getting applications launched into app stores.
+
+## Actions
+
+You are responsible for deciding which digital wallets your card product will support. This choice is often based on the market penetration of the digital wallets in the product market. Once your list of partner digital wallets have been selected, you will be responsible for engaging with the digital wallet provider to start the integration and certification process of your card product. This includes providing card art and other details of the card to the digital wallet provider. Selected digital wallets must be within the supported list of digital wallets for E6 as shown below. If a desired digital wallet is not listed, please contact your E6 representative.
+
+| Card network | Digital wallets |
+| -- | -- |
+| Mastercard | Apple Pay, Google Pay, MDES Token Connect Token Requestors |
+| Visa | Apple Pay, Google Pay |
+| JCB | Google Pay |
+| UnionPay International (UPI) | Apple Pay (manual provisioning only), Huawei Pay (manual provisioning only) |
+
+## What's next
+
+In order to provision card tokens to your selected digital wallets, you will need to have your IIN certified for tokenization with the card network [token service provider](/docs/cards/token-service-providers).
+
+Once the TSP certification is complete, you can certify with the digital wallets for your selected [provisioning](/docs/cards/token-provisioning) methods.

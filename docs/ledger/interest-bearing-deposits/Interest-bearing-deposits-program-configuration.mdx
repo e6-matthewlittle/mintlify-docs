@@ -1,0 +1,60 @@
+---
+title: "Program configuration"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/program-configuration
+excerpt: Setting up an interest-bearing deposit product for a program.
+types: 
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - savings account
+  - program setup
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Program configuration
+
+Program-level interest-bearing product configurations are shared configurations that apply to all customer accounts created under the program. These configurations include interest accrual settings, interest rate tiers, and interest posting frequencies.
+
+## What we do
+
+Episode Six (E6) provides the ability to configure an interest-bearing deposit product for an existing program in TRITIUM. When interest-bearing deposit configurations are added to a program, the program is updated to support interest-bearing deposit behavior. After setting up the interest-bearing deposit product, the program product configurations can be viewed and updated in real time.
+
+## Prerequisites
+
+E6 must enable access to the interest-bearing deposit product.
+
+<Callout
+    calloutType={'info'}
+>
+    Contact your E6 representative to ensure that access to this feature is available.
+</Callout>
+
+Before adding interest-bearing configurations to a program, a program must first be created. For more information, see [Programs](/docs/programs/programs).
+
+## Actions
+
+Interest-bearing configurations can be added to a program by calling the [Create Interest-Bearing Deposit Program API](/tech-specs/interest-bearing-deposits/programs/api?#operation/createInterestBearingDepositsProgramConfiguration).
+
+Common interest accrual settings including `daysPerYear`, `leapYearDaysPerYear`, and the `interestMode` which can be set to `simple` or `compound` depending on your preference.
+
+Interest-bearing deposit programs allow for multiple interest rate `tiers` to be created and maintained in order to support segment-based accrual configurations for customers. E6 is able to support multiple approaches to earn on balances through the use of `bands`.
+
+| Approach | Description | Band Pattern |
+| -- | -- | -- |
+| Single rate | The entire balance of the account earns the same rate. | Single band within each tier with a minimum of 0 and a maximum of the upper allowed balance limit. |
+| Minimum balance | Only a certain portion of the balance above a certain amount earns interest. | Single band within each tier with a `minBalance` of the minimum earn amount and a `maxBalnace` of the upper allowed balance limit. |
+| Maximum balance | Only a certain portion of the balance below a certain amount earns interest. | Single band within each tier with a `minBalance` of 0 and a `maxBalnace` of the maximum earn amount. |
+| Banded earn | Different interest rates are earned on banded amounts of the account balance. | Multiple bands within each tier set to the desired values. |
+
+All customers within an interest-bearing deposit program will have accrued interest posted at the same time. The timing of the posting is driven by the `distributionFrequency` and `distributionOffset` set at the program level.
+
+## What's next
+
+When a program is set up with interest-bearing configurations, customer offering accounts can be opened under the program. To create an interest-bearing offering customer, see [Interest-bearing deposit customer configuration](/docs/interest-bearing-deposits/customer-configuration).
+
+The program configurations can be retrieved and updated by using the [Interest-Bearing Deposit Program APIs](/tech-specs/interest-bearing-deposits/programs).

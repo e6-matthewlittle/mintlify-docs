@@ -1,0 +1,56 @@
+---
+title: "Rewards redemption"
+menu: Rewards
+route: /docs/rewards/rewards-redemption
+excerpt: Rewards redemption is the process of spending or utilizing distributing rewards.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+  - redemption
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2024"
+---
+
+# Redemption
+
+Rewards redemption is the process of spending or utilizing distributing rewards. Redemption can include cases options such as an automated statement credit, a manual statement credit, using rewards to make purchases at partners, or using rewards at point of purchase.
+
+## What we do
+
+Episode Six (E6) provides the ability to redeem rewards through multiple options. Depending on the structure of the rewards feature for the product program, different options are available.
+
+## Prerequisites
+
+Rewards can be redeemed by a customer if the rewards have been distributed to a spendable customer account. For more information, see [Rewards distribution](/docs/rewards/rewards-distribution).
+
+## Actions
+
+Rewards redemption can be performed is different ways by following the below actions.
+
+### Automatic statement credit
+
+If an automatic statement credit pattern has been used, the redemption occurs as part of distribution. The amount of distributed rewards is made available to the customer to spend on their product customer account. For credit product types, the rewards amount is treated as an account credit similar to repayment. For non-credit product types, the amount is added to the total and available balance.
+
+### Manual statement credit
+
+If rewards are earned from a product customer account and the rewards are distributed to a different rewards spend account, then rewards can be used as a statement credit through a manual payment. A manual statement credit can be initiated using the [P2P Transfer](/docs/payments/p2p-transfer).
+
+### Partner redemption
+
+Similar to manual statement credit, rewards held in a rewards spend account can be transferred to partners for redemption. This should be used when transferring rewards to a loyalty exchange, spending rewards at an integrated partner, or provided rewards through other benefits. A partner redemption can be initiated by request a [withdrawal](/docs/payments/withdraw) from the rewards spend account.
+
+### Loyalty point conversion
+
+If rewards have been earned in a custom loyalty point currency, E6 can support conversion of that currency into fiat or other currencies using [FX](/docs/fx/fx-overview) features. A liquidity provider for the currencies must be configured either through a live rate feed or using rate tables.
+
+## What's next
+
+After redeeming rewards, each customer can view their updated account balance. For more information, see [Customer balances](/docs/balances/customer-balances). Customers can also view a detailed history of reward transactions. For more information, see [Transactions](/docs/transactions/transactions).
+
+If the rewards have been used as an automated statement credit on a revolving credit customer account, then the amount credited to the revolving credit account can be seen in the `postedRewards` field in the summary section of the [statement file](/docs/revolving-credit/statement-file) and the [billing history](/docs/revolving-credit/billing-history).
+

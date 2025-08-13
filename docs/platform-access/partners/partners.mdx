@@ -1,0 +1,56 @@
+---
+title: "Partners"
+menu: Partners
+route: /docs/platform-access/partners
+excerpt: A partner is a party within a client tenancy which can play one or more party roles such as administrator, product provider, or payment rail.
+types: 
+  - guide
+_tags:
+  - partner
+  - partners
+  - administration
+  - sub-tenant
+  - payment rail
+  - program provider
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+A partner is a party within a client tenancy which can play one or more party roles including program provider, sub-tenant, or payment rail. This allows these parties to maintain logical data separation and controlled access to data without an explicit link being made.
+
+## What we do
+
+Episode Six (E6) provides the ability to create and manage different parties as partners under an established bank entity in TRITIUM®. A bank can have as many partners as needed for the required use cases. Currencies can be associated with partners as needed for financial tracking purposes. Each partner can fill different party roles as required such as:
+
+| Party Role | Description |
+| ---------- | ------------------- |
+| Program Provider | A entity which owns products under the bank in order to meet the E6 hierarchy. Typically the same legal entity as the bank. Requires the underlying product currencies to be added to the partner. |
+| Sub-Tenant | Similar to a program provider, but typically a different legal entity who is accessing the platform via a reselling or white-labeling of TRITIUM. Requires the underlying product currencies to be added to the partner. |
+| Payment Provider | A provider of interbank or other account-to-account (A2A) payments which occur outside of TRITIUM. Requires currencies to be established in support of balance, transaction, and invoice tracking. |
+| Funding Source | An entity which is used to holds funds provided by an external party which can then be used to fund customer accounts. Requires currencies to be established in support of balance, transaction, and invoice tracking. |
+| Service Provider | A third party which is providing a capability which is not provided by TRITIUM and needs to access TRITIUM data via API or other means in order to provide the capability. |
+
+## Prerequisites
+
+Before setting up a partner, a parent [Bank](/docs/platform-access/clients) must first be created.
+
+For initial partner setup, details of the partner entity, including required currencies, will be drafted by an E6 representative and confirmed with you. If sub-tenants are expected, an additional management partner will be created for the E6 client so that the sub-tenants can be managed.
+
+## Actions
+
+To create an additional partner after initial setup, call the [Create partner API](/tech-specs/partners/partners/api#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_list_GET). Part of new partner creation includes setting up an initial user for the partner. This is critical so that other users can be created for the new partner by the specified user. In support of new user creation, a partner mail template for **password reset** and **password reset completed** are added for the provided `language` of the new partner. Another security measure put in place for new partner creation is the automatic setup of a partner risk rule for `partner_reset_password_on_first_login`. Ths enforces the requirement that the partners first user must change their password on first login
+
+<Callout calloutType={'warning'}>
+    Once a partner is created, it cannot be edited via API. Please ensure all details of the partner are corrected before creation.
+</Callout>
+
+## What's next
+
+Additional [users](/docs/users/users) can be added by the initial user of the newly created partner.
+
+[Partner Attributes](/docs/platform-access/partner-attributes) can be added to a partner in support party role specific configuration and additional metadata tracking at the partner level.
+
+If any additional currencies are required after the initial setup, they can be added by a `PlatformManager` user using the [Add Partner Account API](/tech-specs/balances/partner-balances/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_addCurrencyAccount_PUT).

@@ -1,0 +1,60 @@
+---
+title: "Rewards earn"
+menu: Rewards
+route: /docs/rewards/rewards-earn
+excerpt: Rewards earn is the process of calculating the amount of pending rewards to be issued based on the trigger action and the configured earn rules.
+types: 
+  - guide
+_tags:
+  - rewards
+  - loyalty
+  - benefits
+  - incentive
+  - earn
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2024"
+---
+
+# Rewards earn
+
+Rewards earn is the process of calculating the amount of pending rewards to be issued based on the trigger action and the configured earn rules. Calculation of pending rewards includes both positive actions such as `purchase` transactions as well as negative actions such as `refund` transactions which may reduce earned rewards.
+
+## What we do
+
+Episode Six (E6) provides real-time calculation of earned rewards. Pending rewards are accrued into a pending rewards customer account until distribution occurs. When a triggering transaction occurs on the product account which has rewards enabled, E6 will check if there is a corresponding pending rewards customer and identify the best rule match for the transaction. Best match is determined by different factors including:
+
+* Not having an excluded merchant category code (MCC)
+* Having a matching MCC for a rule
+* Having a matching merchant identifier for a rule
+* Highest applicable rate
+
+## Prerequisites 
+
+Rewards earn processing will occur if a product customer account has been associated with a pending rewards customer for earn. For more information see [Customer enrollment](/docs/rewards/customer-enrollment).
+
+All earn rules should be established as needed before the earn trigger occurs. For more information, see [Product rewards setup](/docs/rewards/product-rewards).
+
+Reward specific fields have been enabled for transaction memo templates so that you can create traceability between the trigger transaction and the rewards earn transaction. Using the below example memo template, the memo of the rewards transaction will include details of the triggering plan, rule(s), and the original transaction memo. Fore more information see [Memo templates](/docs/transactions/memo-templates).
+
+``` json
+//Memo Template
+"Earned from ${reward.plan}${reward.summary:+, }${reward.summary}${reward.sourceMemo:+ - }${reward.sourceMemo}"
+
+//Examples
+"Earned from plan-no-min-max-3-pct, 30.00@0.03 - Purchase at 123 Main St."
+"Earned from plan-three-rules-capped, 30.00@0.03, 20.00@0.02, 5.00@0.01 - Purchase at 123 Main St."
+"Earned from plan-no-min-max-3-pct, 20.00@0.02 - Refund"
+"Reversal - Earned from plan-no-min-max-3-pct, 3.00@0.03 - Purchase at 123 Main St."
+```
+
+## Actions
+
+Processing of rewards earn is done automatically and no action is needed by a user. Earn processing results in a `rewards` type transaction being created from the rewards program operating balance to the rewards pending customer account. The `amount` of the transaction is based on the triggered earn rule and the original transaction amount.  Both the rewards transaction and the original triggering transaction will share the same `id` but will be for different customer accounts.
+
+## What's next
+
+Pending rewards are distributed to the customer for spend based on the configured distribution frequency and offset. For more information, see [Rewards distribution](/docs/rewards/rewards-distribution).
+
+Pending reward balances can be viewed by requesting the customer balances for the pending rewards customer account. For more information, see [Customer balances](/docs/balances/customer-balances). Customers can also view a detailed history of reward transactions. For more information, see [Transactions](/docs/transactions/transactions).
+

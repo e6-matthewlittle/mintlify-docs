@@ -1,0 +1,85 @@
+---
+title: "FX Overview"
+sidebarTitle: "Overview"
+menu: FX
+route: /docs/fx/fx-overview
+excerpt: FX is the exchange of one currency for another at an agreed upon rate of exchange.
+types: 
+  - guide
+_tags:
+  - exchange
+  - currency
+  - margins
+  - rates
+  - currency pairs
+  - fx
+  - overview
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+
+# FX overview
+
+FX is the exchange of one currency for another at an agreed upon rate of exchange. Currencies are exchanged in pairs, and a currency pair is traded at an established margin.
+
+## What we do
+
+Episode Six (E6) enables you to manage FX on multiple levels. E6 allows for the pairing of currencies for the purpose of exchange, linking clients with exchange providers, and assigning multiple exchange margins to various fee plans, as well as managing FX rates.  E6 also supports managing multi-currency accounts with safe drafts and wallet transfers.
+
+## Uses
+
+E6 allows for FX to be implemented in a variety of ways, and enables you to exchange funds within a multi-currency deposit account. FX also allows for safe drafts to automatically withdraw funds in all supported currencies. Uses for FX include:
+- Empowering multi-currency accounts
+- Gaining control of exchange and exchange margins as a new source of revenue
+
+## How it works
+
+To set up FX, the client integrates with an exchange provider. The client establishes the margins for currency exchanges. Users can hold multiple currencies at once, and multi-currency accounts allow for the transfer of funds between currencies. Safe drafts cover purchases using additional currencies available in the user’s multi-currency wallet.
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/fx/exchanges"
+      title={<Trans i18nKey="home-resource-1-fx-title" />}
+      body={<Trans i18nKey="home-resource-1-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/exchange-providers"
+      title={<Trans i18nKey="home-resource-2-fx-title" />}
+      body={<Trans i18nKey="home-resource-2-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/currency-pairs"
+      title={<Trans i18nKey="home-resource-3-fx-title" />}
+      body={<Trans i18nKey="home-resource-3-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/exchange-margins"
+      title={<Trans i18nKey="home-resource-4-fx-title" />}
+      body={<Trans i18nKey="home-resource-4-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/rates"
+      title={<Trans i18nKey="home-resource-5-fx-title" />}
+      body={<Trans i18nKey="home-resource-5-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/fx-transfer"
+      title={<Trans i18nKey="home-resource-7-fx-title" />}
+      body={<Trans i18nKey="home-resource-7-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/fx/safe-drafts"
+      title={<Trans i18nKey="home-resource-6-fx-title" />}
+      body={<Trans i18nKey="home-resource-6-fx-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

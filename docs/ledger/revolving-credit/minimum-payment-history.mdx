@@ -1,0 +1,54 @@
+---
+title: "Minimum payment history"
+menu: Revolving credit
+route: /docs/revolving-credit/minimum-payment-history
+excerpt: When a billing period closes, a portion of the account balance is added to the total due.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - billing history
+  - minimum payment 
+  - minimum due 
+  - repayment 
+  - minimum payment history
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Minimum payment history
+
+When a revolving credit customer's billing period closes, a portion of the account balance is added to the customer's “due” total. Due totals include the amount that must be paid at a minimum to avoid penalization actions, such as late fees. The customer's period minimum due amount is calculated using the program minimum due calculation settings. Once calculated, the period minimum due amount is stored along with all other period minimum due amounts in the minimum payment history. This history includes the total amount due, amounts past due, minimum amount due per period, and the repaid amount for each period minimum due amount.
+
+## What we do 
+
+Episode Six (E6) provides the ability to access real-time information about a revolving credit customer's minimum payments. E6 calculates and displays the following information at the end of each billing period:
+
+- **Minimum due:** Amount of debt accrued in the last billing period that the customer must repay during the next upcoming repayment period to avoid penalization. 
+- **Minimums past due:** Sum of past due minimum payments that were not paid in previous billing periods.
+- **Minimums total due:** Sum of all minimum payments due, including past due and current minimum due amounts.
+- **Delinquent period counter:** Number of minimum payments due that have not yet been repaid in full. 
+- **Delinquency status:** Flag indicating whether the customer is currently delinquent. The customer is delinquent if the delinquent period counter is greater than 0.
+
+Each customer's minimum payment history can be retrieved at any time. The minimum payment history provides a comprehensive view of the minimum payments associated with each of a customer's billing periods, indicating whether they were paid on time or not.
+
+## Prerequisites
+
+Before accessing a customer's minimum payment details, including minimum payment history and upcoming amounts due, a customer with revolving credit configurations is required. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+## Actions 
+
+To retrieve a customer's minimum payment history, call the [Minimum Payment History API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/minimumPaymentHistory). In the request, set `name` to `minimumPaymentHistory`.  A successful requests returns an array of objects containing information about the minimum payment associated with one of the customer's billing periods. Each object is timestamped with the billing period's start time, end time, and repayment period end time.
+
+<Callout
+    calloutType={'info'}
+>
+   The customer's minimum due, minimum payment total due, and total unpaid minimum amounts are displayed in the customer summary. For more information, see <a href="/docs/revolving-credit/revolving-credit-customer-summary"> Revolving credit customer summary</a>.
+</Callout>
+
+## What's next 
+
+After viewing a customer's minimum payment history, the customer's billing history statement can be retrieved for more information about the customer's balances in a given period. For more information, see [Billing history](/docs/revolving-credit/billing-history).

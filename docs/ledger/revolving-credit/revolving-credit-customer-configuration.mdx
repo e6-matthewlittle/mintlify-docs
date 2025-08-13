@@ -1,0 +1,132 @@
+---
+title: "Revolving credit customer configuration"
+menu: Revolving credit
+route: /docs/revolving-credit/revolving-credit-customer-configuration
+excerpt: Settings that apply to a customer account opened under a credit program.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - customer
+  - revolving credit program configuration
+  - create
+  - update 
+  - credit limit
+  - interest accrual
+  - billing
+  - interest forgiveness eligibility
+  - interest rate
+  - interest
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Revolving credit customer configuration
+
+Customer-level revolving credit configurations are settings that apply to a customer account opened under a credit program. These configurations apply only to the customer account for which they are set. Customer settings let you define default behavior for billing period management, interest accrual, credit limit, and interest forgiveness for each customer.
+
+## What we do
+
+Episode Six (E6) provides the ability to add revolving credit configuration to a customer. When revolving credit configurations are added to a customer, the customer is updated to support revolving credit behavior. Revolving credit customer configurations are specific to the customer account, allowing you to set a specific credit limit and interest rate for the customer within minimums and maximums defined by the program.
+
+## Prerequisites
+
+To create a revolving credit customer account, a revolving credit program is required. To create a revolving credit program, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+
+Before creating a credit customer, a customer account is required. The customer must be created under the revolving credit program. To create a customer, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To create a revolving credit customer, call the [Create Revolving Credit Customer API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/createRevolvingCreditCustomerConfiguration). This call adds revolving credit configurations to a customer account, enabling credit program behavior for that customer. In the request, define the following configurations:
+
+### Credit limit
+
+Customers access their credit limit through their assigned program control level, which must be configured with the `balance_floor` paramName. For instance, program control level `0` might be set with a `balance_floor` value of `5000`, allowing a revolving credit customer assigned to this program control level to borrow up to $5,000. For more details on program control levels, see [Program Controls](/docs/controls/program-controls). 
+
+To grant a credit limit exception for an individual customer, a customer exception must be implemented. This involves adding a customer control to the specified customer's account with `balance_floor` as the `paramName` and the exception credit limit amount as the `paramValue`. When active, this customer exception control overrides the credit limit assigned at the program control level. The exception can either increase or decrease the customer's credit limit, depending on the set `paramValue`. For additional details on customer exceptions, see [Customer exception](/docs/controls/customer-controls).
+
+Credit limit enforcement is provided throughout the customer lifecycle. If the customer's credit limit is met or exceeded, payment authorization will be denied. Once repayment is made, the customer's corresponding available credit is regained.
+
+### Interest accrual
+
+The interest rates for a customer can be set directly within the minimum and maximum of the program or as a tier allocation. The interest rate method can be selected using the `interestConfigMode` attribute. This attribute accepts two options: `DIRECT` and `TIER`.
+
+| Option | Description |
+| ---------- | ------------------- |
+| Direct | If `interestConfigMode` is set to `DIRECT`, interest is configured specifically for each customer account. Each customer's interest rate must be set within the minimum and maximum interest rates determined at the program level for each draw type. To configure direct interest, include a list of each of the customer's draw balances and its corresponding credit limit in the `annualinterestRate` attribute. |
+| Tiers | If `interestConfigMode` is set to `TIER`, the customer's interest rates are inherited from an interest rate tier defined at the program level. To set up a customer with interest rate tiers, provide the name of the desired interest rate tier in the `interestTierName` attribute. |
+
+### Billing day of month
+
+By default, billing period close and start dates are set on the day that the credit customer account is opened. The billing period close/start date can be any day from the first through the 28th day of the month. If an account is opened after the 28th of the month, the billing period close and start day will be set to the 28th.
+
+The billing period close/start date can also be configured manually by providing a `billingDayOfMonth` attribute when creating a credit customer. This attribute accepts any value from 1 through 28. When this attribute is configured during customer creation, the billing period process will begin on the same day of the month for that customer. For example, if `billingDayOfMonth` is set to 10, the current billing period closes and the next period begins on the 10th day of each month.
+
+### Over limit enablement
+
+By default, revolving credit customers are not allowed to exceed their nominal credit limits. However, if exception cases require a customer to be allowed to go over their credit limit, you can enable this behavior by setting `overCreditLimitEnabled` to `true` when creating a credit customer. The customer will be allowed to go over their credit limit using the program control level configurations. If the `overCreditLimitEnabled` attribute is not provided on customer creation, the customer will not be able to go over their credit limit unless this parameter is updated to `true`.
+
+For more information on program control level over limit configurations, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+### Minimum payment dues
+
+Revolving credit customers can be assigned to a minimum payment due profile. This profile is set at the revolving credit program for the customer. During billing period close, the assigned minimum due profile is used to calculate the incremental minimum due amount for the closing billing period and the new amount is added to the minimum due history and total due.
+
+For more information on minimum due profile configurations, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+
+<Callout
+    calloutType={'warning'}
+>
+    The minimum due and total due repayment assessments will only consider loads which have been made by a customer directly or equate to a customer repayment. This does not include adjustments, reversals, refunds, or chargebacks. However, for a balance repayment assessment, all credits, regardless of their nature, are considered."
+</Callout>
+
+### Processing flag 
+
+Certain customers may need to be excluded from standard credit processing actions due to hardship, excessive delinquency, or other regulatory reasons. In these cases, the `processingFlag`, a customer-level toggle, can be updated to `false`. By default, this flag is set to `true` for each customer and can be switched to `false` either through automated delinquency actions, dashboard or the [Update Revolving Credit Customer API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/updateRevolvingCreditCustomerConfiguration).
+
+ When set to `false`, the system halts interest accrual on balances, excludes the customer from statement enrollment, and prevents penalization and delinquency actions. This effectively freezes the customer's RC account. Once a `false` flag is reset to `true`, interest accrual resumes the next day, and billing will be reinstated. The next statement end is based on the customer's billing offset `billingDayOfMonth`.
+
+## What's next
+
+After adding revolving credit configurations to a customer, the credit customer can be updated calling the [Update Revolving Credit Customer API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/updateRevolvingCreditCustomerConfiguration). Settings that can be updated following customer creation include the customer’s interest forgiveness setting, billing day of month, interest configurations, and overall credit limit. 
+
+### Update billing day of month
+
+After customer creation, a customer’s billing day of month can be updated by providing a new value for the `billingDayOfMonth` attribute. Changes to the billing date will take effect following the current billing period close.
+
+When a billing date is changed, the next billing date will be set for the first eligible date that is at least 28 days after the preexisting billing date. For example, consider a customer who changes their billing date from the 15th to the 1st. On the 15th of May, the period closes. The next billing period close will be set to July 1st because that is the first eligible date that is at least 28 days after the previous period close.
+
+### Update interest forgiveness eligibility
+
+By default, a customer’s interest forgiveness eligibility is set to `FORGIVEN` upon customer creation. The forgiveness process is handled according to the program's `forgiveness` setting.
+
+A customer's interest forgiveness eligibility is assessed at the end of the customer's grace period. If the customer is eligible for interest forgiveness but does not meet the program's repayment requirement by the grace end date, the customer is no longer eligible for interest forgiveness and the `interestForgivenessState` is set to `UNFORGIVEN`. If the customer has made the required repayment, the `interestForgivenessState` for the customer will be set to `RETURNING`.
+
+After customer creation, a customer’s interest forgiveness eligibility can be manually deactivated by setting `interestForgivenessState` to the desired value. This change will take effect at the next billing period close.
+
+### Update interest rate
+
+A customer's interest rates can be updated by providing a new value for `PURCHASE`, `CASH_ADVANCE`, `FEE`, or `FUND_TRANSFER` in the `annualInterestRate` object. When an interest rate is updated for a customer's revolving credit configuration, the updated interest rate will be used starting the following day.
+
+### Update credit limit
+
+A customer's credit limit can be updated by providing a new value in the `overallCreditLimit` attribute. When the customer's credit limit is updated, then the customer's credit limit and available credit are updated in real time and can be viewed in the summary.
+
+### Update minimum due profile
+
+A customer's minimum payment due profile can be updated by providing a new value in the `minimumPaymentProfile` attribute. When the customer's profile is updated, it will be used during the next billing period close to calculate the incremental period minimum due. This will not affect the previous incremental minimum due amounts.
+
+### Update statement preference 
+
+By default, the customer's statement delivery method is defined by the program's `statementPreference` value. This default method can be overridden at the customer level by providing a `statementPreference` attribute when updating the customer. This field accepts the following values: `eStatements` and `paperStatements`. For more information on statement preference options, see [Revolving credit program configuration](/docs/revolving-credit/revolving-credit-program-configuration).
+
+### Update delinquency lock
+
+Delinquency actions can be enabled or disabled for a given customer using the customer’s `delinquencyLock` attribute. By default, when a revolving credit customer account is opened, the customer's `delinquencyLock` attribute is set to `false`. When `delinquencyLock` is `false`, delinquency actions can be enforced for the customer automatically. After customer account opening, the customer's `delinquencyLock` setting can be updated to `true`. When `delinquencyLock` is set to `true`, the customer's delinquency lock is toggled on and delinquency actions will not be triggered for the customer account. Activating the delinquency lock is helpful to prevent delinquency actions from being enforced against inactive accounts.
+
+### Update late payment fee exemption
+
+Customers will be charged late fees if they fail to meet the required payment for a period by their grace period end date. Customers can be exempt from being charged late payment fees if their `latePaymentFeeExemption` flag is set to `true`. This flag can be updated at any time if the customer should be returned to being charged late fees. The effect will be seen at the next grace period end.

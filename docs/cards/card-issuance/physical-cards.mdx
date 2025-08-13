@@ -1,0 +1,678 @@
+---
+title: "Physical cards"
+menu: Cards
+route: /docs/cards/physical-cards
+excerpt: A physical card is a manufactured instance of a payment card that contains all information needed for a cardholder to make card payments.
+types: 
+  - guide
+_tags:
+  - cards
+  - physical card
+  - embossing file format
+  - physical card order
+  - order fulfillment
+  - shipping
+containerWide: true
+showHeadingsNav: true
+date: "07-22-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Physical cards
+
+A physical card is a manufactured instance of a payment card that contains all information needed for a cardholder to make card payments. Once a cardholder has a physical card, it can be used to present to a merchant at a point-of-sale (POS) terminal, used at an ATM to withdraw cash, or to verify the cardholder's identity at a bank branch.
+
+Most modern physical cards are made of plastic or metal with some type of card art layered on top of the base material. Often cards have embossed characters such as cardholder name, PAN, and expiry. This is a holdover from when card imprinters were used to capture this information using carbon paper. Some regions are now moving toward the use "numberless" cards where the card PAN is not embossed on the card to decrease the chance for the PAN to be stolen. The card will also have a security code embossed on it, typically on the back so that the card details and security code can't be seen together.
+
+Facilitation of electronic card payments led to cards having a piece of magnetic tape called the magnetic stripe or "mag stripe" on the back of the card which was encoded with all required card data. This data is contained in different "tracks" of the mag stripe with Track 1 containing alphanumeric information such as the cardholder name, PAN, and other discretionary data. Track 2 contains similar data other than the cardholder name, but is encoded in numerical format. Both Track 1 and Track 2 are required to be encoded into the physical card if it uses a mag stripe.
+
+Most cards now use an EMV chip in the card which contains the same data as what is in the mag stripe as well as additional security measures. The chip also contains cryptographic information so that individual transactions made using the chip can be verified by the card issuer. One-time, encrypted values are generated and passed each time a card payment request is made. These values are then decrypted and validated. Enablement of chip card and encryption requires the issuer and the card manufacturer to exchange keys. Some EMV chip cards now also include a near-field communication (NFC) antenna to support contactless payments.
+
+## What we do
+
+Episode Six (E6) does not produce physical cards, but integrates with card manufacturers to handle physical card production and shipping once E6 generates the card data. E6 is able to support any type of physical card manufacturing as needed in partnership with the card manufacturer. When an order is placed for a physical card, E6 generates an embossing file containing information about the new card order and sends it to your chosen card manufacturer partner.
+
+The full physical card order flow is shown in the following diagram.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/process/e6_dev_portal_process_physical_card.svg'}
+    caption={'Physical card order process flow'}
+/>
+
+E6 can support any card manufacturer as needed. E6 maintains a partnership with [Idemia](https://www.idemia.com/card-personalization-services), which provides globally distributed card personalization, production, and distribution. E6 is also already integrated with several other global and regional card manufacturers. To see if your preferred manufacturer has been integrated with E6, contact your E6 representative.
+
+## Prerequisites
+
+E6 must be securely integrated with the card manufacturing partner in order to provide card embossing files. E6 integrates with card manufacturers by registering the manufacturer as a partner and issuing access credentials for their system. Setup of the card manufacturing profile with the card manufacturer must be completed. Typical steps include:
+
+- Determination of the card base material
+- Determination of card data inclusion such as embossing, mag strip, EMV chip, and NFC
+- Creation of card artwork
+- Approval from the card network
+- Production of blank plastic or metal cards
+- Creation of supporting card collateral such as mailers, envelopes, etc.
+
+<Callout
+calloutType={'info'}
+>
+  Stock levels are not managed or recorded as part of the E6 physical card orders process. For information on stock levels, work with your card manufacturer.
+</Callout>
+
+To place a physical card order with E6, a program with a card profile is required. Align your card manufacturing profile to a physical card issuance profile in the Tritium platform. For physical cards, the card profile should have the card `type` field set to `phy`. Physical cards also require a service code to be set by the card profile. For more information about creating a card profile, see [Card profiles](/docs/cards/card-profiles).
+
+## Actions
+
+Physical cards can be ordered individually or in bulk. For more information on this process, see [Customer card issuance](/docs/cards/customer-card-issuance) and [Bulk card issuance](/docs/cards/bulk-card-issuance). When a card is ordered, it will be created according to the specifications defined by the card profile provided in the request. You can specify additional instructions for the card embossing file using `cardOrderAttributes`. These can be useful when card manufacturing aspects such as custom card art, special request, or additional shipping handling details are required. You should coordinate with your card manufacturer as needed to ensure they understand how to identify and process using attribute `name` and `value` fields.
+
+### Physical card order fulfillment
+
+After you complete a physical card order, E6 generates a JSON embossing file containing all the information required for the cards to be produced. The ordered cards are included in the file. The embossing file supports orders for individual cards as well as bulk card orders. The embossing file is sent to card manufacturers once per day. Each file includes all cards that have been created since the last time the file was generated. The embossing file can also be sent in batches. When your card manufacturer receives the embossing file, the cards will be produced according to the order information in the file. When the cards have been produced, they will be shipped to your customers or specified branch locations. A sample embossing file and a description of the fields in the JSON file can be found the in the [Appendix](#appendix-embossing-file-specifications) of this document.
+
+### Physical card shipping
+
+Physical card shipping will be managed by the card manufacturer. When an order for a physical card has been placed, it typically goes through the following sequence of card states. After the card order has been placed and the card is created in the database, its state is `created`. When the card order information has been sent to the card manufacturer, its state changes to `shipped`.
+
+## What's next
+
+Once the physical card has been received, the card will need to be activated before it can be used. For more information, see [Card activation](/docs/cards/card-activation).
+
+Before the physical card has been received and activated by the cardholder, the card can be used by retrieving the card details as a virtual card. For more information, see [Virtual card access](/docs/cards/virtual-card-access). A virtual card can be used for online purchases and/or added to a digital wallet through [Card tokenization](/docs/cards/card-tokens) prior to the card being activated. If using this feature, proper efforts should be taken to reduce the chance of card transaction fraud since the physical card is not possessed by the target cardholder at that time.
+
+A card PIN also needs to be set once a physical card has been ordered. Setting the card PIN for the first time will activate the card automatically. For more information, see [PIN management](/docs/cards/pin-management).
+
+## Appendix: Embossing file specifications
+
+The standard E6 embossing file is delivered as an encrypted JSON file. The embossing file consists of two parts: information about entire orders, contained in the `orders` object, and information about all the cards in each order, contained in the `cards` object.
+
+<Callout
+calloutType={'info'}
+>
+  Embossing file field lengths are subject to change at any time.
+</Callout>
+
+### Order information
+
+A single embossing file can contain multiple card orders within the `orders` object. Each card order in the file can include the following information:
+
+| Field | Description | Data type | Length |
+| -- | -- | -- | -- |
+| `id` | 10-digit number used to identify the card order. This number is the same as the ID generated after the APIs first create the card order. | String | 0-10 |
+| `count` | Number of cards to be created in the order. | Integer | 0-32 |
+| `operatingProgramName` | Name of the order's operating program. | String | 0-64 |
+| `partnerName` | Name of the partner associated with the card order. | String | 0-64 |
+| `cardProfileName` | Name of the order's card profile. | String | 0-64 |
+| `externalReference` | External reference associated with the card order  | String | 0-64 |
+| `shippingAddress` | Address the order will be shipped to, provided through an **AddressDTO**. This field can contain these parameters: | Object | - |
+| | `creationTime`: Creation timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `modifiedTime`: Modified timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `type`: Type of address. Because this is a shipping address, `type` is always `ship`. | String | 0-10 |
+| | `line1`: First line of the address. | String |  0-50 |
+| | `line2`: Second line of the address. | String | 0-50 |
+| | `line3`: Third line of the address. | String | 0-50 |
+| | `neighborhood`: Name of the address’s neighborhood, if applicable. | String | 0-50 |
+| | `postalCode`: Postal code of the address, also known as a ZIP code in the United States. | String | 0-16 |
+| | `city`: Name of the city. | String | 0-50 |
+| | `state`: Abbreviated state, province, or territory name, such as `TX` for Texas. | String | 0-12 |
+| | `country`: Two-letter country code, such as `US` for the United States. | String | 0-2 |
+| | `phoneticLine1`: Phonetic pronunciation of the first address line. | String | 0-50 |
+| | `phoneticLine2`: Phonetic pronunciation of the second address line. | String | 50 |
+| | `phoneticLine3`: Phonetic pronunciation of the third address line. | String | 50 |
+| `attributes` | Array of name-value pairs describing any additional features not specified in the base file format. For example, the attributes could describe a physical card’s packaging information. Each attribute is provided through two parameters: | Object | - |
+| | `name`: Name of the attribute. | String | 1-64 |
+| | `value`: Value of the attribute. | String | 1-256 |
+
+### Card information
+
+The embossing file also includes information about the individual cards in the orders. The following fields can be provided:
+
+| Field | Description | Data type | Length |
+| -- | -- | -- | -- |
+| `type` | Type of card. Valid values include: `temp`, `one`, `phy`, `virtual`, and `router` | String | - |\
+| `pan` | Primary Account Number (PAN) associated with the card. The PAN is printed on the card. | String | 16-19 |
+| `exp` | Expiration date of the card expressed as a string with numeric characters in yyyyMM format. | String | 6 |
+| `embossedName` | Name or phrase to be embossed on the card. | String | 2-26 |
+| `track1` | Data included on the card's track1 field. This field is not padded to the max length of 26 characters. Note that the track1 data does **not** include the calculated longitudinal redundancy check (LRC). The LRC is expected to be calculated by the card manufacturer. | String | As per EMV standards |
+| `track2` | Data included on the card's track2 field. Note that the track2 data does **not** include the calculated LRC. The LRC is expected to be calculated by the card manufacturer.| String | As per EMV standards |
+| `cvv1` | First 3-digit Card Verification Value code (CVV) for the card. | String | 0-3 |
+| `cvv2` | Second 3-digit CVV for the card. | String | 0-3 |
+| `icvv` | Integrated Card Verification Value (iCVV) code to be stored in the card's chip. | String | - |
+| `pin` | Personal Identification Number (PIN) of the card. The PIN can be encrypted for security. The PIN length is validated using the plaintext version of the PIN, not the encrypted version. | String | 0-6 |
+| `cardNumber` | E6-generated internal identifier number assigned to the card, if present. | String | 0-64 |
+| `sequenceNumber` | Sequence number of the card indicating its issuer. | String | 3 |
+| `reissue` | Boolean stating whether the card is a reissue or not. If `true`, the card is reissued. | Boolean | - |
+| `cardProfileName` | Name of the card's profile. | String | 0-64 |
+| `serviceCode` | 3-digit service code indicating any use restrictions on the card. | String | 0-4 |
+| `homeAddress` | Home address associated with the card order, provided through an **AddressDTO**. This field can contain these parameters: | Object | - |
+| | `creationTime`: Creation timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `modifiedTime`: Modified timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `type`: Type of address. Because this is a home address, `type` is always `home`. | String | 0-10 |
+| | `line1`: First line of the address. | String | 0-50 |
+| | `line2`: Second line of the address. | String | 0-50 |
+| | `line3`: Third line of the address. | String | 0-50 |
+| | `neighborhood`: Name of the address’s neighborhood, if applicable. | String | 0-50 |
+| | `postalCode`: Postal code of the address, also known as a ZIP code in the United States. | String | 0-16 |
+| | `city`: Name of the city. | String | 0-50 |
+| | `state`: Abbreviated state, province, or territory name, such as `TX` for Texas. | String | 0-12 |
+| | `country`: Two-letter country code, such as `US` for the United States. | String | 0-2 |
+| | `phoneticLine1`: Phonetic pronunciation of the first address line. | String | 0-50 |
+| | `phoneticLine2`: Phonetic pronunciation of the second address line. | String | 0-50 |
+| | `phoneticLine3`: Phonetic pronunciation of the third address line. | String | 0-50 |
+| `workAddress` | Work address associated with the card order, provided through an **AddressDTO**. This field can contain these parameters: | Object | - |
+| | `creationTime`: Creation timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `modifiedTime`: Modified timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `type`: Type of address. Because this is a work address, `type` is always `biz`. | String | - |
+| | `line1`: First line of the address. | String | 0-50 |
+| | `line2`: Second line of the address. | String | 0-50 |
+| | `line3`: Third line of the address. | String | 0-50 |
+| | `neighborhood`: Name of the address’s neighborhood, if applicable. | String | 0-50 |
+| | `postalCode`: Postal code of the address, also known as a ZIP code in the United States. | String | 0-16 |
+| | `city`: Name of the city. | String | 0-50 |
+| | `state`: Abbreviated state, province, or territory name, such as `TX` for Texas. | String | 0-12 |
+| | `country`: Two-letter country code, such as `US` for the United States. | String | 0-2 |
+| | `phoneticLine1`: Phonetic pronunciation of the first address line. | String | 0-50 |
+| | `phoneticLine2`: Phonetic pronunciation of the second address line. | String | 0-50 |
+| | `phoneticLine3`: Phonetic pronunciation of the third address line. | String | 0-50 |
+| `person` | Object containing information about the cardholder. Parameters can include: | Object | - |
+| | `creationTime`: Creation timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `modifiedTime`: Modified timestamp expressed in UNIX Epoch time. | Integer | - |
+| | `firstName`: Person's first name. | String | 0-64 |
+| | `middleName`: Person’s middle name, if applicable. | String | 0-64 |
+| | `lastName`: Person's last name. | String | 0-64 |
+| | `lastName2`: Second last name for the person, if applicable. | String | 0-64 |
+| | `gender`: Person's gender. | String | - |
+| | `dob`: Person's date of birth expressed as a string with numeric characters in yyyyMMdd format. | String | 8 |
+| | `nickname`: Customer nickname, if applicable. | String | 0-64 |
+| | `title`: Person's title prefix. | String | 0-64 |
+| | `suffix`: Suffix for the person’s family relationship, such as `Jr.` or `Sr`. | String | 0-64 |
+| | `embossedName`: Person's name as it would be encoded in the track1 data with a two character minimum for the name. The embossed name must be defined using the `Surname/Firstname` format with a `/` separating the person's `Surname` and `Firstname`. When a card is produced, the `Firstname` portion of `embossedName` is printed before `Surname`. For example, if an `embossedName` contains `DOE/JOHN`, the phrase `JOHN DOE` will be embossed on the card. If no separate `Firstname` section of `embossedName` is defined, the parameter should close with `/`, such as `JOHN DOE /`. By default, if `embossedName` is blank, the embossed name is assembled from the person's first and last name and is encoded in track1. If the last name is greater than 25 characters long, the last name is truncated to the first 24 characters, a slash is added, and then the first letter of the first name is added. For example, if the person's name is Janet Postlethwaite-Higgenbotham, the embossed name will be `Postlethwaite-Higgenboth/J`. If a first name is not present, then the first 25 characters of the last name are used. If a last name is not present, a slash is added to the first 25 characters of the first name. | String | 2-26 |
+| | `phoneticFirstName`: Phonetic pronunciation of the person’s first name. | String | 0-64 |
+| | `phoneticMiddleName`: Phonetic pronunciation of the person’s middle name. | String | 0-64 |
+| | `phoneticLastName`: Phonetic pronunciation of the person’s last name. | String | 0-64 |
+| | `altFirstName`: Alternative first name for the person. | String | 0-64 |
+| |	`altMiddleName`: Alternative middle name for the person. | String | 0-64 |
+| |	`altLastName`: Alternative last name for the person. | String | 0-64 |
+| `customerIdentifier` | Number identifying the customer. | String | 0-64 |
+| `attributes` | Defined at the card level. By default, attributes are optional and not included in the embossing file. If required, card-level attributes can be added by request via a plugin. Each card attribute is provided through two parameters: | Object | - |
+| | `name`: Name of the attribute. | String | 1-64 |
+| | `value`: Value of the attribute. | String | 1-256 |
+
+### File transmission
+
+The embossing file is made available via SFTP. The card manufacturer is required to set up SFTP accounts for test and production environments. The manufacturer should then provide the SFTP connection details to E6.
+
+<Callout
+calloutType={'info'}
+>
+  Preferably, the manufacturer should provide a DNS host name for the SFTP server instead of an IP address because DNS host names are less likely to change over time.
+</Callout>
+
+E6 will share an SSH RSA public key with the card manufacturer. This key is entered on the manufacturer’s SFTP server to establish a secure connection between the manufacturer and E6.
+
+The embossing file is initially generated as a JSON file in clear text. The file must be encrypted via PGP before being transmitted. The transmission process consists of two steps: encryption and signing with digital signatures. Both steps require a key pair and key exchanges between E6 and the card manufacturer.
+
+The manufacturer must generate a key pair consisting of one private key and one public key. E6 will also have a key pair of one private key and one public key. The manufacturer and E6 will share public keys with each other.
+
+The file will be encrypted using the manufacturer’s public key and signed using the E6 private key. Once the manufacturer receives the file, the manufacturer can decrypt the file with their own private key. The manufacturer can then verify E6’s signature with the E6 public key.
+
+<Callout
+calloutType={'info'}
+>
+  Digital signatures on the embossing file are optional and are used to verify the file sender’s identity.
+</Callout>
+
+Public keys are not shared across the test and production environments, so the manufacturer must provide two public keys: one key for test and one for production. E6 will also share two public keys.
+
+### File name formatting
+
+The embossing file uses the following file name formatting:
+
+| Sample | Format |
+| ------ | ------ |
+| card-order-H3_partner-H3_Program-202306131420.json.pgp | "card-order" + ”-” + {partnerName} + ”-” + {programName}+ ”-” + {yyyyMMddhhmm} + ".json" + "{encryptionExtension}" |
+
+The file's encryption extension can be chosen according to the manufacturer's preference.
+
+### File behavior
+
+Empty  fields  are  not  included  in  the  embossing  file. For  example, the `title` field is  not included if the `person` associated with the card order does not have a title.
+
+Additionally, some fields are not included in the embossing file depending on the type of cards being ordered. For example, personalized card orders for specific customers can include the customer's `home` and/or `work` addresses. These fields are absent in orders not associated with a specific customer, such as bulk card orders. Instead, bulk orders are automatically sent to the address associated with the card order record.
+
+## Appendix: Sample embossing files
+
+The embossing file supports orders for individual personalized cards as well as bulk card orders. The file structure, such as its length and included parameters, will depend on the number of cards being ordered as well as the customer associated with the order.
+
+### Personalized card order file
+
+Here is a sample of an embossing file containing two individual personalized card orders:
+
+```json
+{
+  "orders" : [ {
+    "id" : "1000097103",
+    "count" : 1,
+    "operatingProgramName" : "h3",
+    "cardProfileName" : "h3-personalized-card",
+    "shippingAddress" : {
+      "creationTime" : 1691481408421,
+      "modifiedTime" : 1691481408421,
+      "type" : "ship",
+      "line1" : "#05, 14 Kitchener Link",
+      "line2" : "City Square Residences",
+      "line3" : "",
+      "neighborhood" : "",
+      "postalCode" : "207223",
+      "city" : "Singapore",
+      "state" : "SG",
+      "country" : "SG"
+    },
+    "cards" : [ {
+      "type" : "phy",
+      "pan" : "5185456300100013",
+      "exp" : "202808",
+      "embossedName" : "SARVAIYA/PRATIK",
+      "track1" : "%B5185456300100013^SARVAIYA/PRATIK^2808221423?",
+      "track2" : ";5185456300100013=2808221423?",
+      "cvv1" : "423",
+      "cvv2" : "493",
+      "icvv" : "712",
+      "pin" : "6A73A343E4F2854C",
+      "cardNumber" : "9041046614184835139",
+      "sequenceNumber" : "1",
+      "shippingAddress" : {
+        "creationTime" : 1691481408421,
+        "modifiedTime" : 1691481408421,
+        "type" : "ship",
+        "line1" : "#05, 14 Kitchener Link",
+        "line2" : "City Square Residences",
+        "line3" : "",
+        "neighborhood" : "",
+        "postalCode" : "207223",
+        "city" : "Singapore",
+        "state" : "SG",
+        "country" : "SG"
+      },
+      "reissue" : false,
+      "cardProfileName" : "h3-personalized-card",
+      "serviceCode" : "221",
+      "person" : {
+        "creationTime" : 1691471406311,
+        "modifiedTime" : 1691471406311,
+        "firstName" : "Pratik",
+        "lastName" : "Sarvaiya",
+        "gender" : "male",
+        "dob" : "19930630"
+      },
+      "customerIdentifier" : "1011X10001141390738"
+    } ]
+  }, {
+    "id" : "1000097104",
+    "count" : 1,
+    "operatingProgramName" : "h3",
+    "cardProfileName" : "h3-personalized-card",
+    "shippingAddress" : {
+      "creationTime" : 1691481553547,
+      "modifiedTime" : 1691481553547,
+      "type" : "home",
+      "line1" : "#32, 14 Kitchener Link",
+      "line2" : "City Square Residences",
+      "line3" : "",
+      "neighborhood" : "",
+      "postalCode" : "207223",
+      "city" : "Singapore",
+      "state" : "SG",
+      "country" : "SG"
+    },
+    "cards" : [ {
+      "type" : "phy",
+      "pan" : "5185456300100021",
+      "exp" : "202808",
+      "embossedName" : "TEST/PRATIK",
+      "track1" : "%B5185456300100021^TEST/PRATIK^2808221391?",
+      "track2" : ";5185456300100021=2808221391?",
+      "cvv1" : "391",
+      "cvv2" : "184",
+      "icvv" : "649",
+      "pin" : "B4EAF09B9A73E973",
+      "cardNumber" : "4381035742135231963",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-personalized-card",
+      "serviceCode" : "221",
+      "homeAddress" : {
+        "creationTime" : 1691481553547,
+        "modifiedTime" : 1691481553547,
+        "type" : "home",
+        "line1" : "#32, 14 Kitchener Link",
+        "line2" : "City Square Residences",
+        "line3" : "",
+        "neighborhood" : "",
+        "postalCode" : "207223",
+        "city" : "Singapore",
+        "state" : "SG",
+        "country" : "SG"
+      },
+      "person" : {
+        "creationTime" : 1691472483645,
+        "modifiedTime" : 1691481501465,
+        "firstName" : "Pratik",
+        "middleName" : "Episode6",
+        "gender" : "male",
+        "embossedName" : "TEST/PRATIK"
+      },
+      "customerIdentifier" : "1011X10001141410692"
+    } ]
+  } ]
+}
+```
+
+### Bulk card order file
+
+Here is a sample of an embossing file containing one bulk card order for five temporary cards:
+
+```json
+{
+  "orders": [
+      {
+          "id": "1000096063",
+          "count": 5,
+          "operatingProgramName": "h3",
+          "partnerName": "h3-partner",
+          "cardProfileName": "h3-temp-card",
+          "externalReference": "H3_Bulk_15_embossedName",
+          "shippingAddress": {
+              "creationTime": 1691116323982,
+              "modifiedTime": 1691116323982,
+              "type": "home",
+              "line1": "Room 123, Building hacker, Wonderful street",
+              "postalCode": "100123",
+              "country": "AU"
+          },
+          "cards": [
+              {
+                  "type": "temp",
+                  "pan": "5185456300010162",
+                  "exp": "202408",
+                  "embossedName": "TEST",
+                  "track1": "%B5185456300010162^TEST/^2408221904?",
+                  "track2": ";5185456300010162=2408221904?",
+                  "cvv1": "904",
+                  "cvv2": "447",
+                  "icvv": "361",
+                  "pin": "EDBC831389C430A6",
+                  "cardNumber": "4199565470898034697",
+                  "sequenceNumber": "1",
+                  "reissue": false,
+                  "cardProfileName": "h3-temp-card",
+                  "serviceCode": "221"
+              },
+              {
+                  "type": "temp",
+                  "pan": "5185456300010170",
+                  "exp": "202408",
+                  "embossedName": "TEST",
+                  "track1": "%B5185456300010170^TEST/^2408221214?",
+                  "track2": ";5185456300010170=2408221214?",
+                  "cvv1": "214",
+                  "cvv2": "206",
+                  "icvv": "958",
+                  "pin": "D4CDC8C9D2467AA8",
+                  "cardNumber": "8174294017437021128",
+                  "sequenceNumber": "1",
+                  "reissue": false,
+                  "cardProfileName": "h3-temp-card",
+                  "serviceCode": "221"
+              },
+              {
+                  "type": "temp",
+                  "pan": "5185456300010188",
+                  "exp": "202408",
+                  "embossedName": "TEST",
+                  "track1": "%B5185456300010188^TEST/^2408221674?",
+                  "track2": ";5185456300010188=2408221674?",
+                  "cvv1": "674",
+                  "cvv2": "207",
+                  "icvv": "965",
+                  "pin": "E1F7656AB94CC81A",
+                  "cardNumber": "1985388319243900674",
+                  "sequenceNumber": "1",
+                  "reissue": false,
+                  "cardProfileName": "h3-temp-card",
+                  "serviceCode": "221"
+              },
+              {
+                  "type": "temp",
+                  "pan": "5185456300010253",
+                  "exp": "202408",
+                  "embossedName": "TEST",
+                  "track1": "%B5185456300010253^TEST/^2408221033?",
+                  "track2": ";5185456300010253=2408221033?",
+                  "cvv1": "033",
+                  "cvv2": "619",
+                  "icvv": "145",
+                  "pin": "BD12B2FB48E0D6B9",
+                  "cardNumber": "2104313406463535160",
+                  "sequenceNumber": "1",
+                  "reissue": false,
+                  "cardProfileName": "h3-temp-card",
+                  "serviceCode": "221"
+              },
+              {
+                  "type": "temp",
+                  "pan": "5185456300010303",
+                  "exp": "202408",
+                  "embossedName": "TEST",
+                  "track1": "%B5185456300010303^TEST/^2408221786?",
+                  "track2": ";5185456300010303=2408221786?",
+                  "cvv1": "786",
+                  "cvv2": "905",
+                  "icvv": "346",
+                  "pin": "8A2F05E4461338AF",
+                  "cardNumber": "4652554120075959122",
+                  "sequenceNumber": "1",
+                  "reissue": false,
+                  "cardProfileName": "h3-temp-card",
+                  "serviceCode": "221"
+              }
+          ]
+      }
+  ]
+}
+```
+
+### Personalized bulk order file
+
+Here is an example of an embossing file containing one order for a single personalized card and one bulk order of five temporary cards:
+
+```json
+{
+  "orders" : [ {
+    "id" : "1000058000",
+    "count" : 1,
+    "operatingProgramName" : "h3",
+    "cardProfileName" : "h3-personalized-card",
+    "shippingAddress" : {
+      "creationTime" : 1634156903644,
+      "modifiedTime" : 1634156903644,
+      "type" : "home",
+      "line1" : "211 Walter Seaholm Dr.",
+      "line2" : "line2",
+      "line3" : "line3",
+      "neighborhood" : "neighborhood",
+      "postalCode" : "787-0199",
+      "city" : "Austin",
+      "state" : "TX",
+      "country" : "US",
+      "phoneticLine1" : "phoneticLine1",
+      "phoneticLine2" : "phoneticLine2",
+      "phoneticLine3" : "phoneticLine3"
+    },
+    "cards" : [ {
+      "type" : "phy",
+      "pan" : "5555555000000043",
+      "exp" : "202810",
+      "embossedName" : "TEST EVERYTHING/JOE JOHN",
+      "track1" : "%B5555555000000043^TEST EVERYTHING/JOE JOHN^2810221656?",
+      "track2" : ";5555555000000043=2810221656?",
+      "cvv1" : "656",
+      "cvv2" : "270",
+      "icvv" : "109",
+      "pin" : "D4CDC8C9E2467AA7",
+      "cardNumber" : "4806996587976272938",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-personalized-card",
+      "serviceCode" : "221",
+      "homeAddress" : {
+        "creationTime" : 1634156903644,
+        "modifiedTime" : 1634156903644,
+        "type" : "home",
+        "line1" : "211 Walter Seaholm Dr.",
+        "neighborhood" : "neighborhood",
+        "postalCode" : "787-0199",
+        "city" : "Austin",
+        "state" : "TX",
+        "country" : "US",
+        "line2" : "line2",
+        "line3" : "line3",
+        "phoneticLine1" : "phoneticLine1",
+        "phoneticLine2" : "phoneticLine2",
+        "phoneticLine3" : "phoneticLine3"
+      },
+      "person" : {
+        "creationTime" : 1634156903630,
+        "modifiedTime" : 1634156903630,
+        "firstName" : "Joe",
+        "middleName" : "John",
+        "lastName" : "Test",
+        "lastName2" : "Everything",
+        "gender" : "male",
+        "dob" : "19900101",
+        "nickName" : "Mr. T",
+        "title" : "Dr.",
+        "suffix" : "Jr.",
+        "embossedName" : "TEST EVERYTHING/JOE JOHN",
+        "phoneticFirstName" : "Joe",
+        "phoneticMiddleName" : "John",
+        "phoneticLastName" : "Test",
+        "altFirstName" : "Jo",
+        "altMiddleName" : "Johnny",
+        "altLastName" : "TestToo"
+      },
+      "customerIdentifier" : "10000610010165"
+    } ]
+  }, {
+    "id" : "1000058001",
+    "count" : 5,
+    "operatingProgramName" : "h3",
+    "partnerName" : "h3",
+    "cardProfileName" : "h3-temp-card",
+    "externalReference" : "ext-ref-1634156905054-520607236",
+    "shippingAddress" : {
+      "creationTime" : 1634156905111,
+      "modifiedTime" : 1634156905111,
+      "type" : "ship",
+      "line1" : "John Doe",
+      "postalCode" : "78701",
+      "city" : "Austin",
+      "state" : "TX",
+      "country" : "US",
+      "line2" : "line2",
+      "line3" : "line3",
+      "phoneticLine1" : "phoneticLine1",
+      "phoneticLine2" : "phoneticLine2",
+      "phoneticLine3" : "phoneticLine3"
+    },
+    "attributes" : [ {
+      "name" : "name1",
+      "value" : "value1"
+    }, {
+      "name" : "name2",
+      "value" : "value2"
+    } ],
+    "cards" : [ {
+      "type" : "temp",
+      "pan" : "5555556000000769",
+      "exp" : "202810",
+      "embossedName" : "CUSTOMER/VALUED",
+      "track1" : "%B5555556000000769^CUSTOMER/VALUED^2810221808?",
+      "track2" : ";5555556000000769=2810221808?",
+      "cvv1" : "808",
+      "cvv2" : "507",
+      "icvv" : "043",
+      "pin" : "A1F7B56A694DC81B",
+      "cardNumber" : "7370655647482654304",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-temp-card",
+      "serviceCode" : "221"
+    }, {
+      "type" : "temp",
+      "pan" : "5555556000000777",
+      "exp" : "202810",
+      "embossedName" : "CUSTOMER/VALUED",
+      "track1" : "%B5555556000000777^CUSTOMER/VALUED^2810221671?",
+      "track2" : ";5555556000000777=2810221671?",
+      "cvv1" : "671",
+      "cvv2" : "370",
+      "icvv" : "751",
+      "pin" : "24442H0995C9EF5D",
+      "cardNumber" : "7766959719047336834",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-temp-card",
+      "serviceCode" : "221"
+    }, {
+      "type" : "temp",
+      "pan" : "5555556000000785",
+      "exp" : "202810",
+      "embossedName" : "CUSTOMER/VALUED",
+      "track1" : "%B5555556000000785^CUSTOMER/VALUED^2810221292?",
+      "track2" : ";5555556000000785=2810221292?",
+      "cvv1" : "292",
+      "cvv2" : "561",
+      "icvv" : "012",
+      "pin" : "455FFA84FC3BDB0E",
+      "cardNumber" : "2811242361692439336",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-temp-card",
+      "serviceCode" : "221"
+    }, {
+      "type" : "temp",
+      "pan" : "5555556000000793",
+      "exp" : "202810",
+      "embossedName" : "CUSTOMER/VALUED",
+      "track1" : "%B5555556000000793^CUSTOMER/VALUED^2810221547?",
+      "track2" : ";5555556000000793=2810221547?",
+      "cvv1" : "547",
+      "cvv2" : "158",
+      "icvv" : "088",
+      "pin" : "B761424677457FED",
+      "cardNumber" : "1438446031461552752",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-temp-card",
+      "serviceCode" : "221"
+    }, {
+      "type" : "temp",
+      "pan" : "5555556000000801",
+      "exp" : "202810",
+      "embossedName" : "CUSTOMER/VALUED",
+      "track1" : "%B5555556000000801^CUSTOMER/VALUED^2810221888?",
+      "track2" : ";5555556000000801=2810221888?",
+      "cvv1" : "888",
+      "cvv2" : "793",
+      "icvv" : "833",
+      "pin" : "ADD62EE0CF66D15A",
+      "cardNumber" : "9911453491805314582",
+      "sequenceNumber" : "1",
+      "reissue" : false,
+      "cardProfileName" : "h3-temp-card",
+      "serviceCode" : "221"
+    } ]
+  } ]
+}
+```

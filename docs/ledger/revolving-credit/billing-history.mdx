@@ -1,0 +1,46 @@
+---
+title: "Billing history"
+menu: Revolving credit
+route: /docs/revolving-credit/billing-history
+excerpt: Overview of a credit customer's activity during a specified billing period.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - billing history
+  - summary
+  - customer
+  - billing period
+  - retrieve
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Billing history
+
+A revolving credit customer billing history summary is an overview of a credit customer's activity during a specified billing period. At each billing period close, a new billing history summary is provided for each customer account. Viewing a customer’s billing history allows you to facilitate customer account management, review the history of a customer account over time, and understand the context around customer decisioning.
+
+## What we do
+
+Episode Six (E6) maintains billing history summaries for each revolving credit customer account opened under a credit program. Billing histories can be retrieved calling the Product Actions API with the `billingHistory` action type specified in the request.
+
+Each billing history summary tracks a customer's billing period start and end date, draw balances, minimum payment due, and payment due date. A customer's six most recent billing histories can be retrieved.
+
+## Prerequisites
+
+Before retrieving a customer's billing history summary, a customer with revolving credit configurations is required. For more information, see [Revolving credit customer configuration](/docs/revolving-credit/revolving-credit-customer-configuration).
+
+## Actions
+
+To retrieve a customer's billing history, call the [Retrieve Billing History API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/retrieveRevolvingCreditCustomerBillingHistory). In the request, set `name` to `billingHistory`.  In the `value` attribute, provide the maximum number of billing histories to return in the request.
+
+A successful request returns an array of billing history summaries. History summaries are returned in chronological order, with the newest summaries appearing first. Each history summary is timestamped with the `billingPeriodStart` and `billingPeriodClose` in UNIX Epoch Time.
+
+<Callout
+    calloutType={'info'}
+>
+    Country-specific attributes or client-specific details can be stored in the <tt>attributes</tt> field of the billing history object.
+</Callout>

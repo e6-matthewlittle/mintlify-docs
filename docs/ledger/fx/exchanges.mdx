@@ -1,0 +1,36 @@
+---
+title: "Exchanges"
+menu: FX
+route: /docs/fx/exchanges
+excerpt: An exchange is the process of transferring units of value from one entity to another.
+types: 
+  - guide
+_tags:
+  - exchange
+  - currencies
+  - fx
+  - create
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Exchanges 
+
+An exchange is the process of transferring units of value from one entity to another. Exchanges enable one currency to be bought or sold for another currency. 
+
+## What we do
+
+Episode Six (E6) supports exchanges that allow FX configurations to be made for an exchange provider. Exchanges are created at the partner level, allowing currency pairs and currency margins to be established by the client.
+
+## Prerequisites
+
+To create an exchange you must first have a program set up. To set up a program, see [Programs](/docs/programs/programs). An FX provider must be also set up. For more information, see [Exchange providers](/docs/fx/exchange-providers). Additionally, a currency pair must be established. For more information, see [Currency pairs](/docs/fx/currency-pairs).
+
+## Actions
+
+To exchange value with a partner, call the [Create an Exchange API](/tech-specs/FX/exchanges/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_createExchange_POST). Provide the exchange provider and partner name. 
+
+## What's next
+
+You can view and delete exchanges by calling the [Exchange APIs](/tech-specs/FX/exchanges). 

@@ -1,0 +1,57 @@
+---
+title: "Partner linkages"
+route: /docs/platform-access/partner-linkages
+excerpt: Partner linkages allow users of one partner to access data records owned by another partner.
+types:
+  - guide
+_tags:
+  - partner
+  - data access
+  - data segregation
+  - partner linkages
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+---
+name: "Data segregation"
+menu: Getting Started
+route: /tech-specs/getting-started/data-segregation
+excerpt: Operating a multi-tenant system requires reliable data segregation to ensure that different tenants cannot see or alter the data of other tenants.
+_tags:
+  - partner links
+  - program links
+  - logical segregation
+  - separation
+  - segregation
+  - data segregation
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+Data segregation is an important part of ensuring data security in a platform. A mechanism is needed to control data segregation, but also to allow for party access exceptions as needed.
+
+## What we do
+
+Episode Six (E6) enforces [data-segregation](/api-reference/getting-started/data-segregation) for all users accessing the E6 platform using a default pattern. If access is required across parties, then linkages can be setup to enable access even when direct ownership does not exist. Access can also be granted to another party for a specific program through a partner-program linkage.
+
+## Prerequisites
+
+Before partner linkages can be established, two or more [partners](/docs/platform-access/partners) must be created.
+
+Before partner-program linkages can be established, a partner must be created and a [program](/docs/programs/programs) must be created.
+
+## Actions
+
+A partner linkage can be established using the [Create Partner Linkage API]().
+
+A partner-program linkage can be established using the [Create Partner-Program Linkage API]().
+
+## What's next
+
+Once a linkage had been established, API calls which query non-partner specific data will return records across the requesting partner and the linked partners.
+
+Linkages can be managed using the [Partner Linkages APIs]() and the [Partner-Program Linkages API]().
+

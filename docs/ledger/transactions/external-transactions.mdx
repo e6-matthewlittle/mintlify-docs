@@ -1,0 +1,33 @@
+---
+title: "External Transactions"
+route: /docs/transactions/external-transactions
+excerpt: An external transaction is an E6 tracking record of a funds movement which is not handled by E6.
+types: 
+  - guide
+_tags:
+  - transactions
+  - external transactions
+  - credit
+  - debit
+  - ledger
+  - product ledger
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# External Transactions
+
+An external transaction is a record of a money movement from one account to another which is not handled by a ledger. This allows the ledger to track payments which may eventually affect the balances within it. In particular, this is important when the ledger initiates a transaction but the transaction is handled by a separate payment processing system.
+
+## What we do
+
+Episode Six (E6) provides the ability to track external transactions for accounts within TRITIUM. These are used for transactions such as [Cooperative authorization](/docs/cards/cooperative-authorization) and [Automatic load](/docs/payments/automatic-load). External transactions are created and then resolved once the payment processing system informs TRITIUM of a result or a set time has passed.
+
+## Prerequisites
+
+Before retrieving external transactions for a given account, the ``portfolioId`` must first be obtained. The ``portfolioId`` is the unique identifier of the account within the product ledger. This identifier can be from a customer or a partner.
+
+## Actions
+
+Transactions can be retrieved for a given customer or partner account using the [List External Transactions API](/tech-specs/transactions/pending-transactions/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.TransactionAPI_listPendingTransactions_POST).

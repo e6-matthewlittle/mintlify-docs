@@ -1,0 +1,43 @@
+---
+title: "Users"
+menu: Users
+route: /docs/users/users
+excerpt: A user is an entity which is given access to a system on behalf of a party.
+_tags:
+  - users
+  - new users
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+A user is an entity which is given access to a system on behalf of a party. A user can represent a person or another system. Each user has a defined scope of system access. Users will have their identity validated using some type of authentication mechanism before authorized access is allowed.
+
+## What we do
+
+Episode Six (E6) provides the ability to create and manage users for the TRITIUM platform. Users are able to authenticate in order to get bearer tokens generated for access. Users can be updated including being locked and unlocked from access.
+
+## Prerequisites
+
+Before a user is created, a [partner](/docs/platform-access/partners) must first be created with which the user will be associated.
+
+One or more [user control levels](/docs/users/user-controls) will need to be setup to which users can be assigned.
+
+## Actions
+
+New users can be created using the [Create User API](/tech-specs/users/users/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.UserAPI_create_POST). The new users must be assigned a unique `username`, be given an initial `password`, assigned to a `securityLevel` and be provided a list of required [roles](/docs/users/roles-permissions).
+
+<Callout
+    calloutType={'warning'}
+>
+    New users can only be assigned roles which the current user also has been assigned.
+</Callout>
+
+## What's next
+
+Users can [login](/tech-specs/getting-started/authentication) to the TRITIUM platform once they have been created. New users will require their initial [password](/docs/users/passwords) to be changed upon first login to the platform.
+
+Users can be locked and unlocked in order to temporarily or permanently restrict access to the platform using the [User locks APIs](/tech-specs/users/user-locks).
+

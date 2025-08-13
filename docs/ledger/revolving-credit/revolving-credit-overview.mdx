@@ -1,0 +1,118 @@
+---
+title: "Revolving credit overview"
+sidebarTitle: "Overview"
+menu: Revolving credit
+route: /docs/revolving-credit/revolving-credit-overview
+excerpt: Revolving credit products allow customers to borrow funds against a set credit limit while paying off accrued debt in regular monthly periods.
+types: 
+  - guide
+_tags:
+  - products
+  - revolving credit
+  - overview
+  - account
+  - use cases
+  - configurations
+containerWide: true
+showHeadingsNav: true
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import { Trans } from "react-i18next";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Revolving credit overview
+
+Revolving credit products allow customers to borrow funds against a set credit limit while paying off accrued debt in regular monthly periods. Interest can accrue on debts as part of the cost of borrowing. As repayments are made, access to available credit is restored.
+
+## What we do 
+
+Episode Six (E6) acts as the ledger and product processor for revolving credit accounts. E6 manages product-level configurations for a portfolio of accounts as well as account-specific configurations. Processes that are managed for revolving credit accounts include:
+
+- Credit limits and available credit
+- Balance management across purchase, cash advance, fees, and funds transfer
+- Billing period, repayment period, and grace day management
+- Interest accrual, posting, and forgiveness
+- Repayment processing and balance hierarchy
+- Delinquency tracking and actions
+
+## Uses 
+
+Common use cases for revolving credit include: 
+
+- Retail credit cards
+- Corporate credit cards
+
+## How it works 
+
+Revolving credit configurations can be added at the program and customer levels. Program configurations define details such as the credit draw balances available to customers, the default repayment hierarchy, the minimum and maximum customer credit limits, and minimum repayment calculations. Customer configurations define an individual customer's credit limit, interest rates, billing dates, and interest forgiveness eligibility.
+
+As a customer borrows, available credit is reduced and interest starts accruing on the customers' applicable draw balances. When the customer makes a repayment, the repayment amount is allocated to the customer's draw balances as determined by the program's repayment hierarchy. With each repayment, the customer's available credit is restored.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/context/e6_dev_portal_context_revolving_credit.svg'}
+    caption={'Revolving credit program and customer account context'}
+/>
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/revolving-credit-program-configuration"
+      title={<Trans i18nKey="home-resource-1-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-1-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/revolving-credit-customer-configuration"
+      title={<Trans i18nKey="home-resource-2-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-2-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/revolving-credit-customer-summary"
+      title={<Trans i18nKey="home-resource-3-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-3-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/billing-history"
+      title={<Trans i18nKey="home-resource-4-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-4-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/sub-balance-adjustments"
+      title={<Trans i18nKey="home-resource-5-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-5-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/payment-reversal"
+      title={<Trans i18nKey="home-resource-6-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-6-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+        <Highlights.Item
+      linkPath="/docs/revolving-credit/minimum-payment-history"
+      title={<Trans i18nKey="home-resource-7-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-7-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    /> 
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/revolving-credit-simulation"
+      title={<Trans i18nKey="home-resource-8-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-8-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />     
+    <Highlights.Item
+      linkPath="/docs/revolving-credit/statement-file"
+      title={<Trans i18nKey="home-resource-9-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-9-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    /> 
+      <Highlights.Item
+      linkPath="/docs/revolving-credit/annual-statement-file"
+      title={<Trans i18nKey="home-resource-10-revolving-credit-title" />}
+      body={<Trans i18nKey="home-resource-10-revolving-credit-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    /> 
+</Highlights.Wrapper>

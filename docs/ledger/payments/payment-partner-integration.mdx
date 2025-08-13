@@ -1,0 +1,113 @@
+---
+title: "Payment partner integration"
+menu: Payments
+route: /docs/payments/payment-partner-integration
+excerpt: A payment processor is an entity that enables interbank settlement of funds.
+types: 
+  - guide
+_tags:
+  - payment processing
+  - payment
+  - partner
+  - automatic load
+  - create
+  - plugin registration
+  - nonprocessing days
+  - non-processing days
+  - automatic load
+  - configuration
+  - partner linkage
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Payment partner integration
+
+A payment processor is an entity that enables interbank settlement of funds. As part of the card payment process, payment processors handle communication between the merchant and the customer's bank to enable the transfer of funds during each transaction. To manage a financial product, payments must be tracked to and from payment processors. As payments occur, the underlying ledger needs to be notified of payments to update the affected accounts as needed.
+
+## What we do
+
+Episode Six (E6) defines each payment processor as a payment partner entity in the E6 ledger to enable accurate recording of payments. Payment processor partners can be enabled for different payment types, such as loads, withdrawals, and purchases. Payment partners can also be configured to enable external and recurring payments, such as for automatic load.
+
+## Prerequisites
+
+A partner must exist that owns a program and customers. This partner is used for program management and is separate from the payment partner. For more information, see [Partners](/docs/platform-access/partners).
+
+## Actions
+
+### Payment partner creation
+
+To create a payment partner, call the [Create a partner API](/tech-specs/partners/partners/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_createPartner_POST).
+
+### Plugin registration
+
+To enable the payment partner to record specific transaction types, plugins must be registered for the partner. Plugins must be registered to support the following transaction types and behaviors depending on your requirements:
+
+- Load
+- Withdraw
+- Purchase
+- Automatic load
+- Automatic load cure period
+
+<Callout
+    calloutType={'info'}
+>
+    Partner plugin registration is handled by E6 during initial setup.
+</Callout>
+
+### Non-processing days
+
+If the payment partner is to be used to process recurring payments like automatic loads and credit card repayments, a list of non-processing days should be defined for the partner. A non-processing day is a day on which a payment processor is unable to take payments, such as weekends or national holidays. During initial product setup, a list of non-processing days as far out as possible should be provided to E6. Non-processing days can be provided to E6 on an ongoing basis so that the calendar can be continually updated. E6 will configure the calendar in your instance highlighting which days are non-processing days.
+
+<Callout
+  calloutType={'warning'}
+>
+  E6 does not validate the accuracy of non-processing days. Ensure that your list of non-processing days is accurate to avoid any production issues.
+</Callout>
+
+### Automatic load configurations
+
+If recurring payments processing is required, the payment partner must be configured to support automatic load. During initial configuration with E6, your automatic load payment approach must be determined. E6 establishes the partner based on your payment approach preference. There are two methods for processing automatic loads:
+
+- **Positive response:** The automatic load transaction is created in pending status and has to be manually cleared. The customer will not have access to funds until the load is cleared.
+- **Negative response:** The automatic load transaction is created in pending status and automatically cleared on the scheduled date. The customer will have immediate access to the funds on the due date. If a payment failure occurs, then the payment will need to be reversed.
+
+Payment partners must also be configured with specific attributes to determine how automatic load transactions are handled. To add automatic load partner attributes, call the [Create or Update Autoload Partner Attribute API](/tech-specs/partners/partner-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.AutoloadAPI_settings_POST). The following attributes must be defined for an automatic load payment partner:
+
+| Attribute name | Description |
+| -------------- | ----------- |
+| `daysOffset` | Number of days before the payment due date on which E6 generates the payment request and creates a pending transaction. This attribute accepts any integer 1-10 representing the length of the day offset. |
+| `shiftSetting` | Method for rescheduling automatic load due dates that fall on non-processing days. This attribute accepts the following values: `NONE`, `FORWARD`, and `BACKWARD`. |
+| `releaseHoursPrior` | The timing of when the pending transaction is released to the customer. By default, pending transactions are released 1 hour before the payment due time. If `releaseHoursPrior` is set to `21` as an example, the release time of the pending transaction will be moved 21 hours earlier. |
+
+For API samples of configuring a payment partner with automatic load attributes, see the [Appendix](#appendix).
+
+An automatic load *cure period* can also be defined during initial configuration with E6. A cure period is the number of processing days that must elapse between the creation of a customer's automatic load rule and the customer's first automatic load extraction date. When a cure period is enabled, customers are not debited by an automatic load until the cure period has passed.
+
+When the automatic load rule is triggered on the scheduled date, a payment request is extracted and a pending transaction for the automatic load amount is created. For more information on automatic loads and the extraction file see [Automatic load processing](/docs/payments/automatic-load/#appendix-automatic-load-extraction-file).
+
+### Partner linkage
+
+Once the payment partner has been configured to support the desired payment use cases, partner linkages can be established. Partners are connected to payment processors via partner linkages. Connecting a partner that holds programs and customers to a payment partner with a partner linkage allows that partner's programs and customers to process payments using the payment partner.
+
+Initial partner linkages between partners and payment partners are configured by E6 during the client onboarding process. Additional partner linkages can be defined post launch. For more information on how to link partners, see [Data segregation](/tech-specs/getting-started/data-segregation).
+
+## What's next
+
+Once the payment partner has been configured, the partner can be used to record various types of payments. For information about card payments, see [Card payments](/docs/cards/card-payments). For information about initiating and recording different payment types using a payment partner, see [Load](/docs/payments/account-funding), [Withdraw](/docs/payments/withdraw), [Purchase](/docs/payments/purchase), and [Automatic load](/docs/payments/automatic-load).
+
+## Appendix
+
+Here is an example of a request to set autoload attributes for a payment partner:
+
+```json
+{
+  "daysOffset": 7,
+  "shiftSetting": "FORWARD"
+}
+```
+
+This call sets the partner's payment offset to `7`, so that automatic load payment requests are generated seven days before the payment due date. Additionally, it sets the partner's payment shift setting to `FORWARD`, so that automatic load payment due dates that fall on non-processing days are shifted to the first business day after the non-processing day.

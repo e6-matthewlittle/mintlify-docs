@@ -1,0 +1,58 @@
+---
+title: "Interest-bearing deposit simulation"
+menu: Interest-bearing deposits
+route: /docs/interest-bearing-deposits/simulation
+excerpt: Simulate interest-bearing deposit account behaviors using various test scenario configurations.
+types:
+  - guide
+_tags:
+  - products
+  - interest-bearing
+  - savings account
+  - simulation
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Interest-bearing deposit simulation
+
+Interest-bearing deposit simulation is a testing tool that provides the ability to show how interest will accrue across a customer's account balances given a series of transactions. Simulation can be used to ensure that interest accrues on customer transactions as expected and that a program's interest settings are configured correctly.
+
+## What we do
+
+Episode Six (E6) provides the ability to simulate interest-bearing deposit customer accounts via a simulation API. The API allows you to simulate time passage and transaction events over the lifecycle of a customer account. Simulated transactions will accrue interest based on the program-level interest configurations. A list of events can also be provided in the request. The response is an array of account summaries.
+
+<Callout
+    calloutType={'info'}
+>
+    The Interest-Bearing Deposit Simulation API is only available in sandbox and testing environments. The API is not available in production environments.
+</Callout>
+
+## Prerequisites
+
+Before you run an interest-bearing deposit customer simulation, a program with interest-bearing deposit configurations is required. To create an interest-bearing deposit program, see [program configuration](/docs/interest-bearing-deposits/program-configuration).
+
+## Actions
+
+To perform an interest-bearing deposit customer simulation, call the [Simulate Interest-Bearing Deposit Customer API](/tech-specs/interest-bearing-deposits/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.offering.simulate.ibd.IBDSimulatorAPI_simulate_POST). In the request, provide values for the `startTime` and `endTime` attributes in UNIX epoch time. These values define the time frame over which the simulation takes place. The target `programName` and `interestTierName` of the account also need to be provided. Optionally, a `customerNumber` can be provided if simulation of an existing customer is desired.
+
+<Callout
+    calloutType={'warning'}
+>
+    Every timestamp in the API request must occur in the past. For example, if a simulation is run on September 2, 2022, at 9:00 AM GMT (UNIX epoch time: 1662109200), the start time and end time can be no later than September 1, 2022, 11:59 PM (UNIX epoch time: 1662076740).
+</Callout>
+
+To simulate customer events, provide an array of events in the `simulationEvents` array. Each event object requires an `eventTime` timestamp in UNIX epoch time. There are two types of supported events:
+
+| Category | Description |
+| ---------- | ------------------- |
+| `transaction` | A financial transction to be performed on the account. Available transaciton types include `load`. |
+| `summary` | A summary of the account at the time of the given timestamp. The summary reflects all transactions that occurred prior to the summary timestamp. |
+
+A successful request returns an array of customer account summaries for each summary event specified in the request. Each account summary reflects all simulated transactions that took place before the account summary timestamp.
+
+## What's next
+
+After performing a customer account simulation, the details of the customer can be retrieved like any other customer including balances and transactions.
