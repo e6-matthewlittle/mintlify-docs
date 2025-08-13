@@ -1,11 +1,14 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "E6 Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#DE2F5F",
+    "light": "#DE2F5F",
+    "dark": "#DE2F5F"
+  },
+  "fonts": {
+    "family": "Onest"
   },
   "favicon": "/favicon.svg",
   "integrations": {
@@ -14,107 +17,347 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/e6-dev-portal-logo-light.svg",
+    "dark": "/logo/e6-dev-portal-logo-dark.svg"
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Home",
+        "pages": [
+          "index"
+        ]
+      },
+      {
+        "tab": "Getting started",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "docs/getting-started/platform-overview",
+              "docs/getting-started/e6-cloud",
+              "docs/getting-started/quick-start"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Solutions",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "docs/getting-started/solutions/solutions-overview",
+              {
+                "group": "Cards",
+                "pages": [
+                  "docs/getting-started/solutions/prepaid-cards",
+                  "docs/getting-started/solutions/debit-cards",
+                  "docs/getting-started/solutions/multi-currency-cards",
+                  "docs/getting-started/solutions/credit-cards",
+                  "docs/getting-started/solutions/installment-cards",
+                  "docs/getting-started/solutions/virtual-card-payments",
+                  "docs/getting-started/solutions/corporate-cards"
+                ]
+              },
+              {
+                "group": "Deposits",
+                "pages": [
+                  "docs/getting-started/solutions/deposit-accounts",
+                  "docs/getting-started/solutions/multi-currency-accounts",
+                  "docs/getting-started/solutions/interest-bearing-deposit-accounts",
+                  "docs/getting-started/solutions/term-deposit-accounts",
+                  "docs/getting-started/solutions/virtual-accounts"
+                ]
+              },
+              {
+                "group": "Credit",
+                "pages": [
+                  "docs/getting-started/solutions/negative-balance-accounts",
+                  "docs/getting-started/solutions/revolving-credit",
+                  "docs/getting-started/solutions/installments",
+                  "docs/getting-started/solutions/loans"
+                ]
+              }
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Platform access",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "/docs/platform-access/platform-access",
+              "/docs/platform-access/clients",
+              {
+                "group": "Partners",
+                "pages": [
+                  "/docs/platform-access/partners/partners",
+                  "/docs/platform-access/partners/partner-attributes"
+                ]
+              },
+              {
+                "group": "Users",
+                "pages": [
+                  "/docs/platform-access/users/users-overview",
+                  "/docs/platform-access/users/users",
+                  "/docs/platform-access/users/roles-permissions",
+                  "/docs/platform-access/users/passwords",
+                  "/docs/platform-access/users/user-controls"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Customer management",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "docs/customer-management/customer-management",
+              "docs/customer-management/programs"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Customers",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "docs/customer-management/customers/customers-overview",
+              "docs/customer-management/customers/customers",
+              "docs/customer-management/customers/account-holders",
+              "docs/customer-management/customers/customer-attributes",
+              "docs/customer-management/customers/customer-search",
+              "docs/customer-management/customers/customer-relationships",
+              "docs/customer-management/customers/customer-prototypes",
+              "docs/customer-management/customers/customer-graphs",
+              "docs/customer-management/customers/account-closure"
+            ]
+          },
+          {
+            "group": "Persons",
+            "pages": [
+              "docs/customer-management/persons/persons-overview",
+              "docs/customer-management/persons/persons",
+              "docs/customer-management/persons/geographical-addresses",
+              "docs/customer-management/persons/phone-numbers",
+              "docs/customer-management/persons/email-addresses",
+              "docs/customer-management/persons/official-ids",
+              "docs/customer-management/persons/person-attributes"
+            ]
+          },
+          {
+            "group": "Blocks",
+            "pages": [
+              "docs/customer-management/blocks/blocks-overview",
+              "docs/customer-management/blocks/customer-blocks",
+              "docs/customer-management/blocks/card-blocks",
+              "docs/customer-management/blocks/external-reference-blocks"
+            ]
+          },
+          {
+            "group": "Controls",
+            "pages": [
+              "docs/customer-management/controls/controls-overview",
+              "docs/customer-management/controls/program-controls",
+              "docs/customer-management/controls/customer-controls",
+              "docs/customer-management/controls/card-controls",
+              "docs/customer-management/controls/merchant-controls",
+              "docs/customer-management/controls/organizational-controls",
+              "docs/customer-management/controls/control-alerts",
+              "docs/customer-management/controls/control-measurements"
+            ]
+          },
+          {
+            "group": "Change orders",
+            "pages": [
+              "docs/customer-management/change-orders/change-orders-overview",
+              "docs/customer-management/change-orders/customer-change-orders",
+              "docs/customer-management/change-orders/program-change-orders",
+              "docs/customer-management/change-orders/partner-change-orders"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Cards",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "/docs/cards/cards-overview"
+            ]
+          },
+          {
+            "group": "Issuer setup",
+            "pages": [
+              "docs/cards/issuing-setup-overview",
+              "docs/cards/card-networks",
+              "docs/cards/iin-procurement",
+              "docs/cards/certification",
+              "docs/cards/pci-compliance"
+            ]
+          },
+          {
+            "group": "Card issuance",
+            "pages": [
+              "docs/cards/issuance-overview",
+              "docs/cards/card-profiles",
+              "docs/cards/physical-cards",
+              "docs/cards/customer-card-issuance",
+              "docs/cards/bulk-card-issuance",
+              "docs/cards/card-activation",
+              "docs/cards/card-on-file-updaters"
+            ]
+          },
+          {
+            "group": "Card tokens",
+            "pages": [
+              "docs/cards/card-tokens",
+              "docs/cards/digital-wallets",
+              "docs/cards/token-service-providers",
+              "docs/cards/token-provisioning",
+              "docs/cards/token-authorization",
+              "docs/cards/card-token-management"
+            ]
+          },
+          {
+            "group": "Card payments",
+            "pages": [
+              "docs/cards/card-payments-overview",
+              "docs/cards/virtual-card-access",
+              "docs/cards/card-payment-decisioning",
+              "docs/cards/card-payment-processing",
+              "docs/cards/card-payment-simulation",
+              "docs/cards/3DS",
+              "docs/cards/cooperative-authorization",
+              "docs/cards/network-messages"
+            ]
+          },
+          {
+            "group": "Card management",
+            "pages": [
+              "docs/cards/card-management-overview",
+              "docs/cards/card-lookup",
+              "docs/cards/pin-management",
+              "docs/cards/card-state-management",
+              "docs/cards/card-attributes",
+              "docs/cards/account-level-management",
+              "docs/cards/card-expiration"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Ledger",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "docs/ledger/ledger-overview"
+            ]
+          },
+          {
+            "group": "Balances",
+            "pages": [
+              "docs/ledger/balances/balances-overview",
+              "docs/ledger/balances/customer-balances",
+              "docs/ledger/balances/customer-portfolio-balances",
+              "docs/ledger/balances/program-operating-balances",
+              "docs/ledger/balances/partner-balances",
+              "docs/ledger/balances/adjustments",
+              "docs/ledger/balances/chargeoffs"
+            ]
+          },
+          {
+            "group": "Transactions",
+            "pages": [
+              "docs/ledger/transactions/transactions-overview",
+              "docs/ledger/transactions/transactions",
+              "docs/ledger/transactions/authorization-holds",
+              "docs/ledger/transactions/external-transactions",
+              "docs/ledger/transactions/reversals",
+              "docs/ledger/transactions/transaction-attributes",
+              "docs/ledger/transactions/memo-templates"
+            ]
+          },
+          {
+            "group": "Payments",
+            "pages": [
+              "docs/ledger/payments/payments-overview",
+              "docs/ledger/payments/account-funding",
+              "docs/ledger/payments/withdraw",
+              "docs/ledger/payments/p2p-transfer",
+              "docs/ledger/payments/purchase",
+              "docs/ledger/payments/partner-transfers",
+              "docs/ledger/payments/payment-partner-integration",
+              "docs/ledger/payments/automatic-load"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Tech Specs",
+        "groups": [
+          {
+            "group": "Tech Specs",
+            "pages": [
+              {
+                "group": "Home",
+                "pages": [
+                  "tech-specs/getting-started/introduction",
+                  "tech-specs/getting-started/environments",
+                  "tech-specs/getting-started/data-segregation",
+                  "tech-specs/getting-started/headers",
+                  "tech-specs/getting-started/authentication",
+                  "tech-specs/getting-started/identifiers",
+                  "tech-specs/getting-started/pagination",
+                  "tech-specs/getting-started/response-codes",
+                  "tech-specs/getting-started/logging",
+                  "tech-specs/getting-started/deprecations"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Programs",
+            "openapi": {
+              "source": "tech-specs/openapi/customer-management/programs/programs.yaml"
+            }
+          },
+          {
+            "group": "Customers",
+            "openapi": {
+              "source": "tech-specs/openapi/customer-management/customers/customers/customers.json"
+            }
+          }
+        ]
+      },
+      {
+        "tab": "Dashboard",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "docs/dashboard/dashboard-overview",
+              "docs/dashboard/login"
+            ]
+          },
+          {
+            "group": "Customers",
+            "pages": [
+              "docs/dashboard/customer-search",
+              "docs/dashboard/customer-details",
+              "docs/dashboard/person-details",
+              "docs/dashboard/card-details"
+            ]
+          },
+          {
+            "group": "Programs",
+            "pages": [
+              "docs/dashboard/program-list",
+              "docs/dashboard/program-details"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "linkedin": "https://linkedin.com/company/episode-six"
     }
   }
 }
