@@ -299,7 +299,7 @@
             ]
           },
           {
-            "group": "Fees"
+            "group": "Fees",
             "pages": [
               "docs/ledger/fees/fees-overview",
               "docs/ledger/fees/fees-plans",
@@ -312,7 +312,7 @@
             ]
           },
           {
-            "group": "Revolving Credit"
+            "group": "Revolving Credit",
             "pages": [
               "docs/ledger/revolving-credit/overview",
               "docs/ledger/revolving-credit/programs",
@@ -335,7 +335,7 @@
             ]
           },
           {
-            "group": "Loan on Revolving Credit"
+            "group": "Loan on Revolving Credit",
             "pages": [
               "docs/ledger/loan-on-rc/overview",
               "docs/ledger/loan-on-rc/programs",
@@ -347,7 +347,7 @@
             ]
           },
           {
-            "group": "Installments"
+            "group": "Installments",
             "pages": [
               "docs/ledger/installments/overview",
               "docs/ledger/installments/programs",
@@ -363,7 +363,7 @@
             ]
           },
           {
-            "group": "Interest-bearing deposits"
+            "group": "Interest-bearing deposits",
             "pages": [
               "docs/ledger/interest-deposits/overview",
               "docs/ledger/interest-deposits/programs",
@@ -376,18 +376,18 @@
             ]
           },
           {
-            "group": "Term deposits"
+            "group": "Term deposits",
             "pages": [
               "docs/ledger/term-deposits/overview",
               "docs/ledger/term-deposits/programs",
               "docs/ledger/term-deposits/customers",
               "docs/ledger/term-deposits/maturity",
               "docs/ledger/term-deposits/cancellation",
-              "docs/ledger/term-deposits/simulation",
+              "docs/ledger/term-deposits/simulation"
             ]
           },
           {
-            "group": "Rewards"
+            "group": "Rewards",
             "pages": [
               "docs/ledger/term-deposits/overview",
               "docs/ledger/term-deposits/enablement",
@@ -399,7 +399,7 @@
             ]
           },
           {
-            "group": "FX"
+            "group": "FX",
             "pages": [
               "docs/ledger/fx/overview",
               "docs/ledger/fx/exchanges",
