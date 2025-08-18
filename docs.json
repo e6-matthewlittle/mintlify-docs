@@ -459,16 +459,16 @@
           },
           {
             "group": "Customer management",
-            "pages": [
+            "groups": [
               {
                 "group": "Programs",
                 "pages": []
               },
               {
                 "group": "Customers",
-                "pages": [
-                  "/tech-specs/openapi/customer-management/customers/account-holders.yaml"
-                ]
+                "openapi": {
+                  "source": "tech-specs/openapi/customer-management/customers/account-members.yaml"
+                }
               },
               {
                 "group": "Persons",

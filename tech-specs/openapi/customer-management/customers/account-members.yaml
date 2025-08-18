@@ -12,8 +12,8 @@ paths:
   "/v1/customers/{customer-number}/persons":
     post:
       tags:
-      - Account Holders
-      summary: Add Account Holders
+      - Account Members
+      summary: Add Account Member - New Person
       description: |-
         Adds a secondary person to the customer account. If the primary account holder already exists, the added person is a secondary account holder.
         Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
@@ -53,8 +53,8 @@ paths:
                     lastName: Test
     get:
       tags:
-      - Account Holders
-      summary: Retrieve Customer Account Holders
+      - Account Members
+      summary: Retrieve Customer Account Members
       description: |-
         Retrieves an array of persons listed as account holders for the customer account.
         Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
@@ -79,8 +79,8 @@ paths:
   "/v1/customers/{customer-number}/persons/{person-id}":
     get:
       tags:
-      - Account Holders
-      summary: Retrieve Account Holder
+      - Account Members
+      summary: Retrieve Account Member
       description: |-
         Retrieves information on an account holder identified by `customer-number` and `persons-id`.
         Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
@@ -108,8 +108,8 @@ paths:
                 "$ref": "#/components/schemas/PersonDTO"
     put:
       tags:
-      - Account Holders
-      summary: Add Existing Account Holder to Customer
+      - Account Members
+      summary: Add Account Member - Existing Person
       description: |-
         Add an account holder identified by `customer-number` and `person-id`
 
@@ -141,8 +141,8 @@ paths:
       - {}
     delete:
       tags:
-      - Account Holders
-      summary: Remove Account Holder from Customer
+      - Account Members
+      summary: Remove Account Member
       description: |-
         Remove an account holder identified by `customer-number` and `person-id`.
 
