@@ -26,14 +26,8 @@
     },
     "mdx": {
       "server": [
-        {
-          "description": "Sandbox - Dune 1",
-          "url": "https://partner.dune1.euw-1.aws.tst.e6tech.net/restful"
-        },
-        {
-          "description": "Sandbox - Dune 2",
-          "url": "https://partner.dune2.euw-1.aws.tst.e6tech.net/restful"
-        }
+        "https://partner.dune1.euw-1.aws.tst.e6tech.net/restful",
+        "https://partner.dune2.euw-1.aws.tst.e6tech.net/restful"
       ]
     }
   },
