@@ -459,12 +459,36 @@
           },
           {
             "group": "Customer management",
-            "groups": [
+            "pages": [
+              {
+                "group": "Programs",
+                "pages": []
+              },
               {
                 "group": "Customers",
                 "openapi": {
-                  "source": "tech-specs/openapi/customer-management/customers/account-members.yaml"
+                  "source": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
                 }
+              },
+              {
+                "group": "Persons",
+                "pages": []
+              },
+              {
+                "group": "Blocks",
+                "pages": []
+              },
+              {
+                "group": "Controls",
+                "pages": []
+              },
+              {
+                "group": "Change orders",
+                "pages": []
+              },
+              {
+                "group": "Security questions",
+                "pages": []
               }
             ]
           }
