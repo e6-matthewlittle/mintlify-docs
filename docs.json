@@ -25,7 +25,7 @@
       "defaults": "required"
     },
     "mdx": {
-      "server": "https://partner.dune1.euw-1.aws.tst.e6tech.net",
+      "server": "https://partner.dune1.euw-1.aws.tst.e6tech.net/restful",
       "auth": {
         "method": "key",
         "name": "TEST"
