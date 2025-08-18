@@ -467,7 +467,7 @@
               {
                 "group": "Customers",
                 "openapi": {
-                  "source": "tech-specs/openapi/customer-management/customers/account-members.yaml"
+                  "source": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
                 }
               },
               {
