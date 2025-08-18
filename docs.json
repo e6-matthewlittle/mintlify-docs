@@ -8,7 +8,14 @@
     "dark": "#DE2F5F"
   },
   "fonts": {
-    "family": "Onest"
+    "heading": {
+      "family" : "Onest",
+      "weight": 250
+    },
+    "body": {
+      "family" : "Onest",
+      "weight": 400
+    }
   },
   "favicon": "/favicon.svg",
   "integrations": {
