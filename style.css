@@ -1,0 +1,89 @@
+
+:root {
+    --abloh: #F5F1D8;
+    --white: #ffffff;
+    --smokey: #252728;
+    --abyss: #1A1C1E;
+    --black: #000000;
+    --berry: #DE2F5F;
+    --smerf: #31C4FF;
+    --viola: #6236FF;
+    --icon-berry: #E77D8F;
+    --icon-smerf: #80D6EF;
+    --icon-viola: #9D81EF;
+    --icon-black: #333333;
+    --gradientBerry: var(--berry) 0.7%;
+    --gradientViola: var(--viola) 100.37%;
+    --gradientAngle: 111.23deg;
+    --transparentGradient: linear-gradient(var(--gradientAngle), transparent, transparent);
+    --primaryGradient: linear-gradient(var(--gradientAngle), var(--gradientBerry), var(--gradientViola));
+    --secondaryGradient: linear-gradient(111.23deg,var(--viola) 0.7%, var(--smerf) 100.37%);
+}
+
+.e6Button {
+    position: relative;
+    color: #000000;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.5em;
+    border-style: solid;
+    border-image: var(--primaryGradient) 1;
+    background-color: transparent;
+    background-image: var(--transparentGradient);
+    border-width: 1px;
+    padding: 12px 24px;
+    z-index: 1;
+}
+
+.e6Button:before {
+    position: absolute;
+    content: "";
+    inset: 0; /* same as { top: 0; right: 0; bottom: 0; left: 0; } */
+    background-image: var(--primaryGradient);
+    z-index: -1;
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.e6Button:hover {
+    color: #FFFFFF;
+}
+
+.e6Button:is(.dark *) {
+    color: #FFFFFF;
+}
+
+.e6Button:hover::before {
+    opacity: 1;
+}
+
+
+.prose h2, .prose h3 {
+}
+
+.prose h2:is(.dark *), .prose h3:is(.dark *) {
+}
+
+.prose code {
+    font-family: Monaco;
+}
+
+.prose :not(pre)>code {
+    background-color: var(--abloh);
+    border-color: var(--abloh);
+}
+.prose :not(pre)>code:is(.dark *) {
+    background-color: var(--smokey);
+    border-color: var(--smokey);
+}
+
+.prose a {
+
+}
+
+.prose a:is(.dark *) {
+}
+
+#card-group {
+    background-color: var(--smokey);
+}
