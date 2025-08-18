@@ -412,34 +412,6 @@
         ]
       },
       {
-        "tab": "Dashboard",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "docs/dashboard/dashboard-overview",
-              "docs/dashboard/login"
-            ]
-          },
-          {
-            "group": "Customers",
-            "pages": [
-              "docs/dashboard/customer-search",
-              "docs/dashboard/customer-details",
-              "docs/dashboard/person-details",
-              "docs/dashboard/card-details"
-            ]
-          },
-          {
-            "group": "Programs",
-            "pages": [
-              "docs/dashboard/program-list",
-              "docs/dashboard/program-details"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Tech Specs",
         "groups": [
           {
@@ -489,6 +461,34 @@
                 "group": "Security questions",
                 "pages": []
               }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Dashboard",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "docs/dashboard/dashboard-overview",
+              "docs/dashboard/login"
+            ]
+          },
+          {
+            "group": "Customers",
+            "pages": [
+              "docs/dashboard/customer-search",
+              "docs/dashboard/customer-details",
+              "docs/dashboard/person-details",
+              "docs/dashboard/card-details"
+            ]
+          },
+          {
+            "group": "Programs",
+            "pages": [
+              "docs/dashboard/program-list",
+              "docs/dashboard/program-details"
             ]
           }
         ]
