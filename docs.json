@@ -91,7 +91,7 @@
           {
             "group": "Platform access",
             "pages": [
-              "/docs/platform-access/overview",
+              "/docs/platform-access",
               "/docs/platform-access/clients",
               {
                 "group": "Partners",

@@ -1,0 +1,48 @@
+---
+name: "Home - Tech Specs"
+route: "/tech-specs"
+_tags:
+  - tech-specs
+  - API
+  - RESTful
+  - webhook
+  - HTTP
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+The Episode Six (E6) platform gives you everything you need to launch and operate your payments product. Our platform has its functionality exposed via RESTful HTTP APIs and webhooks. The APIs are documented using the Open API 3.0 specification format. Within the technical specifications you will find everything you need to code against the APIs including the API endpoint, operation, parameter, and model definitions. Each of the APIs is atomic so that you can pick and choose which APIs you want to use to build your product. E6 works with you during project delivery to ensure that we guide you towards the right APIs as needed. E6 only exposes one set of functionality to our clients. The APIs found in these technical specifications are the same ones that power our [Dashboard](/docs/getting-started/dashboard).
+
+While most of the APIs found in the specifications are ones that are exposed by E6, there are some such as the ones for [Cooperative authorization](/docs/cards/cooperative-authorization) which define the APIs that you need to expose in order for us to integrate to your system using a common framework.
+
+## Basepaths
+
+Depending on the [environment](/tech-specs/getting-started/environments) being used, the start of the API call URL will use a different `basepath`. E6 will provide you with the various `basepath` values when you are given access to an environment.
+
+## Versions
+
+APIs include a version number which define the API structure. You must include the version in the URL of the API call between the `basepath` and the API `path`. For almost every E6 API endpoint, the version value is `v1` and should be separated from the `basepath` and the `path` with `/` as needed.
+
+## Endpoint paths
+
+APIs use endpoints to define a specific URL, or URI, to define the RESTful resource(s) being operated upon. The endpoint is specified via the `path` of the API definition. Each endpoint `path` can include multiple HTTP methods within it.
+
+## Methods
+
+RESTful HTTP methods define the type of action that is meant to be performed via the API. The most common HTTP methods used in RESTful APIs are:
+
+* `POST` - Create a new resource
+* `PUT` - Updates an existing resource or creates the resource if it did not previously exist
+* `GET` - Retrieve the specified resource(s)
+* `DELETE` - Delete the specified resource(s)
+
+E6 follows these method definitions closely in the purpose of each API, though it may differ in some contexts based on the operation being performed.
+
+## Parameters
+
+Depending on the API endpoint being accessed, additional parameters may need to be provided. Parameters can be passed in either as a `pathParameter` or as a `queryParameter`. Path parameters are passed in the path of the HTTP call and often include unique identifiers to specify on which data object an operation should be performed. Query parameters are passed in after the path and include one or more additional parameters for scope filtering.
+
+## Data transfer objects (DTOs)
+
+E6 APIs use data transfer objects (DTOs) as part of the RESTful request and response framework. The DTOs correspond to conceptual data models that are managed by the E6 platform. For example, the `CardDTO` corresponds to the concept of a [card](/docs/cards/cards-overview) and includes the details that define a card. The DTOs include field level definitions such as field `name`, `description`, `required` flags, `examples`, and data validation requirements, and more. `POST` and `PUT` calls include a DTO in their `requestBody` as well as their `responseBody`, `GET` calls include a DTO in their `responseBody`, while `DELETE` calls most often include no DTO definitions.

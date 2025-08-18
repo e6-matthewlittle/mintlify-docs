@@ -1,0 +1,15 @@
+---
+name: "Identifiers"
+menu: Getting Started
+route: /tech-specs/getting-started/identifiers
+excerpt: Episode Six (E6) uses unique identifiers to drive locating of resources when calling RESTful API endpoints.
+_tags:
+  - identifier
+  - id
+  - unique identifier
+containerWide: true
+showHeadingsNav: true
+date: "03-13-202"
+---
+
+Episode Six (E6) APIs use unique identifiers to support targeting specific resources through our RESTful API calls. These identifiers are often passed in as `pathParameters` when making an API call. Most objects have a system identifier `id` attribute in its model definition which is used as its unique identifier. For security purposes, when API objects are returned via API, the `id` is encrypted based on the authenticated user session. This means that the `id` value will change between user sessions. Unlike the APIs, reports will always return the unencrypted `id` value when provided in the report fields. For certain key entities that are customer facing including [customer accounts](/docs/customers/customers) and [cards](/docs/cards/cards-overview) E6 provides public-facing identifiers, `customerNumber` and `cardNumber` respectively, along with the system identifier. These public-facing identifiers are not encrypted and remain the same across user sessions. Some APIs, mostly those used for product management, use unique `name` type values such as `programName` instead of a system identifier.

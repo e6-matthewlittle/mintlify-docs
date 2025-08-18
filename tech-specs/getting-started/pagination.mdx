@@ -1,0 +1,131 @@
+---
+name: "Pagination"
+menu: Getting Started
+route: /tech-specs/getting-started/pagination
+excerpt: Many of Episode Six's (E6) list-based APIs support cursor-based pagination and query-based pagination.
+_tags:
+  - pagination
+  - search
+  - queries
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+Many of Episode Six's (E6) list-based APIs support cursor-based pagination and query-based pagination. Cursor-based pagination uses a `cursor` object to navigate through large data sets, allowing you to easily view the information you need without having to sort through all the data at once. Query-based pagination can be used in the path of the endpoint.
+
+## Cursor-based pagination
+
+The following parameters can be included in supporting API calls to begin cursor-based pagination:
+
+| Parameter | Description |
+| -- | -- |
+| `timestamp` | Starting search time from which results will be included. |
+| `indexStart` | Starting cursor-based navigation index position. This can be indexes such as `transactionId`, `customerId`, `cardId`, or other indexes as applicable. |
+| `limit` | Max limit on the number of results to be displayed per page. |
+| `ascending` | Boolean where `true` sorts results in ascending order and `false` sorts in descending order. |
+
+<Callout
+    calloutType='info'
+>
+    Examples below for different pagination scenarios use the <a href={"/tech-specs/cards/card-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_listCardOrders_POST"}>Generate Program Card Order List API</a>.
+</Callout>
+
+### First page
+
+To begin using cursor-based pagination, set a `limit` on the number of items to view in your initial request.
+
+For instance, see this request to retrieve two cards from a card order:
+
+```json
+{
+    "cardOrderId" : 1000011000,
+    "limit" : 2
+}
+```
+
+The response returns the first page of results, as well as a `nextCursor` which provides the details needed for subsequent page requests.
+
+```json
+{
+    "resultCount" : 2,
+    "cursor" : {
+        "cardOrderId" : 1000011000,
+        "timestamp" : 1626289131929,
+        "limit" : 2,
+        "ascending" : false,
+        "cardId" : 1000020000,
+        "sortId" : 1000020000
+    },
+    "nextCursor" : {
+        "cardOrderId" : 1000011000,
+        "timestamp" : 1626289132252,
+        "limit" : 2,
+        "ascending" : false,
+        "cardId" : 1000020005,
+        "sortId" : 1000020005
+    },
+    "results" : [ ]
+}
+```
+
+### Next pages
+
+If the `returnCount` is equal to the `limit` then requests for further pages can continue to be made. To see the further pages, start a new request with the same endpoint and include the `indexStart` and the `timestamp` of the `nextCursor` in the new request. In the above response example, the `cardId` is the `indexStart` which should be passed into the new request.
+
+<Callout
+    calloutType='warning'
+>
+    When calling next pages, if the <tt>timestamp</tt> and <tt>indexStart</tt> are not both provided in the request, then the first page will continue to be returned.
+</Callout>
+
+```json
+{
+    "cardOrderId" : 1000011000,
+    "timestamp" : 1626289132252,
+    "limit" : 2,
+    "ascending" : false,
+    "cardId" : 1000020005,
+    "sortId" : 1000020005
+}
+```
+
+### Last page
+
+When no more results are available beyond the current page, the `resultCount` of will be less than the `limit`. At this point, no further page requests should be made using the `nextCursor` field. If you attempt to call a page with no results, the server returns an empty call:
+
+```json
+{
+    "resultCount" : 0,
+    "cursor" : {
+        "cardOrderId" : 1000011000,
+        "timestamp" : 1626289131929,
+        "limit" : 2,
+        "ascending" : false,
+        "cardId" : 1000020000,
+        "sortId" : 1000020000
+    },
+    "results" : [ ]
+}
+```
+
+### Ordering
+
+By default, results are delivered in descending order. If you want to change how the results are displayed, you can set the `ascending` parameter in the `nextCursor` to `true`. The server then returns the results in ascending order:
+
+```json
+{
+    "cardOrderId" : 1000011000,
+    "timestamp" : 1626289132252,
+    "limit" : 2,
+    "ascending" : true,
+    "cardId" : 1000020005,
+    "sortId" : 1000020005
+}
+```
+
+## Query-based pagination
+
+Some limited sets of TRITIUM APIs still use query-based pagination. To use query-based pagination, use the query parameters provided in the path. For example, consider endpoint `/v1/customers/{customer-number}/transaction-entries` and the corresponding query params `start-index`, `count`, and `ascending`. Using the corresponding query params for the endpoint, the path is now  `v1/customers/{customer-number}/transaction-entries?start-index=1&count=1&ascending=false`.

@@ -1,0 +1,28 @@
+---
+name: "Logging"
+menu: Getting Started
+route: /tech-specs/getting-started/logging
+excerpt: Logging provides the ability to view and monitor system events.
+_tags:
+  - auditing
+  - customer activity
+  - logging
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+Logging provides the ability to view and monitor system events. Each log entry includes the type of event, the time the event occurred, and the details of the event.
+
+## What we do
+
+Episode Six (E6) conducts logging across all activities within the TRITIUM platform including API requests as well as internal operations. This provides clients the ability to perform the following functions:
+
+1. Monitor system activity for exceptions
+2. Track the activity of different system users
+3. Understand the history that lead to the current state of a customer
+
+## Actions
+
+Log entries for API operations can be retrieved using the [Logs API](/tech-specs/system/logs). Logs can be retrieved either by `customer` or by `user`. To improve the ability to debug using the logs API requests should include the headers of `X-Request-ID` and the `X-Correlation-ID`. For more information, see [Headers](/tech-specs/getting-started/headers).
+

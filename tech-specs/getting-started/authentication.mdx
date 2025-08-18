@@ -1,0 +1,43 @@
+---
+name: "Authentication"
+menu: Getting Started
+route: /tech-specs/getting-started/authentication
+excerpt: Users can be provisioned access authorization in order to make requests to a system.
+_tags:
+  - login
+  - logout
+  - authentication
+  - token
+  - authorization
+  - bearer token
+containerWide: true
+showHeadingsNav: true
+date: "03-13-202"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+Users can be provisioned access authorization in order to make requests to a system. Access is only typically granted after the user has been authenticated using some type of identity validation. The user is identified using some type of unique identifier such as a username. Proof of identity is then performed using a password, a one-time password, or other mechanism.
+
+## What we do
+
+Episode Six (E6) provides an out-of-the-box authentication mechanism for users. A bearer token is then provided to the user to pass in the header of subsequent API calls made to the E6 platform.
+
+<Callout
+    calloutType={'info'}
+>
+    E6 is also able to support other types of authentication methods other that the built in identity and access management capability. E6 is able to integrate with OAuth2 providers to provide single sign-on (SSO) and with TOTP providers to provide multi-factor authentication (MFA). For more information, reach out to your E6 representative.
+</Callout>
+
+## Prerequisites
+
+A user can authenticate with the TRITIUM platform as soon as it has been created. For more information, see [Users](/docs/users/users).
+
+## Actions
+
+A bearer token can be generated for a user by using the [Login API](/tech-specs/users/user-authentication/api?#operation/net.e6tech.h3.middletier.api.v1.partner.PartnerAuthAPI_login_POST). The request must include the `partnerName` of the partner under which the user was created, the `username`, and the user's `password`. If TOTP has been set up, then the `otp` field must be populated with the generated one-time password. The response to a successful authentication will include a bearer token in the `tokenId` field.
+
+## What's next
+
+By default, the E6 generated bearer token is good for 20 minutes. If no API calls are made within that period, the token will expire, requiring a fresh token. After expiration, the process must be repeated to receive a fresh authentication token. All Bearer tokens have a max duration of 24 hours. In some cases, [PCI-compliance](/docs/cards/pci-compliance) might dictate that bearer tokens are only good for 15 minutes.
+

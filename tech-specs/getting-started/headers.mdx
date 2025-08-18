@@ -1,0 +1,26 @@
+---
+name: "Headers"
+menu: Getting Started
+route: /tech-specs/getting-started/headers
+excerpt: Episode Six (E6) accepts certain headers as part of the exposure of RESTful APIs from the TRITIUM platform.
+_tags:
+  - headers
+  - debugging
+  - correlation
+containerWide: true
+showHeadingsNav: true
+date: "03-13-202"
+---
+
+Episode Six (E6) accepts certain headers as part of the exposure of RESTful APIs from the TRITIUM platform. These headers enable basic processing of RESTful API payload, secure access, and the ability to enable better debugging.
+
+| Header Field | Description |
+| ---------- | ------------------- |
+| `Authorization` | The bearer token provided after user authentication. |
+| `Content-Type` | The media type of the request payload where one is provided such as for `POST` and `PUT` calls. For TRITIUM this is almost always `application/json`. |
+| `X-Request-ID` | A unique universally unique identifier (UUID) that can be assigned to each HTTP request. |
+| `X-Correlation-ID` | A unique UUID that can be assigned to each process execution. This can be reused across multiple API calls to TRITIUM if they are a part of the same process such as customer onboarding where TRITIUM is asked to create a customer and then release the customer block. |
+
+## Debugging
+
+To help with debugging of issues with the TRITIUM platform, the API caller can provide the `X-Request-ID` and the `X-Correlation-ID`. If provided, these will be included in the log details. When reporting a bug, the `X-Request-ID` and the `X-Correlation-ID` should be provided in the support request.

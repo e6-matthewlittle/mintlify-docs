@@ -1,0 +1,40 @@
+---
+name: "Deprecations"
+menu: Getting Started
+route: /tech-specs/getting-started/deprecations
+excerpt: Episode Six (E6) will sometimes retire an API which has already been exposed.
+_tags:
+  - deprecation
+  - replacement
+containerWide: true
+showHeadingsNav: true
+date: "03-13-202"
+---
+
+Episode Six (E6) will sometimes retire an API which has already been exposed. This is most often done with a direct replacement API available which can be used to replace the functionality exposed by the deprecated API.
+
+## Deprecation policy
+
+Once an API has been deprecated, E6 clients who have previously had access to the API already can continue to access while new clients cannot. Existing clients will have 180 days from the point of deprecation to move to the replacement API. E6 will send a reminder to impacted clients about the deprecation of the impacted API 90 days into the 180-day period.
+
+## Deprecated APIs
+
+| Deprecated API                                                         | Replacement API |
+| ---------------------------------------------------------------------  | --------------- |
+| `GET /v1/banks/currencies`                                             | `GET /v1/banks/{bank-name}/currencies` |
+| `POST /v1/cards/{card-id}/blocks/{block-id}/release`                   | `POST /v1/cards/{card-id}/blocks/{block-id}`  |
+| `POST /v1/cards/order`                                                 | `POST /v1/stores/orders` |
+| `POST /v1/customers/{customer-number}/blocks/{block-id}/release`   | `POST /v1/customers/{customer-number}/blocks/{block-id}` |
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/program` |
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/externalreference` |
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/customernumber`|
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/name` |
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/pan` |
+| `POST /v1/customers/search`                                            | `POST /v1/customers/search/cardnumber` |
+| `GET /v1/customer/transactions`                                        | `POST /v1/customer/transactions/list`|
+| `GET /v1/customer/transactions/pending`                                | `POST /v1/customer/transactions/pending/list` |
+| `PUT /v1/customers/{customer-number}/authholds/{authorization-id}` | `PUT /v1/customers/{customer-number}/authholds/{authorization-id}/release` |
+| `GET /v1/customers/{customer-number}/authholds/page`               | `POST /v1/customers/{customer-number}/authholds/list` |
+| `GET /v1/customers/{customer-number}/iso8583/messages`             | `POST /v1/iso8583/messages/list` |
+| `GET /v1/customers/{customer-number}/transactions/pending`         | `POST /v1/transaction/pending/list` |
+| `GET /v1/customers/{customer-number}/transactions`                 | `POST /v1/transaction/list` |

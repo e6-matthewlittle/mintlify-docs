@@ -1,0 +1,26 @@
+---
+name: "Data segregation"
+menu: Getting Started
+route: /tech-specs/getting-started/data-segregation
+excerpt: Operating a multi-tenant system requires reliable data segregation to ensure that different tenants cannot see or alter the data of other tenants.
+_tags:
+  - partner links
+  - program links
+  - logical segregation
+  - separation
+  - segregation
+  - data segregation
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+Operating a multi-tenant system requires reliable data segregation to ensure that different tenants cannot see or alter the data of other tenants. A common type of data segregation is through logical data segregation, where all data is in a single database but the data is "logically" separated through access controls.
+
+## What we do
+
+Episode Six (E6) provides an inherent logical data segregation mechanism at multiple levels of the platform. At the highest level E6 clients as tenants (banks) cannot access data of other tenants. This is always enforced. By default, a party (partner) within a tenancy only has access to the data for the programs, customers, or other data owned by that party. If access is required across parties, then [linkages](/docs/getting-started/partners/partner-linkages).
+
+* Setting up an administration partner who governs sub-tenants
+* Adding a third party service provider such as a payment processor who needs access to APIs
+* Adding a third party who needs read-only access
