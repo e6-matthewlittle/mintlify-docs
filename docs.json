@@ -120,7 +120,7 @@
           {
             "group": "Overview",
             "pages": [
-              "docs/customer-management/customer-management",
+              "docs/customer-management",
               "docs/customer-management/programs"
             ]
           },
