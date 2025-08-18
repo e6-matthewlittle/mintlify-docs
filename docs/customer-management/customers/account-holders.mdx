@@ -1,0 +1,57 @@
+---
+title: "Account holders"
+menu: Customers
+route: /docs/customers/account-holders
+excerpt: An account holder is a person with access to a customer account.
+types: 
+  - guide
+_tags:
+  - account
+  - account holders
+  - primary
+  - secondary
+  - add 
+  - new
+containerWide: true
+showHeadingsNav: true
+date: "02-3-2023"
+---
+
+# Account holders
+
+An account holder is a person with access to a customer account. Account holders can access the account balance, have cards issued, and make payments using the account. In certain cases, additional persons might need access the same account. Any number of account holders can be added to an account. Common uses for account holders include:
+
+- Joint or family accounts with multiple family members
+- Departmental accounts with multiple employees per department
+
+## What we do
+
+Episode Six (E6) supports the ability to add primary and secondary account holders to customer accounts. A customer account always has a primary account holder when the account is opened. At any point after the account is opened, additional persons can be added as account holders. Additional persons can be managed as needed.
+
+<!-- Account holder uses the common person model (link to persons once the Persons overview is created) -->
+
+<!--Requires a diagram later-->
+
+## Prerequisites
+
+Before adding a new account holder, a customer account must be created. When a customer account is created, the primary account holder is created in the request by default. To create customer accounts, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To manage account holders, clients can create new persons and associate them with an existing customer, link existing persons to additional customer accounts, or remove account holders from customer accounts.
+
+### Add account holder to a customer account 
+
+New account holders can be added to a customer account by calling the [Add Account Holder API](/tech-specs/customers/account-holders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addPerson_POST).
+
+### Add existing account holder to a customer account
+
+Existing account holders can be added to existing customer accounts by calling the [Add an Existing Account Holder to a Customer API](/tech-specs/customers/account-holders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addPerson_POST).
+
+### Remove account holder from customer account
+
+Remove an account holder from a customer account by calling the [Remove Account Holder from Customer API](/tech-specs/customers/account-holders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_removePerson_DELETE").
+
+## What's next
+
+Once an account holder has been added to a customer account, that person can have a card [issued](/docs/cards/issuance-overview). Account holders use the common person model, including personal data like phone numbers, email addresses, and geographical addresses. For more information, see [Persons overview](/docs/persons/persons-overview).

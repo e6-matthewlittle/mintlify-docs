@@ -1,0 +1,50 @@
+---
+title: "Customer blocks"
+menu: Customers
+route: /docs/blocks/customer-blocks
+excerpt: Customer blocks are used to temporarily or permanently stop types of customer activity.
+types: 
+  - guide
+_tags:
+  - blocks
+  - customers
+  - customer block
+  - customer blocks
+  - customer
+  - types
+  - temporary
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Customer blocks
+
+Customer blocks are used to temporarily or permanently stop customer activity, including payments. Scenarios where you might want to temporarily block a customer include the detection of fraudulent activity, delinquency on an account, or travel. Permanent blocks are used in situations where the account is dormant or the customer is no longer allowed to use the account.
+
+## What we do
+
+Episode Six (E6) offers the ability to add, manage, and release blocks on an account. An E6 customer can have any number of blocks associated with the customer at any time. Allowing multiple blocks at a time avoids customer records having an overloaded status column that attempts to handle multiple orthogonal issues at any given time. A customer block stops all payment activity on the customer account. Customer blocks act independently of other types of controls, including [card blocks](/docs/blocks/card-blocks), which only affect individual cards.
+
+E6 supports the following types of customer blocks:
+
+| Customer block type | Description |
+| -- | -- |
+| Closed | The customer no longer needs the account. |
+| Fraud | Fraudulent activity is prevented from occurring. |
+| System | Automated system logic triggered a block. |
+| Termination | The customer can no longer access the account. |
+| Activation | The customer has been setup but has not cleared all onboarding requirement for account usage. |
+| Delinquency | The customer misses a payment and becomes delinquent. |
+
+## Prerequisites
+
+A customer account must be created before a customer block can be created. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To create a block on a customer account, call the [Create Customer Block API](/tech-specs/blocks/customer-blocks/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createCustomerBlock_POST). Each block requires a reason code to be provided.
+
+## What's next
+
+The existence of a customer block causes all future payments on the customer account to be rejected. Once a block has been created, it can be released so that the account can continue to make payments. To release a block, call the [Release Customer Blocks API](/tech-specs/blocks/customer-blocks/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_releaseCustomerBlockWithReleaseDTO_POST) on the desired block. This API also allows you to release multiple blocks at the same time. Multiple blocks can be released by providing a `blockReason`, selected to `releaseSimilar` along with the target `encryptedBlockId`, or even selecting to release similar blocks for child customers.

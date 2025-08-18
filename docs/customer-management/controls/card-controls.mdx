@@ -1,0 +1,111 @@
+---
+title: "Card controls"
+menu: Controls
+route: /docs/controls/card-controls
+excerpt: Card controls allow clients to restrict and limit how a specified card is used.
+types: 
+  - guide
+_tags:
+  - cards
+  - limit card
+  - card restrictions
+  - risk
+  - risk rule
+  - control rules
+  - customer
+  - create card level risk exception
+  - card
+  - control parameters
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+# Card controls
+
+Card controls allow clients to limit how a specified card is used. These controls help to prevent overuse, fraud, and other forms of risk. Common uses for card controls include:
+
+- Limiting certain account holders' activity through cards
+- Creating one-time use cards with limited usability on a single account
+
+## What we do
+
+Episode Six (E6) provides the ability to set up and manage customer-level and card-level control rules. Card controls can be associated with an issued card and are linked to customer-level control rules.  For example, if a customer account has a purchase limit of $500 and the account’s card has a purchase limit of $200, then card activity would be controlled by both customer-level and card-level control rules. Once created, card controls can also be managed and removed as needed.
+
+## Prerequisites
+
+To create control rules on a customer card, a card must be [issued](/docs/cards/issuance-overview).
+
+## Actions
+
+To create a card control for an individual card, call the [Create Card Level Risk Exception API](/tech-specs/controls/card-controls/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_createCardRiskException_POST). When creating a card control, the card must be specified in the request along with the control `paramName` and `paramValue`. Ensure the provided `paramValue` is valid (numerals only, no alpha-numericals, no special characters apart from decimal points) and matches the data type of the related `paramName`. The `paramValue` field has a character limit of 1,024 for card controls.
+
+ For more information on the allowable control rule types for card controls, see the Appendix.
+
+Optionally, a release time for the card control can be included so that the control will automatically be removed from the card once the release time has occurred.
+
+<Callout
+    calloutType={'info'}
+>
+    Card controls can be added independently or can further restrict matching active program and customer controls
+</Callout>
+
+
+## What’s next
+
+As card payments are processed, the card controls will be activated according to how the controls  are set. See [Card payment decisioning](/docs/cards/card-payment-decisioning) for more information. Card controls can be managed and removed by calling the [Card Controls APIs](/tech-specs/controls/card-controls).
+
+## Appendix: Card-level control parameters
+
+This table lists card-only control parameters that can be applied to customer cards.
+
+| Control parameter                   | Type       | Description                                                                                                                                                                                                                               |
+| ------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowed_acquirers_merchants` | String | Whitelist specific merchants, acquirers, or acquirer-merchant pairs. The provided value should be a comma-separated list of acquirerIDs, merchantIDs, and acquirerID-merchantID combinations (replace the dash between acquirerID and merchantID with a vertical bar character)|
+| `allowed_countries` | String | A comma-separated list of 2-character alpha country codes e.g. US,AU. Transactions from any of these countries are accepted. |
+| `allowed_mcc`               | String     | A comma-separated list of Merchant Category Code ranges (MCCs). Ranges should be hyphen (-) seperated. Single MCCs can be provided. Transactions identified by any MCC within the specified ranges are allowed. Example paramValue: `232-234,1234-1256,5551`  |                                                                                                                  |
+| `atm_1d`                    | BigDecimal | The maximum amount allowed for ATM withdrawal in a 24-hour (day) period.                                                                                                                                                                  |
+| `atm_30d`                   | BigDecimal | The maximum amount allowed for ATM withdrawal in a 30-day (month) period.                                                                                                                                                                 |
+| `atm_7d`                    | BigDecimal | The maximum amount allowed for ATM withdrawal in a 7-day (week) period.                                                                                                                                                                   |
+| `atm_limit`                 | BigDecimal | The maximum amount allowed for ATM withdrawal in a single transaction.                                                                                                                                                                    |
+| `blocked_countries`         | String     | A comma-separated list of of 2-character alpha country codes e.g. US,AU. Transactions identified from any of these countries are rejected.                                                                                                                                |
+| `blocked_mcc`               | String     | A comma-separated list of Merchant Category Code ranges (MCCs). Ranges should be hyphen (-) seperated. Single MCCs can be provided. Transactions identified by any MCC within the specified ranges are rejected. Example paramValue: `232-234,1234-1256,5551`  |
+| `card_not_present_allowed_countries`         | String     | Specifies a whitelist of countries where card-not-present (CNP) transactions are allowed. Countries should be provided as a comma-separated string of ISO country codes. This control should not be used while `disable_card_not_present` is set to `true`.                                                                                                                                                                            |
+| `combined_cashback_amount_1d` | BigDecimal | The maximum amount allowed for combined cash withdrawals in a 1 day period from ATM or POS. |
+| `combined_cashback_amount_7d` | BigDecimal | The maximum amount allowed for combined cash withdrawals in a 7 day period from ATM or POS.  |
+| `combined_cashback_amount_30d` | BigDecimal | The maximum amount allowed for combined cash withdrawals in a 30 day period from ATM or POS. |
+| `combined_purchase_1d`      | BigDecimal | The combined limit of POS and online purchases in a 24-hour (day) period.                                                                                                                                                                 |
+| `disable_card_not_present`  | Boolean    | Disables a card not present transaction. Card not present transactions include online transactions and Mail Order Telephone Order (MOTO) transactions. The cardPresent indicator in the ISO derives card present versus card not present. |
+| `disable_card_present`      | Boolean    | Disables a card present transaction.                                                                                                                                                                                                      |
+| `international_limit`       | BigDecimal | The maximum amount allowed for a international single transaction.                                                                                                                                                                        |
+| `limit_card_not_present`    | BigDecimal | The maximum amount allowed for a card not present transaction in a single transaction.                                                                                                                                                    |
+| `moto_limit`                | BigDecimal | The maximum amount allowed for a mail order / telephone order (MOTO) card payments. |
+| `online_purchase_1d`        | BigDecimal | The maximum amount for online purchase over a 24-hour (day) period.                                                                                                                                                                       |
+| `online_purchase_30d`       | BigDecimal | The maximum amount for online purchase over a 30-day (month) period.                                                                                                                                                                      |
+| `online_purchase_7d`        | BigDecimal | The maximum amount for online purchase over a 7-day (week) period.                                                                                                                                                                        |
+| `online_purchase_count_1d`  | Long       | The maximum count of transactions for online purchase in a 24-hour (day) period.                                                                                                                                                          |
+| `online_purchase_count_30d` | Long       | The maximum count of transactions for online purchase in a 30-day (month) period.                                                                                                                                                         |
+| `online_purchase_count_7d`  | Long       | The maximum count of transactions for online purchase in a 7-day (week) period.                                                                                                                                                           |
+| `online_purchase_limit`     | BigDecimal | The maximum amount for online purchase applied to the customer.                                                                                                                                                                           |
+| `pos_purchase_1d`           | BigDecimal | A number indicating the POS purchase amount limit for 24-hours (day).                                                                                                                                                                     |
+| `pos_purchase_30d`          | BigDecimal | A number indicating the POS purchase amount limit for 30-days (month).                                                                                                                                                                    |
+| `pos_purchase_7d`           | BigDecimal | A number indicating the POS purchase amount limit for 7-days (week).                                                                                                                                                                      |
+| `pos_purchase_count_1d`     | Long       | The maximum count of transactions for POS purchase in a 24-hour (day) period.                                                                                                                                                             |
+| `pos_purchase_count_30d`    | Long       | The maximum count of transactions for POS purchase in a 30-day (month) period.                                                                                                                                                            |
+| `pos_purchase_count_7d`     | Long       | The maximum count of transactions for POS purchase in a 7-day (week) period.                                                                                                                                                              |
+| `pos_purchase_limit`        | BigDecimal | A number indicating the POS purchase amount limit for a program.                                                                                                                                                                          |
+| `purchase_contactless_no_pin_rolling_limit` | BigDecimal | A limit on the total value of contactless card-present transactions that can be made without providing a PIN across multiple transactions. When a PIN is provided, the counter resets. |
+| `purchase_1d`               | BigDecimal | The limit on all purchase transaction types in a 24-hour (day) period. This control applies to purchases made through scheme transactions and through the E6 Merchant APIs.                                                               |
+| `purchase_1y`               | BigDecimal | The limit on all purchase transaction types in a 1-year (annual) period. This control applies to purchases made through scheme transactions and through the E6 Merchant APIs. If you wish to enable this rule, please contact your E6 representative as it will need to be registered.                                                             |
+| `purchase_30d`              | BigDecimal | The limit on all purchase transaction types in a 30-day (month) period. This control applies to purchases made through scheme transactions and through the E6 Merchant APIs.                                                              |
+| `purchase_7d`               | BigDecimal | The limit on all purchase transaction types in a 7-day (week) period. This control applies to purchases made through scheme transactions and through the E6 Merchant APIs.                                                                |
+| `purchase_count_1d`         | Long       | The maximum count of transactions for purchases in a 24-hour (day) period. Applies to any purchase regardless of whether it is POS or online.                                                                                             |
+| `purchase_count_30d`        | Long       | The maximum count of transactions for purchases in a 30-day (month) period. Applies to any purchase regardless of whether it is POS or online.                                                                                            |
+| `purchase_count_7d`         | Long       | The maximum count of transactions for purchases in a 7-day (week) period. Applies to any purchase regardless of whether it is POS or online.                                                                                              |
+| `purchase_limit`            | BigDecimal | The maximum purchase amount limit for a program for a single purchase.                                                                                                                                                                    |
+| `withdraw_1d`               | BigDecimal | The maximum withdrawal amount allowed in a 24-hour (day) period. The withdrawal limits apply to withdraw transactions (transaction type 6). Limits any type of withdrawal made using transaction type 4.                                  |
+| `withdraw_1y`               | BigDecimal | The maximum withdrawal amount allowed in a 1-year (annual) period. The withdrawal limits apply to withdraw transactions (transaction type 6). Limits any type of withdrawal made using transaction type 4. If you wish to enable this rule, please contact your E6 representative as it will need to be registered.                                |
+| `withdraw_30d`              | BigDecimal | The maximum withdrawal amount allowed in a 30-day (month) period. The withdrawal limits apply to withdraw transactions (transaction type 6). Limits any type of withdrawal made using transaction type 4.                                 |
+| `withdraw_7d`               | BigDecimal | The maximum withdrawal amount allowed in a 7-day (week) period. The withdrawal limits apply to withdraw transactions (transaction type 6). Limits any type of withdrawal made using transaction type 4.                                   |
+| `withdraw_limit`            | BigDecimal | The maximum withdrawal amount in a single transaction. The withdrawal limits apply to withdraw transactions (transaction type 6). Limits any type of withdrawal made using transaction type 4.                                            |
+| `withdraw_percentage_limit` | BigDecimal | The maximum percentage of the overall credit limit that can be used for cash advance balances. This value can be any decimal number between 0 and 1.                                                                                      |

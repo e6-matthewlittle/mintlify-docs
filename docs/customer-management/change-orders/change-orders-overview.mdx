@@ -1,0 +1,69 @@
+---
+title: "Change orders overview"
+sidebarTitle: "Overview"
+menu: Change orders
+route: /docs/change-orders/change-orders-overview
+excerpt: Change orders enable configuration updates and actions to be performed in the future.
+types: 
+  - guide
+_tags:
+  - change orders
+  - fees
+  - fee plans
+  - credit limit
+  - activation
+  - change
+  - update
+  - service agent
+  - use cases
+containerWide: true
+showHeadingsNav: true
+date: "12-18-2023"
+---
+
+import * as Highlights from 'src/gatsby-theme-docz/components/Highlights';
+import WhiteSpace from "src/gatsby-theme-docz/components/WhiteSpace";
+import { Trans } from "react-i18next";
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Change orders overview
+Change orders are a mechanism for changing the configurations of a given entity such as customers. Each change to an entity is considered a change request, and each change order can have multiple requests. Changes can be executed on an immediate or scheduled basis, but every change requires an approval before the change takes effect. Additionally, the user who submits the change and the user who approves the change must be different users. This process prevents unauthorized changes from being made.
+
+## Use cases
+
+Episode Six (E6) enables a wide range of change order use cases, including:
+- Changing the control rule for a program in response to regulatory changes
+- Scheduling a change to a customer configuration to coincide with the end of a promotion
+- Making an adjustment to a customer account
+
+## How change orders work
+
+Change orders can be applied at the partner, program and customer levels. All change orders must be approved before the change requested takes effect. An approved change order is effective immediately upon approval, unless it has been scheduled to take effect on a future date. An approval is made when a user with the `approver` role approves a change.  To prevent unauthorized changes, the user who submits the change and the user who approves the change must be different users. 
+
+In the case of a scheduled change order, the approved status will register immediately upon the approval action, but the change will not take effect until the scheduled date. Customers receive notice of the change a determined number of days before the scheduled change order effective date.
+
+<Diagram
+    img={'https://episodesix.com/hubfs/web-content/diagrams/process/change%20order%20overview.svg'}
+    caption={'Change order process'}
+/>
+
+<Highlights.Wrapper>
+    <Highlights.Item
+      linkPath="/docs/change-orders/customer-change-orders"
+      title={<Trans i18nKey="home-resource-1-change-orders-title" />}
+      body={<Trans i18nKey="home-resource-1-change-orders-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/change-orders/program-change-orders"
+      title={<Trans i18nKey="home-resource-2-change-orders-title" />}
+      body={<Trans i18nKey="home-resource-2-change-orders-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+    <Highlights.Item
+      linkPath="/docs/change-orders/partner-change-orders"
+      title={<Trans i18nKey="home-resource-3-change-orders-title" />}
+      body={<Trans i18nKey="home-resource-3-change-orders-body" />}
+      linkText={<Trans i18nKey="learn-more" />}
+    />
+</Highlights.Wrapper>

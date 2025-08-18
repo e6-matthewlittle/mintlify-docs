@@ -1,0 +1,49 @@
+---
+title: "Official IDs"
+menu: Persons
+route: /docs/persons/official-ids
+excerpt: How to store and manage official identification documents.
+types: 
+  - guide
+_tags:
+  - Official IDs
+  - identification
+  - customer details
+  - users
+  - persons
+  - add
+  - dto
+containerWide: true
+showHeadingsNav: true
+date: "05-10-2024"
+---
+
+# Official IDs
+
+An official identification document (ID) is a document issued by an entity (typically a government) that can be used to prove a person's identity. Examples of official IDs include passports and driver's licenses.
+
+## What we do
+Episode Six (E6) provides the ability to register official ID documents to persons who exist in TRITIUM. Once registered, a person’s official IDs can be retrieve and managed as needed.
+
+## Prerequisites
+To register an official ID, a person must first exist as a primary or secondary account holder. For more information see [account holders](/docs/customers/account-holders).
+
+## Actions
+To register an official ID, call the [Create or Update Official ID API](/tech-specs/persons/person-official-ids/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getOfficialIds_GET). Different types of official IDs can be registered and are differentiated through the type field. Supported official ID types are as follows. Once created, official IDs cannot be deleted for the purposes of historical for identification documents.
+
+| ID TYPE          | DESCRIPTION                                          | Code  |   |   |
+|------------------|------------------------------------------------------|-------|---|---|
+| Tax              | Taxation ID, such as a Social Security number        | `tax`   |   |   |
+| National         | National ID from the customer's country of residence |`nat`   |   |   |
+| Passport         | Customer passport                                    | `ppt`   |   |   |
+| Driver's License | Customer driver's license                            | `dl`    |   |   |
+| Supplementary    | Supplementary ID type                                | `suppl` |   |   |
+| Alternate        | Alternate ID type                                    | `alt`   |   |   |
+| Other            | Other ID type                                        | `other` |   |   |
+
+The Supplementary, Alternate, and Other ID types can be used for any ID that does not fit in the Tax, National, Passport, or Driver's License categories. For example, if a country has two separate types of National ID, the second ID can be added as Supplementary, Alternate, or Other.
+
+## What's next
+Once an official ID has been registered to a person, a list of official IDs for that person can be retrieved using the [Retrieve Person Official IDs API.](/tech-specs/persons/person-official-ids/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getOfficialIdHistory_GET)
+
+An official ID can be updated by using the [Create or Update Official ID API](/tech-specs/persons/person-official-ids/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getOfficialIds_GET) and including the id of the existing official ID record. An official ID cannot have the `type`, `country`, and `state` fields changed. If an update request is made with different values for these fields, a new official ID record will be created. Official IDs can be "soft deleted" by setting the `active` boolean to `false`.

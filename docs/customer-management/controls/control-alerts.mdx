@@ -1,0 +1,47 @@
+---
+title: "Control alerts"
+menu: Controls
+route: /docs/controls/control-alerts
+excerpt: Control alerts are notifications that a customer has met or exceeded a set control.
+types: 
+  - guide
+_tags:
+  - control
+  - risk
+  - control alerts
+  - risk alerts
+  - blocks
+  - programs
+  - alert history
+  - history
+  - breach
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Control alerts
+
+Control alerts are notices that a customer has met or exceeded a control. These notices allow customers and customer service agents to understand when a previous control breach occurred even if that control is no longer in breach.
+
+## What we do
+
+Episode Six (E6) allows you to view the history of control alerts for a customer. Each control alert contains a timestamp of when the control breach occurred, the control that was breached, and identifiers such as `transactionId` and `externalReference` to help you determine the root cause of the issue
+
+<!--Requires a diagram later-->
+
+## Prerequisites
+
+Before viewing the alerts for a customer, the customer must first be created. For more information, see [Customers](/docs/customers/customers).
+
+Controls must also be configured and applied to the customer. You can use either [Program controls](/docs/controls/program-controls) or [Customer controls](/docs/controls/customer-controls) to apply controls to a customer.
+
+## Actions
+
+To view the control alert history for a customer, call the [Return Risk Alerts by Customer API](/tech-specs/controls/measures-and-alerts/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getCustomerRiskAlerts_GET).
+
+## What's next
+
+Control alerts provide snapshot views into when a control breach has occured. To view real-time information on the current state of control measurements, see [Control measurements](/docs/controls/control-measurements).
+
+If a customer has exceeded a control that led to a block, the block will need to be released before the customer is able to make further payments. For more information, see [Customer blocks](/docs/blocks/customer-blocks).

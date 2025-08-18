@@ -1,0 +1,54 @@
+---
+title: "Customer prototypes"
+menu: Customers
+route: /docs/customers/customer-prototypes
+excerpt: A customer prototype is a template that can be used to create child customers.
+types: 
+  - guide
+_tags:
+  - prototype
+  - hierarchy
+  - child
+  - children
+  - customer
+  - account
+  - program
+  - create
+  - parent
+  - update
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customer prototypes
+
+A customer prototype is a template that can be used to create child customers. Customer prototypes are used to create multiple customer accounts over time with the same definition, such as controls and fee configurations. Customer prototypes are often used for establishing corporate account structure or repetitive customer definitions such as project or campaign budget accounts.
+
+## What we do
+
+Episode Six (E6) provides the ability to set up customer prototypes so that you can save time when creating similar child customers. E6 enables child customers to be created through prototypes, prototypes to be updated, and accounts to be moved between prototypes.
+
+## Prerequisites
+
+To use customer prototypes, a program must be set up. For more information on creating a program, see [Programs](/docs/programs/programs). Fee plans and program controls should be created as needed. To learn more, see [Fee plans](/docs/fees/fee-plans) and [Program controls](/docs/controls/program-controls).
+
+A parent customer for the prototypes must be created. To learn more about creating customers, see [Customers](/docs/customers/customers).
+
+## Actions
+
+You can call the [Create or Update Customer Prototype API](/tech-specs/customers/customer-prototypes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomerPrototype_POST) to create customer prototypes. Include the target program control level and fee plan in the API request body.
+
+## What’s next
+
+Once the prototype is created, you can create a child customer calling the [Create Child Customer API](/tech-specs/customers/customer-relationships/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createChildCustomer_POST).
+
+<Callout
+calloutType={'warning'}
+>
+   The prototype used to create a child customer should be included in the <tt>prototypeName</tt> field in the request body.
+</Callout>
+
+You can call the [Customer Prototypes APIs](/tech-specs/customers/customer-prototypes) to manage prototypes. You can move a child customer between prototypes calling the [Move a Child Customer Between Prototypes API](/tech-specs/customers/customer-prototypes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_moveChildToPrototype_POST).

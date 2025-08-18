@@ -1,0 +1,56 @@
+---
+title: "Customer controls"
+menu: Controls
+route: /docs/controls/customer-controls
+excerpt: Customer controls are limitations placed on an individual customer accounts that can override program controls.
+types: 
+  - guide
+_tags:
+  - control
+  - limit
+  - measure
+  - velocity limit
+  - customer
+  - account
+  - restrict
+  - risk
+  - risk exceptions
+  - customer control
+  - create
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customer controls
+
+Customer controls are limitations placed on an individual customer account. Customer controls are enforced within a hierarchy of control rules set at the program or card level.
+
+## What we do
+
+Episode Six (E6) provides the ability to add and manage controls at the customer account level. Customer controls utilize the common control library so that rules set at the customer level align to rules available at the program control level.
+
+E6 also allows for expirations to be added to customer controls to create time-bound enforcement. This type of enforcement is useful when adding temporary limits to a customer account to allow for spending only for a certain approved spend window or reducing the amount of spend allowed during travel.
+
+## Prerequisites
+
+Before adding customer controls, a customer must first be created. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+To add a new customer control to a customer account, call the [Create Customer Control API](/tech-specs/controls/customer-controls/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createRiskException_POST). Each control is set to one of the rules available in the control library. When adding a customer control ensure that the `paramValue` provided is valid (numerals only, no alphanumericals, no special characters apart from decimal points) and matches the data type of the related `paramName`. The `paramValue` field has a character limit of 1,024 for customer controls. For a list of customer controls, see the [Available controls list in Program controls](/docs/controls/program-controls). Optionally, an expiration can be provided if the customer control is not intended to be long-lived and should end after a certain time.
+
+<Callout
+    calloutType={'warning'}
+>
+    Customer controls override matching controls from a risk level to which the customer is assigned. For example, an active program control may set the maximum transaction size within a security level to $100. When a customer level control exception is created with a maximum transaction size of $150, transactions that previously would have been declined due to the program control can now be approved up to the new limit of $150. If the customer control was instead set at $50, the customer would be more tightly restricted than the program, with transactions declining above $50. 
+</Callout>
+
+In the case of non-numerical control values such as a list of restricted countries, the customer level control will still override risk level controls. If a program manager wants to retain the restrictions of a program level control at the customer level, they must also add the program parameter value to the customer level control. For example, a program could have `blocked_countries` set to AUS. If a customer level control `blocked_countries` is added and set to NZL, only transactions from New Zealand will be blocked. To also block Australian transactions the customer control for `blocked_countries` would need to be `AUS,NZL`
+customer level controls only except matching program parameters, non matching parameters such as allowed_mcc and blocked_mcc will not except one another.
+
+## What's next
+
+Once a customer control has been created for a customer it can then be viewed and managed calling the [Customer Controls API](/tech-specs/controls/customer-controls).

@@ -1,0 +1,38 @@
+---
+title: "Phone numbers"
+menu: Persons
+route: /docs/persons/phone-numbers
+excerpt: How to store and manage customer phone numbers.
+types: 
+  - guide
+_tags:
+  - verification
+  - email
+  - phone
+  - type
+  - update
+  - list
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Phone numbers
+
+A user might have several different phone numbers on file, so they can be reached regarding important matters about the account. Users can update their phone numbers by calling the [Phone Numbers API](/tech-specs/persons/person-phone-numbers).
+
+By default, Tritium supports multiple phone numbers for each customer account, such as `work`, `home`, `contact`, and `fax`, each listed by `type`.
+
+For information about Phone Numbers API calls, see the [Phone Numbers API specs](/tech-specs/persons/person-phone-numbers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getPhoneList_GET).
+
+## Retrieving customer account phone numbers
+
+The user can access a list of phone numbers currently associated with their account through the mobile app. Use the [Retrieve Person Phone Numbers API](/tech-specs/persons/person-phone-numbers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getPhoneList_GET) to access a list of all phone numbers on an account.
+
+This array also includes the `type` of each number and enables a page within the mobile or web app that lists these numbers. The user can review the existing numbers on this list prior to initiating an update.
+
+## Updating a customer phone number
+
+The user can update an outdated `contact` number through the app by entering their new phone number and selecting `contact` from a list of options. Use the [Create or Update Person Phone API](/tech-specs/persons/person-phone-numbers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_updatePhone_POST) to replace the phone number record with the customer's new information.
+
+Like email and physical addresses, there can only be one phone number on file for each `type`. The addition of a phone number with a `type` that has not already been used on the customer record creates a new number entry. Sending a request with a phone number on an existing `type` replaces the current number.

@@ -1,0 +1,36 @@
+---
+title: "Customer attributes"
+menu: Customers
+route: /docs/customers/customer-attributes
+excerpt: A customer attribute is a piece of information that defines a customer account.
+types: 
+  - guide
+_tags:
+  - attributes
+  - update
+  - customer
+  - create
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Customer attributes
+
+A customer attribute is a piece of information that defines a customer account within a data model. Systems define customer accounts differently across their data models. Inherently, each data model definition in a system remains relatively static. Static definitions cause issues when trying to customize the definition of a customer account or migrate customer accounts between systems. To overcome the problem of static definitions, customizable customer attributes are needed.
+
+## What we do
+
+Episode Six (E6) provides the ability for custom customer attributes to be added to and maintained for a customer account. A customer attribute is defined by the `name` and `value` of the attribute. Customer attributes can be retrieved for a customer account or consumed as part of downstream processing.
+
+## Prerequisites
+
+Before a customer attribute can be created, the customer account must be created. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+A customer attribute can be added to a customer account by calling the [Create Customer Attribute API](/tech-specs/customers/customer-attributes/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAttributeAPI_createCustomerAttribute_POST). Attributes should be uniquely named to ensure that customer attributes follow a key-value pair model.
+
+## What's next
+
+After setting a customer attribute, you can manage customer attributes by calling the [Customer Attributes APIs](/tech-specs/customers/customer-attributes). Once created, all customer attributes will be passed into [customer notifications](/docs/notifications/standard-notifications/#customer-notifications) and the [Raw Data Customer Attribute Report](/docs/reports/raw-data-extracts).

@@ -1,0 +1,62 @@
+---
+title: "Card blocks"
+menu: Cards
+route: /docs/blocks/card-blocks
+excerpt: Card blocks are used to temporarily or permanently stop card payments on a card.
+types: 
+  - guide
+_tags:
+  - cards
+  - card
+  - card states
+  - suspend
+  - block
+  - unblock
+  - unsuspend
+  - create
+  - update
+  - release
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Card blocks
+
+Card blocks are used to temporarily or permanently stop card payments on a card. Blocks are enforced anytime that a card payment requires decisioning. Card blocks are used in cases of fraud detection, lost or stolen cards, card suspension, or card deactivation.
+
+## What we do
+
+Episode Six (E6) offers the ability to add, manage, enforce, and release card blocks. Multiple blocks can be assigned to a card. Card blocks are independent of all other forms of control, including customer blocks. Card blocks only affect the specified card on which the block has been placed. Card blocks do not affect account payments, or payments from other cards belonging to the cardholder. For more information about card payments, see [Card payment decisioning](/docs/cards/card-payment-decisioning). For more information about customer blocks, see [Customer blocks](/docs/blocks/customer-blocks).
+
+## Prerequisites
+
+Before card blocks can be managed, a card must first be [issued](/docs/cards/issuance-overview).
+
+## Actions
+
+To create or update a card block, call the [Create Card Block API](/tech-specs/blocks/card-blocks/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_createCardBlock_POST). Each card block requires a reason code to be provided. Reason codes include:
+
+| Card block reason | Description |
+| -- | -- |
+| Lost or stolen | The card is reported as missing. |
+| Suspended | A customer breaks a set rule for the card. |
+| Fraud | Fraud is detected. |
+| System | Platform logic is being applied. |
+| Deactivation | The customer no longer wants to continue using the card. Card deactivation blocks cannot be released. |
+
+### Optional: Active time
+
+When creating or updating a card block, you can optionally provide an `activeTime` value. This value is the timestamp for when the block became active. This field can be set to a date in the past to apply a block retroactively. For example, if a customer agent creates a lost or stolen card block on May 10th, but the customer reports that the card has been lost since May 8th, the agent can set the block's `activeTime` to May 8th. Any transactions made between May 8th and May 10th can then be flagged for potential fraud since they occurred after the card became lost.
+
+<Callout
+    calloutType={'info'}
+>
+  If the <tt>activeTime</tt> is not specified in the request, the current time when the API call is submitted is applied.
+</Callout>
+
+## What's next
+
+Once a block has been created, you can remove it to enable card payments. To release a card block, call the [Release a Card Block API](/tech-specs/blocks/card-blocks/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_releaseCardBlockWithMemo_POST) on the desired block.

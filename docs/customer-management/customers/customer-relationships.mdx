@@ -1,0 +1,58 @@
+---
+title: "Customer relationships"
+menu: Customers
+route: /docs/customers/customer-hierarchy
+excerpt: Customer accounts can be related to one another to realize complex account structures.
+types: 
+  - guide
+_tags:
+  - hierarchy
+  - customer hierarchy
+  - customers
+  - child
+  - create
+  - children
+  - family
+  - parent
+  - descendant
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Diagram from "src/gatsby-theme-docz/components/Diagram";
+
+# Customer relationships
+
+Customer accounts can be related to one another in different ways in order to realize complex account structures. The most common use cases for establishing account relationships include the following:
+
+- Family accounts in which children of a family have a separate balance maintained underneath a parent who is the legal owner of the account
+
+- Complex business structures including the root business entity, regions, business divisions, individual department members, or business aspects where a balance needs to be held
+
+## What we do
+
+Episode Six (E6) provides the ability to associate customer accounts across multiple types of relationships to realize required account management use cases. Account relationships can be defined without any limit to the number of layers. Relationships can be single layered with a simple parent-child relationship, or relationships can have any number of layers for complex relationship hierarchies. No limit exists for the amount of children that a parent account can have.
+
+<Diagram
+    img={'https://webcontent.episodesix.com/hubfs/web-content/diagrams/context/e6_dev_portal_context_relationships.svg'}
+    caption={'Parent child relationships diagram'}
+/>
+
+## Prerequisites
+
+To enable the creation of child customers, the customer under which a child customer account will exist must be aligned to a program control level with `hierarchy_max_level` set to an integer greater than 0. For more information, see [Program controls](/docs/controls/program-controls).
+
+Before customer relationships can be established, a root customer must be created. For more information, see [Customers](/docs/customers/customers).
+
+Optionally, if customer prototypes are to be used for creating child customers, then the prototypes must first be established. For more information, see [Customer prototypes](/docs/customers/customer-prototypes).
+
+## Actions
+
+A child customer can be created calling the [Create Child Customer API](/tech-specs/customers/customer-relationships/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createChildCustomer_POST). The usual customer account information must be provided, including details of the account holder and the program name.
+
+Optionally, if a customer prototype is used, the prototype information must be included as well. If no prototype is defined, then the customer account is set to the same program control level and fee plan as the parent customer.
+
+## What's next
+
+Once parent-child relationships have been established, these relationships can be viewed and managed calling the [Customer Relationship APIs](/tech-specs/customers/customer-relationships). Relationships can also be removed as required.

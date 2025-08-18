@@ -1,0 +1,43 @@
+---
+title: "Email addresses"
+menu: Persons
+route: /docs/persons/email-addresses
+excerpt: How to store and manage customer email addresses.
+types: 
+  - guide
+_tags:
+  - changing password
+  - password
+  - verification
+  - email address
+  - email
+  - list
+  - change
+  - retrieve
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Email addresses
+
+For many consumers, email is their primary method of contact. Tritium® enables users to update that information with the [Email Addresses API](/tech-specs/persons/person-email-addresses).
+
+Tritium categorizes email addresses by `type` as defined in the [List Email Types API](/tech-specs/reference/email-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.common.CommonAPI_getEmailTypes_GET).
+This arrangement enables the user to have multiple email addresses on file, with one for each `type` supported by the system, such as `work` or `personal`.
+
+Email Addresses API calls are also provided to help you set up partners. For information about path parameters and their descriptions, required roles, the payloads, and the response JSONs for these calls, see the [Geographical Addresses API specs](/tech-specs/persons/person-email-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getEmailList_GET).
+
+## Retrieving a list of addresses
+
+You can access the list of all email addresses on file for your account by calling the [Retrieve Person Email Addresses API](/tech-specs/persons/person-email-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getEmailList_GET).
+
+This call also retrieves the `state` and `type` of each address. These elements indicate whether the email address has been verified and what the email address is primarily used for.
+
+Users that conduct business through their accounts can list a work email address in addition to their personal address.
+
+## Changing an email address
+
+Now that you can see a list of email addresses, you can opt to change one. When the user updates their email, call the [Create or Update Person Email Address API](/tech-specs/persons/person-email-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_updateEmail_POST).
+
+Replace the email with the same `type` on file. For example, entering a new `personal` address replaces the one already listed on the account. Any new address is given an `unverified` state until the customer can verify the address.

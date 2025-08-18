@@ -1,0 +1,55 @@
+---
+title: "Program change orders"
+menu: Change orders
+route: /docs/change-orders/program-change-orders
+excerpt: Program change orders enable you to make configuration changes at the program level.
+types: 
+  - guide
+_tags:
+  - change order
+  - controls
+  - program
+  - create
+  - delete
+  - update
+  - schedule
+containerWide: true
+showHeadingsNav: true
+date: "12-18-2023"
+---
+
+# Program change orders
+
+Program change orders enable changes in configuration at the program level. All change orders must be approved before the change requested takes effect. An approved change order is effective immediately upon approval, unless it has been scheduled to take effect on a future date. An approval is made when someone with an `approver` role approves a change. (To prevent unauthorized changes, the user who submits the change and the user who approves the change must be different users.) Examples of program change orders include creating a fee plan at the program level.
+
+## What we do
+
+Episode Six (E6) enables change orders to be created at the program level. Users can add change requests to a change order. Once a change order has been created, a user with the **Approver** role can approve the change order. Examples of program change orders are creating or updating an exchange margin request.
+
+## Prerequisites
+
+To create a program change order, a program must be set up. For more information on setting up programs, see [Programs](/docs/programs/programs).
+
+## Actions
+
+You can create a program change order by calling the [Create a Program Change Order API](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createChangeOrder_POST).
+
+Call the following APIs to create change requests specific to the program level.
+
+| API | Description |
+| -- | -- |
+| [Create or Update Fee Entry Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createUpdateFeeEntryRequest_POST) | Creates or updates a fee entry request. |
+| [Discard Risk Level Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_discardFeeEntry_DELETE) | Discards the risk level request. |
+| [Create or Update Risk Level Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createUpdateRiskLevelRequest_POST) | Creates or updates risk level request. |
+| [Discard Risk Configuration](/tech-specs/change-orders/program-change-orders/api#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_discardRiskConfigRequest_DELETE) | Discards risk configuration. |
+| [Create or Update a Program Adjustment Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createUpdateProgramAdjustmentRequest_POST) | Create or update a program adjustment request. |
+| [Discard Program Adjustment Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_discardProgramAdjustmentRequest_DELETE) | Discards program adjustment request. |
+| [Create or Update Fee Plan Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createUpdateFeePlanRequest_POST) | Creates or updates a fee plan request. |
+| [Create or Update Exchange Margin Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_createUpdateExchangeMarginRequest_POST) | Creates or update exchange margin request. |
+| [Discard Exchange Margin Request](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_discardExchangeMarginRequest_DELETE) | Discards exchange margin request. |
+
+Once a change order has been created, it is able to be approved. An approval is made when someone with an **Approver** role approves a change. The change order is effective immediately upon approval. A change order can be approved by calling the [Approve Change Order API](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_approveChangeOrder_POST).
+
+## What's next
+
+The change order can be deleted using the [Discard Change Order API](/tech-specs/change-orders/program-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.OperatingChangeOrderAPI_discardChangeOrder_DELETE). If the change order is set to schedule, it can be scheduled to go into effect on the scheduled date and time. Once the change order has been applied, you can view the change in the configurations .

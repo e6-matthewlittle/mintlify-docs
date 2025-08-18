@@ -1,0 +1,38 @@
+---
+title: "Person attributes"
+menu: Persons
+route: /docs/persons/person-attributes
+excerpt: A person attribute is a piece of information that defines a person within a data model.
+types: 
+  - guide
+_tags:
+  - attributes
+  - persons
+  - person attributes
+  - persons overview
+  - create
+  - api
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Person attributes
+
+A person attribute is a piece of information that defines a person within a data model. Systems define persons differently across their data models. Inherently, each data model definition in a system remains relatively static. Static definitions cause issues when trying to customize the definition of a person or migrate persons between systems. To overcome the problem of static definitions, customizable person attributes are needed.
+
+## What we do
+
+Episode Six (E6) provides the ability for custom person attributes to be added to and maintained for a person. A person attribute is defined by the `name` and `value` of the attribute. Person attributes can be retrieved for a person or consumed as part of downstream processing.
+
+## Prerequisites
+
+Before a person attribute can be created, the person record must be created. For more information, see [Persons overview](/docs/persons/persons-overview).
+
+## Actions
+
+A person attribute can be added to a person by calling the [Create Person Attribute API](/tech-specs/persons/person-attributes/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_createPersonAttribute_POST). Attributes should be uniquely named to ensure that person attributes follow a key-value pair model.
+
+## What's next
+
+After setting person attributes, you can manage them by calling the [Person Attributes APIs](/tech-specs/persons/person-attributes).

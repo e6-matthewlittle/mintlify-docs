@@ -1,0 +1,52 @@
+---
+title: "Controls overview"
+sidebarTitle: "Overview"
+menu: Controls
+route: /docs/controls/controls-overview
+excerpt: Controls are used to restrict customer activities including both payment and non-payment activities.
+types: 
+  - guide
+_tags:
+  - cards
+  - control
+  - limit
+  - restrict
+  - prevent
+  - controls
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+# Controls
+
+Controls are used to restrict customer activities including both payment and non-payment activities. Controls can be used to meet a number of use cases for a financial or payment product including:
+
+- Ensuring all customers for a product adhere to regulatory requirements
+- Including risk mitigation as part of risk management strategies for fraud and other risk sources
+- Allowing consumers to self-impose controls on themselves or family members
+- Enabling corporate controls for use cases like expense management
+
+## What we do
+
+Episode Six (E6) provides a comprehensive control framework to limit customer payment and non-payment activity. Controls can be configured at the program level, the customer segment level, the customer level, and the card level. When an action, such as a payment, is performed on a customer account that is governed by a configured control rule, the rule will be enforced as part of the approval of that activity. E6 provides the following types of control rules:
+
+| Rule type | Description | Example |
+| ------------ | -- | -- |
+| Matching | If an specified value within an action request matches a specified rule then allow or block the action as configured. | `disable_mag_stripe` |
+| Contains | If a specified value within an action request is contained in a list of enumerated control values then allow or block the action as configured. | `allowed_countries` |
+| Comparative | If target value within an action request is greater than or less than a configured rule value, then block the action. | `atm_limit` |
+| Measurement | As actions occur, a measurement is conditionally incremented based on action conditions and the real-time measurement vaue is compared to the configured rule value. If the measurement will exceed the rule value, then block the action. | `combined_purchase_1d` |
+| Configuration | Control rules which contain configuration values for the management of actions or other controls rather than the decisioning of actions. | `overdraft_strategy` |
+
+## How it works
+
+To learn more about how E6 manages and enforces controls for you, read through the following documentation.
+
+- [**Program controls**](/docs/controls/program-controls) - Controls set at the program level that are applied to groups of customers.
+- [**Customer controls**](/docs/controls/customer-controls) - Customer controls are limitations placed on an individual customer accounts that can override program controls.
+- [**Card controls**](/docs/controls/card-controls) - Card controls allow clients to restrict and limit how a specified card is used.
+- [**Merchant controls**](/docs/controls/merchant-controls) - Merchant controls limit where cards purchases can be made through whitelisting or blacklisting.
+- [**Organizational controls**](/docs/controls/organizational-controls) - Organizational controls enable velocity and reporting across an organizational structure.
+- [**Control measurements**](/docs/controls/control-measurements) - Control measurements provide a view of progress against set controls thresholds.
+- [**Control alerts**](/docs/controls/control-alerts) - Control alerts are notifications that a customer has met or exceeded a set control.

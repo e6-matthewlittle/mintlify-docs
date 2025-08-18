@@ -1,0 +1,40 @@
+---
+title: "Control measurements"
+menu: Controls
+route: /docs/controls/control-measurements
+excerpt: Control measurements provide a view of progress against set controls thresholds.
+types: 
+  - guide
+_tags:
+  - risk
+  - risk measurements
+  - control measurements
+  - control
+  - measurements
+  - program
+  - retrieve
+  - customer
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Control measurements
+
+Control measurements are an assessment of how a customer account is performing against the controls enforced for that customer. For more information about control levels, see [Program controls](/docs/controls/program-controls). Measurements provide the ability to see where a customer is performing against each control limit.
+
+## What we do
+
+Episode Six (E6) provides the ability to get real-time control measurements for a customer. Measurements are provided in realtime to provide an optimal customer and customer servicing experience. Each measurement provides the control name, the current customer measure, and the defined limit being enforced.
+
+<!--Requires a diagram later-->
+
+## Prerequisites
+
+Before viewing the control measurements for a customer, the customer must first be created. For more information, see [Customers](/docs/customers/customers).
+
+Controls must also be configured that apply to the customer either through [Customer controls](/docs/controls/customer-controls) or [Program controls](/docs/controls/program-controls).
+
+## Actions
+
+To see the real-time control measurements for a customer, call the [Retrieve Customer Control Measurements API](/tech-specs/controls/measures-and-alerts/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getTransactionAlerts_GET). This call returns a list of all customer control measures for both program control levels and customer controls.

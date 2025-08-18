@@ -1,0 +1,52 @@
+---
+title: "Partner change orders"
+menu: Change orders
+route: /docs/change-orders/partner-change-orders
+excerpt: Partner change orders enable you to make changes in configuration at the partner level.
+types: 
+  - guide
+_tags:
+  - change order
+  - controls
+  - partner
+  - create
+  - delete
+  - update
+  - schedule
+containerWide: true
+showHeadingsNav: true
+date: "12-18-2023"
+---
+
+# Partner change orders
+
+Partner change orders enable you to make configuration changes at the partner level. All change orders must be approved before the change requested takes effect. An approved change order is effective immediately upon approval, unless it has been scheduled to take effect on a future date. An approval is made when someone with an `approver` role approves a change. (To prevent unauthorized changes, the user who submits the change and the user who approves the change must be different users.) Examples of partner change orders include creating and updating user control levels at the partner level.
+
+## What we do
+
+Episode Six (E6) enables change orders to be created at the partner level. Users can add change requests to a change order. Once a change order has been created, a user with the **Approver** role can approve the change order. Examples of partner change orders are creating or updating user controls.
+
+## Prerequisites
+
+To create partner change orders, a partner must be set up. To learn more about setting up partners, see [Partners](/docs/platform-access/partners).
+
+## Actions
+
+You can create a partner a change order by calling the [Create Partner Change Order API](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_createChangeOrder_POST).
+
+Call the following APIs to add, update or delete change requests specific to the partner level.
+
+| API | Description |
+| -- | -- |
+| [Create Partner Fee Change Request API](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_createUpdateFeeEntryRequest_POST) | Creates a partner fee change request. |
+| [Delete Partner Fee Change Request API](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_discardFeeEntry_DELETE) | Discards a partner fee change request identified by change order (`id`) and change request (`request-id`). |
+| [Create or Update Risk Level for Change Order API](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_createUpdateRiskLevelRequest_POST) | Creates or updates a partner risk level change request as part of a Partner Risk change order (`id)`. |
+| [Discard Risk Level Request](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_discardRiskLevelRequest_DELETE) | Discard a risk level change request. |
+| [Create or Update Risk Configuration Request](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_createUpdateRiskConfigRequest_POST) | Creates or updates risk configuration request to add a control parameter at the parter level. |
+| [Delete Risk Configuration Request](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_discardRiskConfigRequest_DELETE) | Discards a risk configuration (`id`) change request (`request-id`). In addition to initiating the deletion, the user can add a memo to the deletion call using a query parameter. |
+
+Once the change orders have been created, the change orders are able to be approved. An approval is made when someone with an **Approver** role approves a change. The change order is effective immediately upon approval. A change order can be approved by calling the Approve Change Order API.
+
+## What's next
+
+The change order can be deleted using the [Discard Change Order API](/tech-specs/change-orders/partner-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerChangeOrderAPI_discardChangeOrder_DELETE). If the change order is set to schedule, it can be scheduled to go into effect on the scheduled date and time. Once the change order has been applied, you can view the change in the configurations .

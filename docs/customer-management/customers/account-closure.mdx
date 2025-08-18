@@ -1,0 +1,54 @@
+---
+title: "Account closure"
+menu: Customers
+route: /docs/customers/account-closure-reopening
+excerpt: Closed accounts no longer hold a balance and cannot be used to make payments.
+types: 
+  - guide
+_tags:
+  - accounts
+  - customer
+  - actions
+  - block
+  - close
+  - reopen
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Account closure
+
+When an account is closed, the account no longer holds a balance and cannot be used to make payments. Common scenarios that require account closure include:
+
+- The customer no longer requires the account
+- The account customer has been blocked from using the account
+- The customer is deceased
+
+## What we do
+
+Episode Six (E6) provides the ability to close an account and to reopen that closed account. This ability allows a customer account to be shut off from further payment processing.
+
+## Prerequisites
+
+A customer account must exist for it to be closed. For more information, see [Customers](/docs/customers/customers).
+
+Before closing an account, the balance of the account must be taken to zero. Taking the balance to zero can be done through any combination of the [Withdraw](/tech-specs/payments/withdraw), [Adjustment](/tech-specs/payments/adjustment), or enabling chargeoffs with [Customer Change Orders](/tech-specs/change-orders/customer-change-orders) APIs.
+
+## Actions
+
+An account can be closed directly, which causes multiple closing actions to occur on the account and creates a closure block. To close an account directly, call the [Close Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_closeAccount_POST). Calling this API creates a `closed` block on the account if the block does not already exist. This call also sets any issued cards on the account to an  `invalid` [state](/docs/cards/card-state-management) and sets any associated [Official IDs](/docs/persons/official-ids) to `inactive`.
+
+If the request is made with `delayed` set to `true`, then the card and official ID state updates are performed at a later time.
+
+<Callout
+    calloutType={'info'}
+>
+The delay on state updates is set to one day by default. If another delay time frame is needed, contact your E6 representative.
+</Callout>
+
+## What's next
+
+After an account has been closed, it can be reopened with the [Reopen Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_reopenAccount_POST) so that the customer can resume making payments on the account.

@@ -1,0 +1,48 @@
+---
+title: "Customer change orders"
+menu: Change orders
+route: /docs/change-orders/customer-change-orders
+excerpt: Customer change orders enable you to make configuration changes at the customer level.
+types: 
+  - guide
+_tags:
+  - change order
+  - controls
+  - customer
+  - create
+  - delete
+  - schedule
+  - update
+containerWide: true
+showHeadingsNav: true
+date: "12-18-2023"
+---
+
+# Customer change orders
+
+Customer change orders enable you to make configuration changes at the customer level. All change orders must be approved before the change requested takes effect. An approved change order is effective immediately upon approval, unless it has been scheduled to take effect on a future date. An approval is made when someone with an `approver` role approves a change. (To prevent unauthorized changes, the user who submits the change and the user who approves the change must be different users.) Examples of customer change orders include performing adjustments and chargeoffs.
+
+## What we do
+
+Episode Six (E6) enables change orders to be created at the customer level. Users can add change requests to a change order. Once a change order has been created, a user with the **Approver** role can approve the change order.
+
+## Prerequisites
+
+To create a customer change order, a customer must be set up. For more information, see [Customers](/docs/customers/customers).
+
+## Actions
+
+You can create a customer change order by calling the [Create Customer Change Order API](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_createChangeOrder_POST).
+
+Call the following APIs to create change requests specific to the customer level.
+
+| API | Description |
+| -- | -- |
+| [Create Customer Change Order Adjustment Request](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_createAdjustmentRequest_POST) | Creates a customer change order adjustment request for funds to be credited to or debited from a customer account. |
+| [Create Customer Change Order Chargeoff Request](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_createUpdateChargeoffRequest_PUT) | Creates a customer change order chargeoff request, with the purpose of settling a delinquent account to a zero balance. |
+
+Once the change orders have been created, the change orders can be approved. An approval is made when someone with an **Approver** role approves a change. The change order is effective immediately upon approval. A change order can be approved by calling the [Approve Change Order API](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_approveChangeOrder_POST).
+
+## What's next
+
+The change order can be deleted using the [Delete Change Order by ID API](/tech-specs/change-orders/customer-change-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerChangeOrderAPI_discardChangeOrder_DELETE). If the change order is set to schedule, it can be scheduled to go into effect on the scheduled date and time. Once the change order has been applied, you can view the change in the configurations.

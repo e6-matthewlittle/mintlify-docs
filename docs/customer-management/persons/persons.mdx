@@ -1,0 +1,45 @@
+---
+title: "Persons"
+menu: Persons
+route: /docs/persons/persons
+excerpt: A person is a representation of an individual as it relates to various parts of a platform.
+types:
+  - guide
+_tags:
+  - person
+  - persons
+  - entities
+  - customers
+  - individuals
+containerWide: true
+showHeadingsNav: true
+date: "05-10-2024"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Persons
+
+A person is a natural person or legal entity with which you have a customer relationship. This can include consumers, businesses, and corporations with direct relationships to you. It can also include subsets of the direct related entity such as employees, departments, etc. as needed.
+
+## What we do
+
+Episode Six (E6) provides the ability to register and manage details of persons in the platform. E6 provides the ability to create persons as part of customer account opening. Once persons are created, they can be associated with additional customer accounts, cards and other features of the platform.
+
+## Prerequisites
+
+A person is created during [customer account opening](/docs/customers/customers). At this time, a person cannot be created without being associated with an account.
+
+## Actions
+
+Personal details can be updated by calling the [Update Person API](/tech-specs/persons/persons/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_update_POST).
+
+<Callout
+    calloutType={'warning'}
+>
+    Requests to update a person should include all details of the person that are to be retained. This includes already populated fields that are not being updated. Failure to do so can result in a loss data for "unchanged" fields as the null values will overwrite the existing values.
+</Callout>
+
+## What's next
+
+The details of a person can be retrieved by calling the [Retrieve Person API](/tech-specs/persons/persons/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_get_GET). Changes in personal details in time can also be viewed by calling the [Retrieve Person History API](/tech-specs/persons/persons/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getPersonHistory_GET).

@@ -1,0 +1,57 @@
+---
+title: "Customer search"
+menu: Customers
+route: /docs/customers/customer-search
+excerpt: A customer search looks up a customer and returns information about the customer.
+types: 
+  - guide
+_tags:
+  - blocks
+  - customers
+  - pagination
+  - search methods
+containerWide: true
+showHeadingsNav: true
+date: "02-15-23"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customer search
+
+A customer search looks up a customer and returns information about the customer. Typically, a customer can be looked up using the customer's system identifier. However, if a customer needs to be looked up and the customer identifier is not known or available, the customer can be looked up using other identifying information, such as the customer’s name or program.
+
+## What we do
+
+Episode Six (E6) provides multiple options to search for customer accounts with the [Customer Search API](/tech-specs/customers/customer-search). The API can be used to search for customers by their card, account holder, and external reference information.
+
+<Callout
+calloutType={'warning'}
+>
+    E6 does not support unbounded customer searches, such as searching for all customers under a given program.
+</Callout>
+
+## Prerequisites
+
+Before performing a customer search, at least one customer must exist in your platform. If you plan to search using an external reference number, an external reference must be added to the customer account first. For more information, see [External references](/docs/customers/external-references). If you plan to search by card number, a card must be issued to the desired customer. For more information on card issuance, see [Card issuance](/docs/cards/issuance-overview).
+
+## Actions
+
+Call the endpoints in the [Customer Search API](/tech-specs/customers/customer-search) to search for customers. The fields included in the request vary depending on the method used to search for customers. You can search for customers using the following methods:
+
+| Search method | Description |
+| ------ | ----------- |
+| [Customer number](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByCustomerNumber_POST) | Provide the E6 customer number in the `customerNumber` attribute. |
+| [Account holder name](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByFirstLastName_POST) | Provide the account holder's first name in the `firstname` attribute and the account holder's last name in the `lastname` attribute. Note that this API only supports searching by a customer's primary account holder. |
+| [Phone number](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByPhoneNumber_POST) | Provide an account holder's contact number in the `phoneNumber` attribute. |
+| [Email address](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByEmail_POST) | Provide an account holder's email address in the `email` attribute. |
+| [Program name](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByOperatingProgram_POST) | Provide the name of the desired program in the `programName` attribute. The system does not support searching all customers under a program. When searching by program, at least one additional supported search criteria must also be provided in the request. |
+| [Card number](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByCardNumber_POST) | Provide the E6 card number in the `cardNumber` attribute. |
+| [Card PAN](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByPAN_POST) | Provide the desired customer's Primary Account Number (PAN) in the `pan` attribute. |
+| [Customer external reference](/tech-specs/customers/customer-search/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_searchCustomersByExternalReference_POST) | Provide an external reference number in the `extRefNumber` attribute and the partner of the external reference in the `extRefPartnerName` attribute. If an identifier code has been set for the external reference, that code can be included in the search request `extRefIdCode` attribute. |
+
+A successful search returns a paginated array of customer records matching the search criteria. Each customer object returned includes the E6 `customerNumber`, which can be used to identify the customer in subsequent calls. For information about navigating through paginated data, see [Pagination](/tech-specs/getting-started/pagination).
+
+## What’s next
+
+Once you have successfully searched for a customer, you can use the customer's information for subsequent customer-related API calls. For more information on standard customer information, see the [Customers overview](/docs/customers/customers-overview).

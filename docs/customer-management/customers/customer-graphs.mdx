@@ -1,0 +1,47 @@
+---
+title: "Customer graphs"
+menu: Customers
+route: /docs/customers/customer-graphs
+excerpt: Graphs connect customers that relate to each other outside of the parent-child structure.
+types: 
+  - guide
+_tags:
+  - graphs
+  - vertices
+  - connections
+  - child customers
+  - customer account
+  - children
+  - parent
+  - create
+  - inward
+  - outward
+  - customer
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customer graphs
+
+Customer graphs are a means of connecting customers that relate to each other outside of the standard hierarchical parent-child structure. Occasionally, customer accounts need to relate to one another in an undefined, cross-hierarchy manner. Customer graphs are particularly important when specific operations need to take place between accounts, such as funds sweeping or scheduled money movements.
+
+## What we do
+Episode Six (E6) provides the ability to create inward and outward connections between customer accounts. An inward connection is an account having an operation performed on it by a different account. An outward connection is an account performing an operation on another account. Specified operations can be tied to these relationships between accounts.
+
+## Prerequisites
+To establish customer graphs, more than one customer account needs to exist. To set up customers, see [Customers](/docs/customers/customers).
+
+## Actions
+To connect customers using graphs, you can create inward and outward connections. To create an inward connection, call the [Create Inward Customer Graph API](/tech-specs/customers/customer-graphs/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerGraphAPI_createInwardCustomerGraph_POST). To create an outward connection, call the [Create Outward Customer Graph API](/tech-specs/customers/customer-graphs/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerGraphAPI_createOutwardCustomerGraph_POST).
+
+<Callout
+    calloutType={'info'}
+>
+Contact your E6 representative to enable operations to take place as part of a graph relationship.
+</Callout>
+
+## What’s next
+Once you have made inward and outward connections, you can manage those connections calling the [Customer Graph APIs](/tech-specs/customers/customer-graphs).

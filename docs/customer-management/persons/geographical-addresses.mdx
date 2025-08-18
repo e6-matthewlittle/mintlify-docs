@@ -1,0 +1,36 @@
+---
+title: "Geographical addresses"
+menu: Persons
+route: /docs/persons/geographical-addresses
+excerpt: How to store and manage customer geographical addresses.
+types: 
+  - guide
+_tags:
+  - update
+  - address
+  - physical
+  - geographical
+  - list
+  - specs
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Geographical addresses
+
+Updating a physical address is required if the user changes one or more of their physical addresses. Tritium® enables users to update that information in the system either through the [Geographical Addresses](/tech-specs/persons/person-geographical-addresses) API.
+
+When the user is authenticated, they can retrieve addresses listed in the system and update them by `type`, such as `home` or `biz.`
+
+Geographical Addresses API calls are also provided to help you set up partners. For information about path parameters and their descriptions, required roles, the payloads, and the response JSONs for these calls, see the [Geographical Addresses API specs](/tech-specs/persons/person-geographical-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getAddressList_GET).
+
+## Retrieving a list of addresses
+
+You can can access a list of all addresses on accounts by calling the [Retrieve Person Address API](/tech-specs/persons/person-geographical-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_getAddressList_GET).
+
+## Changing an address
+
+After accessing the list of addresses on file, you can update a user address by calling the [Create or Update Person Address API](/tech-specs/persons/person-geographical-addresses/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.PersonAPI_updateAddress_POST).
+
+By sending an **AddressDTO** with the address `type` set to `home`, the home address record for the user is replaced with the new data. However, if they set the `type` to `ship`, the new data does not override their existing home address and instead becomes a new address listed on their account. After the address is updated, a timestamped copy of the new record is returned.

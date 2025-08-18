@@ -1,0 +1,41 @@
+---
+title: "External reference blocks"
+menu: Controls
+route: /docs/blocks/blocked-references
+excerpt: Customer external reference blocks are used to stop external payments from being performed using an external account.
+types: 
+  - guide
+_tags:
+  - blocked references
+  - blacklist
+  - sanctions
+  - illegal
+  - screening
+  - aml
+  - blocks
+  - cards
+  - add blocked reference number
+containerWide: true
+showHeadingsNav: true
+date: "11-08-2022"
+---
+
+# External reference blocks
+
+Customer external reference blocks are used to stop external payments from being performed using an external account. Blocking of an external account may be performed because the external account is suspected of supporting illegal activities such as money laundering or terrorism financing.
+
+## What we do
+
+Episode Six (E6) provides the ability to create entries in a blocked reference list for each partner. The blocked reference list can then be retrieved and used later for payment initiation decisions. External reference blocking is not explicitly enforced during payment processing at this time.
+
+## Prerequisites
+
+Before managing a blocked reference list for a partner, you must create that partner. To create a partner, see [Partners](/docs/platform-access/partners).
+
+## Actions
+
+You can add a new entry to a partner’s blocked reference list calling the [Add Blocked Reference Number API](/tech-specs/controls/blocked-references/api#operation/net.e6tech.h3.middletier.api.v1.partner.partner.PartnerAPI_addBlockedReferenceNumber_POST).
+
+## What’s next
+
+You can view and manage a list of blocked reference numbers calling the [Blocked References API](/tech-specs/controls/blocked-references).

@@ -1,0 +1,108 @@
+---
+title: "Merchant controls"
+menu: Controls
+route: /docs/controls/merchant-controls
+excerpt: Merchant controls limit where cards purchases can be made through whitelisting or blacklisting.
+types: 
+  - guide
+_tags:
+  - merchant control
+  - merchant
+  - authorization control
+  - card payments
+  - authorization
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Merchant controls
+
+Merchant controls limit where cards purchases can be made through whitelisting or blacklisting. Depending on the scenario, merchant controls can be set per merchant, merchant category, or merchant list. Use cases for merchant controls include:
+
+- Creating private label cards such as gift cards and benefit cards which can only be spent at certain locations or on certain categories
+- Limiting spend for corporate cards to ensure there is no misuse of corporate funds
+- Enabling one-time or reusable cards for a specific merchant to power virtual card payments and disbursements
+- Blocking problematic merchants
+
+## What we do
+
+Episode Six (E6) provides multiple ways to implement merchant controls depending on the target use case. The following merchant control options are available:
+
+| Target | Action | Description | Levels | Use Cases |
+| -- | -- | -- | -- | -- |
+| Merchant | Whitelist | Manage spend at one or more merchants including multiple locations of the same merchant. Ideal for whitelisting a single merchant or a merchant with multiple locations. | Program,<br/>Customer,<br/>Card | Virtual card payments and disbursements |
+| Merchant Lists | Whitelist | Manage spend at merchants that appear on one or more curated lists of merchants. Ideal for whitelisting large lists of merchants at the customer level. | Customer | Partner merchant specific products,<br/>Complex merchant list definitions  |
+| Merchant Category | Whitelist,<br/>Blacklist | Manage at one or more merchant category codes (MCCs). | Program,<br/>Customer,<br/>Card | Merchant category gift cards,<br/>Corporate spend rules |
+| Other | Whitelist,<br/>Blacklist | Manage spend at merchants or merchant categories including more finite controls such as amount rages, terminals, and merchant location. | Program | Program merchant blocking,<br/>Complex merchant control rules |
+
+## Prerequisites
+
+Depending on the level of control being set, the appropriate level entity of [program](/docs/programs/programs), [customer](/docs/customers/customers), and/or [card](/docs/cards/issuance-overview) needs to first be created.
+
+You are responsible for identification of merchants and merchant categories to be setup as merchant controls. E6 does not curate or manage merchants nor merchant categories on behalf of clients.
+
+## Actions
+
+The below actions can be taken to set up merchant controls in alignment with the target merchant control pattern.
+When a transaction is rejected because of a merchant control, E6 sends a response code, 57 for Mastercard and 62 for Visa, in field 39 of the ISO 8583 response message sent to the card network.
+
+### Merchant Whitelisting
+
+Merchant whitelisting can be configuring by setting the `allowed_acquirers_merchants` as a control at the program, customer, or card level. The provided value should be a comma-separated list of acquirerIDs, merchantIDs, and acquirerID-merchantID combinations (replace the dash between acquirerID and merchantID with a vertical bar character). For more information, see [Program controls](/docs/controls/program-controls).
+
+### Merchant List Whitelisting
+
+An array of merchants with `acquirerId` and `merchantId` can be provided to E6 with a common `classifier` to group merchants into different lists. Once the merchant list has been established, a [customer attribute](/docs/customers/customer-attributes) with a name of `AFFILIATIONS` can be set with a common separated array of merchant lists identified by the `classifier` value.
+
+<Callout
+    calloutType={'info'}
+>
+    Merchant list management requires configuration by E6 at the program level. Merchant lists should be provided to E6 already groomed and grouped using the specified file format. Reach out to your E6 representative for file delivery specifications.
+</Callout>
+
+### Merchant Category Whitelisting and Blacklisting
+
+Merchant category whitelisting and blacklisting can be configuring by setting the respective `allowed_mcc` or `blocked_mcc` rule as a control at the program, customer, or card level. The provided value should be a comma-separated list of merchant category codes (MCCs). For more information, see [Program controls](/docs/controls/program-controls).
+
+### Other
+
+A merchant control can be added to a program by calling the [Create Merchant Control API](/tech-specs/controls/merchant-controls/api?#operation/net.e6tech.h3.middletier.api.v1.partner.operating.MerchantControlAPI_create_POST). In the API request body, the `action` attribute determines the action taken when a merchant matches the merchant control entry. If `action` is set to `ALLOW`, transactions at merchants that match the merchant control entry are allowed, and transactions that do not match are rejected. If action is set to `REJECT`, transactions at merchants that match the merchant control entry are rejected, and transactions that do not match are allowed. Optionally, you can also control the amount that is spent at a merchant by specifying the `amountFrom` and `amountTo` attributes. If the amount spent in a transaction falls within the range specified by these attributes, the matching merchant control entry will apply. The various aspects of these merchant controls will be enforced in a set [hierarchy](#Merchant-Matching-Hierarchy) depending on what information is available in the payment request.
+
+The `nomatch_merchant_control_response` program control parameter allows you to set program behavior for when a merchant control does not exist for a specific transaction. When a response is found for a merchant control, the corresponding control's behavior is applied to transactions. If a response is not found for a merchant control and if the `nomatch_merchant_control_response` parameter is set for either `allow` or `reject`, the value of the parameter determines the behavior that is applied to transactions. When a response is not found for a merchant control and the parameter is not present or is not set, the transaction is rejected. To add this parameter to a program, see [Program controls](/docs/controls/program-controls).
+
+## What's next
+
+Once a merchant control is successfully created, [card payment decisioning](/docs/cards/card-payment-decisioning) will be enforced for purchases made using the card program are automatically allowed or rejected according to the applicable merchant controls.
+
+After creating a merchant control, you can retrieve, update, or delete merchant controls using the corresponding control mechanism including [program controls](/docs/controls/program-controls), [customer controls](/docs/controls/customer-controls), [card controls](/docs/controls/card-controls), [customer attributes](/docs/customers/customer-attributes), or the [Merchant Control APIs](/tech-specs/controls/merchant-controls).
+
+## Appendix
+
+### ISO8583 Fields
+
+The following data elements (DEs) from ISO 8583 messages are used in merchant control requests to identify merchants. The API accepts any combination of these identification attributes in a single entry. Each data element maps to an identification attribute in the merchant control request:
+
+| ISO 8583 Name               | ISO 8583 Field | Merchant control attribute | Description |
+| --------------------------- | -------------- | -------------------------- | ----------- |
+| Merchant Type               | DE18           | `merchantCategoryCode`     | MCC identifying the merchant’s business category. |
+| Acquiring Institution ID    | DE32           | `acquirerId`               | ID for the acquiring institution, such as the merchant’s bank. |
+| Card Acceptor Terminal ID   | DE41           | `terminalIdFrom`           | Beginning range of unique identifiers for card acceptor terminals. |
+| Card Acceptor Terminal ID   | DE41           | `terminalIdTo`             | Ending range of unique identifiers for card acceptor terminals. |
+| Card Acceptor ID            | DE42           | `merchantId`               | Unique identifier for the merchant. |
+| Card Acceptor Name/Location | DE43           | `merchantLocation`         | Merchant location name or address. This value maps to positions 1-22 of DE43. |
+| Card Acceptor Name/Location | DE43           | `merchantCity`             | Merchant city. This value maps to positions 24-36 of DE43. |
+| Card Acceptor Name/Location | DE43           | `merchantCountryCode`      | Merchant two-letter country code. This value maps to positions 38-40 of DE43. |
+
+### Merchant Matching Hierarchy
+
+E6 matches transactions to merchant controls using a specific hierarchy. If the transaction’s data element matches the corresponding merchant control values, then the transaction is allowed or rejected according to the merchant control configuration. If one of the transaction's data elements does not match a corresponding merchant control, then the next data element in the list is checked. The following table describes the order in which a transaction's ISO 8583 message data elements are checked against a program's merchant controls:
+
+| ISO 8583 field | Merchant control attributes | Next data element or step |
+| -------------- | --------------------------- | ------------------------- |
+| DE43           | `merchantLocation`, `merchantCity`, `merchantCountryCode` | DE42 |
+| DE42           | `merchantId` | DE18 |
+| DE18           | `merchantCategoryCode` | DE41 |
+| DE41           | `terminalIdFrom`, `terminalIdTo` | DE32 |
+| DE32           | `acquirerId` | The `nomatch_merchant_control_response` program control parameter is used. |

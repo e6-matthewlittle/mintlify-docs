@@ -1,0 +1,153 @@
+---
+title: "Organizational controls"
+menu: Controls
+route: /docs/controls/organizational-controls
+excerpt: Organizational controls enable velocity and reporting across an organizational structure.
+types: 
+  - guide
+_tags:
+  - control
+  - limit
+  - measure
+  - organizational controls
+  - customer hierarchy
+  - account
+  - restrict
+  - risk
+  - risk exceptions
+  - customer control
+containerWide: true
+showHeadingsNav: true
+date: "02-01-2023"
+---
+
+# Organizational controls
+
+Organizational controls allow entities to manage and control at multiple levels of an organization in parallel. Multiple levels of control typically include managing a root credit limit (depending on the product offering), allocating the credit limit to divisions of the organization, and ultimately providing payment-level control via cards or other methods. These program types can be adapted to support a range of business, corporate, and government use cases for managing spend allowances.
+
+## What we do
+
+Episode Six (E6) acts as the system of record for customers within a program and enables the management of entity organization structures and controls. As an example, we can consider a corporate spend program where a firm sits as the primary (root) customer and has child customers representing the different departments, or projects, within that firm. Within each department, employees will have cards issued, and transactions tracked. In this way, an organizational structure is set up as Firm > Department > Employee.
+
+Using organizational controls, each level of this structure can be assigned a spend limit that independently restricts its own hierarchy level but also increments the controls of the higher hierarchy levels. Each card is issued to an employee who is linked to a department and contributes to the overall firm (root) spend amounts.
+
+### Example
+
+Let's create Firm A, which consists of two departments, Finance and Marketing, each with an employee. Firm A has a total spend limit of $1000. Finance has a spend limit of $400, and Marketing has a spend limit of $600. Employee A is part of Marketing and is issued a card with a spend limit of $50. When Employee A uses their card, checks are made at each of the organizational levels to ensure that no control is exceeded. ISO message-based controls must be used to ensure the hierarchy controls increment; a list is provided in the appendix. If Employee A makes a transaction for $40, once the transaction is approved, the control measures will now reflect the transaction's impact at the relevant organizational levels. Firm A's available limit reduces to $960; Finance's available limit does not reduce (since Employee A sits within Marketing), Marketing's available limit reduces to $560, and Employee A's card available limit is reduced to $10.
+
+## Prerequisites
+
+For organizational controls to be enabled for a program, selected plugins must be configured. Reach out to your E6 representative if you want this to be activated.
+
+Before adding organizational controls, a program must first be created. For more information, see [Programs](/docs/programs/programs).
+
+Creating a child customer is required for organizational controls, to enable this, a risk level must first be created with parameter `maxHierarchy` set to a value greater than 0. For more information, see [Program controls](/docs/controls/program-controls).
+
+Organizational controls require card ISO8583 messages to function, a card profile must first be established before a card can be ordered. For more information, see [Card profiles](/docs/cards/card-profiles). 
+
+## Actions
+
+Once organizational controls are established the structure of the controls will align to the below:
+
+1. Root customer - Configured with the product offering and overall credit limit. Should be defined as the root business entity or firm.
+2. Child customers - Represent business units, projects, employees, or other sub-divisions of the organization. Set department spend controls to restrict all employees within a department.
+3. Card - Single use or reusable cards can be issued for each employee of a department. Card spend controls restrict each employee to a maximum individual spend which also increments a shared department cumulative spend amount. 
+
+A card payment made by an employee will have all three levels of hierarchy controls apply for authorization and processing.
+
+## Hierarchy establishment guide 
+
+The structure of the hierarchy can be established by following the below steps: 
+
+1. Create firm (root) customer 
+2. Optional: Assign firm customer to product offering
+3. Create department customer as child of firm (root)
+4. Remove customer blocks 
+5. Create an employee for the department customer
+6. Order card for employee
+7. Establish department control 
+8. Establish card control 
+9. Simulate transaction
+10. View control measures
+
+#### 1. Create firm (root) customer 
+
+Create the firm (root) customer. The firm customer will hold the product offerings and overall credit limits if applicable. Call the [Create Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomer_POST). Take note of the root customer `customerNumber`. 
+
+#### 2. Optional: assign firm (root) customer to product offering
+
+If the program has a product offering, a customer offering should be added to the firm (root) customer. Use [Create Revolving Credit Customer API](/tech-specs/revolving-credit/revolving-credit-customers/api?#operation/createRevolvingCreditCustomerConfiguration) or [Create Installments Customer API](/tech-specs/installments/installments-customers/api?#operation/createInstallmentsCustomer) to assign a product offering to the firm (root) customer.
+
+#### 3. Create department customer as child of firm (root)
+
+Using the firm (root) customer create a department customer as a child. The department customer will be used in the hierarchy as another level. Call the [Create Child Customer API](/tech-specs/customers/customer-relationships/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createChildCustomer_POST). Take note of the department customer `customerNumber`. 
+
+#### 4. Remove customer blocks 
+
+Remove the customer blocks for both the firm and department customers. 
+
+1. **Find customer blocks:** Call the [List Customer Blocks API](/tech-specs/blocks/customer-blocks/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getReferenceBlocks_GET) using the `customerNumber` to view the blocks on the account. Take note of the block `id` attribute, which will be used to remove the block.
+2. **Release customer blocks:** Using the block `id` and `customerNumber` attributes, call the [Release Customer Blocks API](/tech-specs/blocks/customer-blocks/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_releaseCustomerBlockWithMemo_POST) to remove the customer block.
+
+#### 5. Create an employee for the department customer
+
+A new employee account holder must be added to the department customer. This employee account holder will be used with the root customer card order and essential for the hierarchy. Call the [Add Account Holders API](/tech-specs/customers/account-holders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addPerson_POST) using the department `customerNumber` and take note of the employee person `id` created. 
+
+#### 6. Order card for employee
+
+Order a card for the employee using [Issue Customer Card API](/tech-specs/cards/customer-card-issuance/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_orderPersonalized_POST). The root `customerNumber` from step 1 should be used in the path parameter. The `personId` should be the employee person (account holder) `id` that was created in step 6.
+
+#### 7. Establish department control 
+
+Create a department level control by using [Create Customer Risk Exception API](/tech-specs/controls/customer-controls/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createRiskException_POST). Provide an ISO based control `paramName` (a list is provided in the appendix). 
+
+#### 8. Establish card control 
+
+Create a card level control by using [Create Card Level Risk Exception API](/tech-specs/controls/card-controls/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_createCardRiskException_POST) Provide an ISO based control `paramName` (a list is provided in the appendix). 
+
+#### 9. Simulate transaction
+
+Simulate a payment as part of your testing process for organizational controls. Payment simulation involves the following steps:
+
+1. Retrieve the secure card details for the employee card by generating a secure token with the [Generate Card PAN Token API](/tech-specs/cards/virtual-card-access/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_generatePanToken_POST). This token can be used to access the PAN and CVV2 by calling the [Retrieve Card PAN API](/tech-specs/cards/virtual-card-access/api?#operation/net.e6tech.h3.middletier.api.v1.mobile.MobileAuthAPI_accessPan_POST).
+2. Simulate an authorization using the PAN and CVV2 with the [Perform an Authorization API](/tech-specs/cards/card-payment-simulation/api#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_authorize_POST).
+3. Perform a clearing with the simulated authorization calling the [Perform a Clearing Authorization API](/tech-specs/cards/card-payment-simulation/api#operation/net.e6tech.h3.payment.simulator.SimulatorAPI_clear_PUT).
+
+#### 10. View control measures
+
+Once a transaction has been simulated, if the organizational controls have been correctly established, each level of the control hierarchy should have incremented based on the transaction simulator. 
+
+1. Call the customer exception measure by calling [List Program Risk Measurements by Customer API](/tech-specs/controls/measures-and-alerts/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getRiskMeasurements_GET).
+2. Call the card exception measure by calling [List Risk Measurements for a Card API](/tech-specs/controls/measures-and-alerts/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_getRiskMeasurements_GET).
+
+## Appendix: ISO message-based controls
+
+Controls that increment based on network messages from the ISO8583 table are compatible with the organization controls hierarchy. For more information on network messages, see [Network messages](/docs/cards/network-messages).
+
+The list of valid ISO8583 based controls is below: 
+
+| Control                             | Type       | Description                                                                                                                                                                                |
+| ----------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `atm_1d`                          | BigDecimal | The maximum amount allowed for ATM withdrawal in a 24-hour (day) period.                                                                                                                   |
+| `atm_7d`                          | BigDecimal | The maximum amount allowed for ATM withdrawal in a 7-day (week) period.                                                                                                                    |
+| `atm_30d`                         | BigDecimal | The maximum amount allowed for ATM withdrawal in a 30-day (month) period.                                                                                                                  |
+| `atm_domestic_1d`                 | BigDecimal | The maximum amount allowed for international ATM withdrawals in a 24-hour (day) period. An domestic ATM withdrawal has an operating program and card acceptor in the same country.         |
+| `atm_international_1d`            | BigDecimal | The maximum amount allowed for international ATM withdrawals in a 24-hour (day) period. An international ATM withdrawal has an operating program and card acceptor in different countries. |
+| `combined_purchase_1d`            | BigDecimal | The combined limit of POS and online purchases in a 24-hour (day) period.                                                                                                                  |
+| `online_purchase_1d`              | BigDecimal | The maximum amount for online purchase over a 24-hour (day) period.                                                                                                                        |
+| `online_purchase_7d`              | BigDecimal | The maximum amount for online purchase over a 7-day (week) period.                                                                                                                         |
+| `pos_purchase_1d`                 | BigDecimal | A number indicating the POS purchase amount limit for 24-hours (day).                                                                                                                      |
+| `pos_purchase_7d`                 | BigDecimal | A number indicating the POS purchase amount limit for 7-days (week).                                                                                                                       |
+| `pos_purchase_30d`                | BigDecimal | A number indicating the POS purchase amount limit for 30-days (month).                                                                                                                     |
+| `purchase_card_present_no_cvm_1d` | BigDecimal | Purchases that are both contactless and no-CVM required are limited to this maximum amount allowed in a 24-hour (day) period.                                                              |
+| `refund_1d`                       | BigDecimal | The total refund limit allowed in a 24-hour (day) period.                                                                                                                                  |
+| `refund_7d`                       | BigDecimal | The total refund limit allowed in a 7-day (week) period.                                                                                                                                   |
+
+## Appendix: Organizational 5 level Hierarchy
+
+E6 supports organizational hierarchies with up to 5 levels of child customers. When utilizing a deeper organizational hierarchy, ISO-based controls will not be assessed across these levels. Only a single spend limit control, debit_amount_30d, can be applied within the 5-level hierarchy in parallel to prevent overspend at higher levels.
+
+| Control                             | Type       | Description                                                                                                                                                                                |
+| ----------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `debit_amount_30d` | BigDecimal | Valid only within an established organizational hierarchy program. Represents the maximum cumulative value of a customer's debit position (sum of money movement in and out) within a rolling 30-day period. |
+

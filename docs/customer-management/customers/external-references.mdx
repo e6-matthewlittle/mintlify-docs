@@ -1,0 +1,54 @@
+---
+title: "External references"
+menu: Customers
+route: /docs/customers/external-references
+excerpt: An external reference is an identifier that ties an account to an external system.
+types: 
+  - guide
+_tags:
+  - external accounts
+  - external references
+  - partner
+  - add external reference
+containerWide: true
+showHeadingsNav: true
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# External references
+
+An external reference is an association between a customer account and an external account. Examples of these external systems include accounts held in other banks, customer relationship management system records, and other processing system records. It is common for account information to be held in external systems. If you have a record of a customer in another system, you can map that customer record to Episode Six (E6) using an external reference.
+
+## What we do
+
+Tritium® supports adding external references at the customer account level. Each external reference is made in association with a specific partner, allowing you to view the external system associated with the external reference. In instances where Tritium needs to make a call to an external system (for example, loading funds from an external account), external references are used to ensure that the external system is able to process the call properly by providing all required information.
+
+## Prequisites
+
+The system that owns the external record or relationship must be registered with the E6 system as a partner. To learn more about registering partners, see [Partners](/docs/platform-access/partners).
+
+In order to add an external reference of a customer, the customer account must be established. To learn more about customers, see [Customers overview](/docs/customers/customers-overview).
+
+## Actions
+
+External references can be added in the Dashboard or by calling the [Create External Reference API](/tech-specs/customers/customer-external-references/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_createExtRef_POST). When adding an external reference, you need to:
+
+- Specify the partner.
+- Include the external reference number.
+- If needed, add additional attributes to identify the record. These attributes are stored as name-value pairs.
+
+<Callout
+    calloutType={'info'}
+>
+   External reference numbers are used when external ledgers are used. For more information on external ledgers, see
+    <a href="/docs/cards/cooperative-authorization"> Cooperative authorization</a>.
+</Callout>
+
+## What's next
+
+When an external account is set up, you are now able to manage external references for the customer. If an external reference is an account held in another bank, customers can load and withdraw funds between their accounts. To learn more about loading funds, see [Load](/docs/payments/account-funding). To learn more about withdrawing funds, see [Withdraw](/docs/payments/withdraw).
+
+Once a customer is associated with an external reference number, customer search by external reference is supported. For more information on searching for customers, see [Customer search](/docs/customers/customer-search).
+
+You can update, delete and modify attributes of external references calling the [Customer External Reference APIs](/tech-specs/customers/customer-external-references).

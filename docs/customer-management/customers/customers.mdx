@@ -1,0 +1,62 @@
+---
+title: "Customers"
+menu: Customers
+route: /docs/customers/customers
+excerpt: A customer account is a financial product instance tied to a person.
+types: 
+  - guide
+_tags:
+  - create customers
+  - customer
+  - account
+  - payments
+  - control level
+  - block
+  - release block
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Customers
+
+A customer account is a financial product instance tied to a person. The customer account gives access to product features to all persons within the account. These features typically include the ability to make payments. The customer account is the root for all products and entities associated with the product such as cards, payments, external references, and additional account holders.
+
+## What we do
+
+Episode Six (E6) allows you to open customer accounts for defined products. E6 uses a common customer account model across all products. Customer accounts are associated with the aspects of customer objects which do not change how the customer object functions. Such aspects include product configuration, blocks, and control rules.
+
+## Prerequisites
+
+Before a customer account can be opened, a program must be set up and configured to the desired specification. The customer account will be opened underneath the established program. To create an operating program, see [Programs](/docs/programs/programs).
+
+If multiple control levels and fee plans are being used within a program, they should be established before customer creation. This allows the customer to be directly allocated to the desired control level and fee plan during account opening. For more information, see [Program controls](/docs/controls/program-controls) and [Fees](/docs/fees/fee-plans).
+
+Customer account creation is typically part of the customer onboarding process. It is important to know where account opening fits in with the onboarding experience. E6 does not provide know your customer (KYC), identity verification (IDV), sanctions screening, or other due diligence services typically performed before a customer account is opened. These activities are typically completed by the client prior to opening a customer account.
+
+## Actions
+
+### Customer creation
+
+Create customer accounts by calling the [Create Customer Account API](/tech-specs/customers/customers/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomer_POST). The request should specify the primary account holder's personal details and the program identifier for the account opened. You can include additional personal information for the primary account holder in the request such as phone numbers, email addresses, and geographical addresses. If a non-default control level or fee plan is desired for a new customer, the control level or fee plan should be specified in the request. By default, customers are created with an account activation block. The block prevents activities such as making payments with the account. For more information about releasing customer blocks, see [Customer blocks](/docs/blocks/customer-blocks).
+
+<Callout
+    calloutType={'info'}
+>
+    If the activation block is never required, either due to the process or the product type, this can be excluded via configuration. Please provide this request to your E6 representative during platform or product setup.
+</Callout>
+
+
+### Optional: Idempotent customer creation
+
+To ensure that you create the customer only once, you can call the [Create Customer Account - Idempotent API](/tech-specs/customers/customers/api#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CustomerHierarchyAPI_createCustomerPut_PUT). This call creates a customer or returns the existing customer created with a given external reference number by
+searching for the external reference number in the `customerExternalReferenceDTOs` array. If the `customerExternalReferenceDTOs` array contains the external reference number associated with an existing customer, the existing customer is returned. If a customer is not returned, a customer is created.
+
+## What's next
+
+After a customer is created and the activation block is released, a customer can be linked to other activities.
+- Cards can be managed for the account. For more information, see [Cards](/docs/cards/cards).
+- Account holders can be added to the accounts. For more information about adding account holders, see [Account holders](/docs/customers/account-holders).
+- The account can be funded. For more information about funding accounts, see [Load](/docs/payments/account-funding).

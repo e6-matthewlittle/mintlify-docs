@@ -1,0 +1,42 @@
+---
+title: "Blocks overview"
+sidebarTitle: "Overview"
+menu: Blocks
+route: /docs/blocks/blocks-overview
+excerpt: Hard blocks that prevent payments from being processed through the blocked entity.
+types: 
+  - guide
+_tags:
+  - cards
+  - card states
+  - suspend
+  - block
+  - blocks
+  - control
+  - unblock
+  - unsuspend
+  - fraud
+  - account closure
+  - collections
+  - program controls
+  - customer controls
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Blocks overview
+
+A block is a hard stop on an entity to prevent payments being performed on accounts related to the entity. Blocks operate in a binary Blocks are a form of binary control that stops payments from being processed. Once no longer needed, a block can be removed to allow payments to continue.
+
+## What we do
+
+Episode Six (E6) provides the ability to create and manage blocks for customer accounts, cards, and external references. Blocks are enforced during any payment authorization where the blocked entity is involved. Multiple blocks can be active on an entity at any given time. A block can be created in real-time manually or automatically created when a [control](/docs/controls/controls-overview) rule is breached. Blocks can release blocks in real-time to enable payments to proceed.
+
+## How it works
+
+To learn more about how E6 manages and enforces blocks for you, read through the following documentation.
+
+- [**Customer blocks**](/docs/blocks/customer-blocks) - Blocking of a customer account so that the customer account cannot be used to authorize new payments of any type.
+- [**Card blocks**](/docs/blocks/card-blocks) - Blocking of a particular card so that the card cannot be used to authorize new card payments on the associated account.
+- [**Customer external reference blocks**](/docs/blocks/blocked-references) - Blocking of external accounts to stop payments to and from an external payment provider using those accounts.

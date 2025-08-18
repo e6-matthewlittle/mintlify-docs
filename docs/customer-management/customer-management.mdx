@@ -1,0 +1,64 @@
+---
+title: "Customer management"
+menu: Customer management
+route: /docs/customer-management
+excerpt: High-level summary of the key E6 offerings and how E6 operates.
+types:
+  - guide
+_tags:
+  - customer management
+  - person
+  - person
+  - program
+  - product
+  - customer
+containerWide: true
+showHeadingsNav: true
+date: "07-15-2022"
+---
+
+# Customer management
+
+Offering products to customers requires a robust and repeatable framework for managing the products, the counterparties, and the customer relationship. The important things you must always be in control of is what is being offered, to whom are you providing your product, and what is the current state of the relationship between you and your customer.
+
+When you offer multiple products to a single customer, you are maintaining multiple customer relationships with that customer through each of the products provided. In these cases, you need to be able to manage the customer relationships at the counterparty level as well as at the product level.
+
+## What we do
+
+Episode Six (E6) provides you with a flexible customer management framework which allows you to take payment and financial products to market in a consistent way regardless of product use case and utilization of E6 platform features. Programs, persons, and customers represent the base customer management structure around which you integrate with and expose features from the E6 platform. Both [Cards](/docs/cards/cards-overview) and [Ledger](/docs/ledger/overview) features are built around these entities.
+
+- **Program**: A program is a container for a set of customers which allows cross-customer configurations, behaviors, and processes to be managed. The program acts as the hub for a product manager to administer their product and monitor product performance. E6 also uses the program to drive reconciliation of payment activity for customer portfolios. Typically, E6 will configure it so that a program has a 1:1 relationship with your financial or payment product. This doesn't have to be the case however, as almost all E6 product features are available to be configured using customer segments.
+- **Person**: A person is a natural person or legal entity with which you have a customer relationship. This can include consumers, businesses, and corporates depending on the use case. Persons are also used to define related entities such as employees of a business or corporate. Persons can be associated with different related concepts such as geographical addresses, phone numbers, email addresses, etc.
+- **Customer**: A customer is an account which is created to give a person access to a product. Customers can be used across different types of products in different ways. For instance, a customer in the E6 platform can be used to associate a bank account in your system to a card issued with E6. In other cases, a customer can be used to define a financial product account where E6 is the ledger for that product. Customers can have the following features associated with them. Each feature is optional so that you can make a customer whatever you need it to be.
+
+| Feature | Multiplicity | Definition |
+| -- | -- | -- |
+| Account product | 0 to 1 | Determines common, regulated, account behaviors and processes if E6 is acting as the system of record for that product. This includes deposit, credit, and savings products. |
+| Currency accounts | 0 to many | A financial account within the E6 ledger for a specific currency that has authorization holds, transactions, and balances. If E6 is not the system of record for the product account such as for Cards only customers, then the customer is treated as a zero-balance account. |
+| Account holders | 1 to many | Persons associated with the customer account as account holders. Each customer account has a primary account holder and can have any number of secondary account holders associated with it. |
+| Account relationships | 0 to many | Related customer accounts that provide the ability to create behaviors across customer accounts. This can be used to model everything from savings goals, to family accounts, complex corporates, and retail store location management. |
+| Control rules | 0 to many | Processing restrictions that are applied to the customer account. Control rules can be set at multiple levels which will apply to the customer in parallel including the customer portfolio, customer segment, and for individual customer accounts. |
+| Fee rules | 0 to many | Revenue generation triggers which allow for monetizing customer actions in alignment with your product construct. Fee rules can be set at multiple levels which will apply to the customer in parallel including the customer portfolio, customer segment, and for individual customer accounts. |
+| Reward rules | 0 to many | Incentive options to drive desired customer behaviors or volumes. Customers can be assigned to a reward plan with each reward plan having one or more reward rules. Each reward rule can be configured to drive earn for different types of transactions including for certain transaction types, merchant categories, or even specific merchants. |
+| Cards | 0 to many | Payment mechanisms which provide the ability for a person to make card payments using integrated card networks. Can include any number of physical, virtual-only, and one-time use cards. |
+
+## What you can do
+
+E6 allows you to do more when managing your customers because of your ability to not only simply offer a product, but to also achieve the following types of use cases.
+
+- Create a customer account to issue cards and route card payments to your system of record
+- Support consumer, business, and corporate products in parallel
+- Offer multiple financial or payment products to a counterparty
+- Offer products where E6 is only the issuer processor, products where E6 is the ledger only, or products where E6 does both
+- Create hybrid products that link multiple product accounts
+
+## What's next
+
+To learn more about how E6 customer management works, read through the following additional documentation.
+
+- [**Programs**](/docs/programs/programs) - Setting up a new payment or financial product.
+- [**Customers**](/docs/customers/customers-overview) - A customer is the entity governing the relationship with your payment or financial product and a counterparty.
+- [**Persons**](/docs/persons/persons-overview) - A person is a natural person or legal entity with which you have a customer relationship.
+- [**Blocks**](/docs/blocks/blocks-overview) - Hard blocks that prevent payments from being processed through the blocked entity.
+- [**Controls**](/docs/controls/controls-overview) - Controls are used to restrict customer activities including both payment and non-payment activities.
+- [**Change orders**](/docs/change-orders/change-orders-overview) - Change orders enable configuration updates and actions to be performed in the future.

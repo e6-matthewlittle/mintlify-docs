@@ -1,0 +1,45 @@
+---
+title: "Programs"
+menu: Programs
+route: /docs/programs/programs
+excerpt: A program is container for a set of customers which allows cross-customer configurations, behaviors, and processes to be managed.
+types:
+  - guide
+_tags:
+  - program
+  - product
+  - operating program
+
+containerWide: true
+showHeadingsNav: true
+date: "09-16-2022"
+---
+
+import Callout from "src/gatsby-theme-docz/components/Callout";
+
+# Programs
+
+A program is a collection of customer accounts defined by common product rule sets and behaviors. All product facets including financial product rules, controls, fees, and card issuance are tied to the program. Once customer accounts are created under the program, they are governed by the program configurations for those facets.
+
+## What we do
+
+Episode Six (E6) provides the ability to set up and launch products using programs. Once a program has been created, all of those facets can be configured as needed to realize the target state product. Customer accounts are then created under an established program in TRITIUM. Programs also form the basis for report generation including customer balance, payment, and transaction summaries.
+
+## Prerequisites
+
+A [partner](/docs/platform-access/partners) is required for a program. Multiple programs can be defined for a single partner account.
+
+## Actions
+You can add a new program to an existing partner by calling the Create Program API. Programs are uniquely identified in subsequent APIs using the provided `programName`. The minimum length for `programName` is 4 characters with a maximum allowed length of 54 characters with only alphanumeric characters, underscores, and hyphens are accepted.
+
+<Callout
+    calloutType={'warning'}
+>
+  All programs created for a single partner must use the same time zone. If a program’s time zone differs from the partner time zone, reports generated for that program may not execute properly. 
+</Callout>
+
+## What's next
+
+Once you have created a program, you can begin to open customer accounts for that program. For more information, see [Customers.](/docs/customers/customers)
+
+By default, a program using ledger features acts as a deposit product including single currency and multi-currency. If a different product type such as [revolving credit](/docs/revolving-credit/revolving-credit-overview) or [loan](/docs/installments/installments-overview) is desired then additional setup setups are required.
