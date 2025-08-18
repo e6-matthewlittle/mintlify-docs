@@ -456,6 +456,41 @@
               "tech-specs/getting-started/response-codes",
               "tech-specs/getting-started/logging"
             ]
+          },
+          {
+            "group": "Customer management",
+            "groups": [
+              {
+                "group": "Programs",
+                "pages": []
+              },
+              {
+                "group": "Customers",
+                "pages": [
+                  "/tech-specs/openapi/customer-management/customers/account-holders.yaml"
+                ]
+              },
+              {
+                "group": "Persons",
+                "pages": []
+              },
+              {
+                "group": "Blocks",
+                "pages": []
+              },
+              {
+                "group": "Controls",
+                "pages": []
+              },
+              {
+                "group": "Change orders",
+                "pages": []
+              },
+              {
+                "group": "Security questions",
+                "pages": []
+              }
+            ]
           }
         ]
       }
