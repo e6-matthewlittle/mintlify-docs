@@ -1,9 +1,7 @@
 ---
-name: "Environments"
-menu: Getting Started
-route: /tech-specs/getting-started/environments
+title: "Environments"
 excerpt: Episode Six (E6) provides a standard set of environments to E6 Cloud clients throughout sales, implementation, and operation.
-_tags:
+keywords:
   - environments
   - test
   - promotion
@@ -11,12 +9,9 @@ _tags:
   - UAT
   - SIT
   - PROD
-containerWide: true
-showHeadingsNav: true
-date: "03-13-202"
 ---
 
-Episode Six (E6) provides a standard set of environments to E6 Cloud clients throughout sales, implementation, and operation. Clients are able to use the different types of environments to support different types of activities related to interacting with the TRITIUM platform.
+Episode Six (E6) provides a standard set of environments to E6 Cloud clients throughout sales, implementation, and operation. Clients are able to use the different types of environments to support different types of activities related to interacting with the E6 Patform.
 
 ## Environment Types
 
@@ -28,6 +23,10 @@ E6 provides the following environments types to clients, prospects, and partners
 | Testing (UAT) | A test environment that has all required test connections and mirrors client-specified product environment configurations to complete final end-to-end testing before go-live. |
 | Production (PROD) | An environment for live processing of customer transactions with full connectivity into production instances of external party systems. |
 
-## Environment Access
+## IP address whitelisting
 
-When access to an environment is provided, details of environments including URLs, whitelisted IP addresses, and user access credentials are sent in an initial setup guide. Environments may be provisioned incrementally depending on your implementation plans.
+E6 will whitelist your IP addresses and classless inter-domain routing (CIDR) blocks so that only your systems are able to securely call the E6 Platform. You must provide the whitelist entries which you want whitelisted prior to the setup of the `UAT` and `PROD` environments to ensure access. Whitelisting applies to both the E6 Platform APIs and the Dashboard. To ensure fair use limits, E6 will enforce fair use limits on the number of distinct whitelist entries blocks. E6 will allocate up to 10 whitelist entries per environment.
+
+## Environment access
+
+When access to an environment is provided, details of environments including URLs, whitelist entries, and user access credentials are sent in an initial setup guide. Environments may be provisioned incrementally depending on your implementation plans.

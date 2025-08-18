@@ -1,26 +1,39 @@
 ---
-name: "Data segregation"
-menu: Getting Started
-route: /tech-specs/getting-started/data-segregation
+title: "Data segregation"
 excerpt: Operating a multi-tenant system requires reliable data segregation to ensure that different tenants cannot see or alter the data of other tenants.
-_tags:
+keywords:
   - partner links
   - program links
   - logical segregation
   - separation
   - segregation
   - data segregation
-containerWide: true
-showHeadingsNav: true
-date: "07-15-2022"
 ---
 
 Operating a multi-tenant system requires reliable data segregation to ensure that different tenants cannot see or alter the data of other tenants. A common type of data segregation is through logical data segregation, where all data is in a single database but the data is "logically" separated through access controls.
 
 ## What we do
 
-Episode Six (E6) provides an inherent logical data segregation mechanism at multiple levels of the platform. At the highest level E6 clients as tenants (banks) cannot access data of other tenants. This is always enforced. By default, a party (partner) within a tenancy only has access to the data for the programs, customers, or other data owned by that party. If access is required across parties, then [linkages](/docs/getting-started/partners/partner-linkages).
+Episode Six (E6) provides an inherent logical data segregation mechanism at multiple levels of the platform. At the highest level E6 clients as tenants (banks) cannot access data of other tenants. This is always enforced. By default, a party (partner) within a tenancy only has access to the data for the programs, customers, or other data owned by that party. If access is required across parties, then linkages can be setup to enable access even when direct ownership does not exist. Access can also be granted to another party for a specific program through a partner-program linkage. Examples of when linkages are typically used include:
 
 * Setting up an administration partner who governs sub-tenants
 * Adding a third party service provider such as a payment processor who needs access to APIs
 * Adding a third party who needs read-only access
+
+## Prerequisites
+
+Before partner linkages can be established, two or more [partners](/docs/platform-access/partners) must be created.
+
+Before partner-program linkages can be established, a partner must be created and a [program](/docs/programs/programs) must be created.
+
+## Actions
+
+A partner linkage can be established using the [Create Partner Linkage API]().
+
+A partner-program linkage can be established using the [Create Partner-Program Linkage API]().
+
+## What's next
+
+Once a linkage had been established, API calls which query non-partner specific data will return records across the requesting partner and the linked partners.
+
+Linkages can be managed using the [Partner Linkages APIs]() and the [Partner-Program Linkages API]().

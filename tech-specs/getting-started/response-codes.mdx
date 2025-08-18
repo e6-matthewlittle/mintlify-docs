@@ -1,135 +1,129 @@
 ---
-name: "Response codes"
-menu: Getting Started
-route: /tech-specs/getting-started/response-codes
-excerpt: In the event of an unsuccessful call, you receive a response code and a text message indicating what issue occurred.
-_tags:
-  - docs
-  - response codes
-  - major codes
-  - minor codes 
-  - major
-  - minor
-  - data structure
-  - reference
-containerWide: true
-showHeadingsNav: true
-date: "07-15-2022"
+title: "Response codes"
+excerpt: "In the event of an unsuccessful call, you receive a response code and a text message indicating what issue occurred."
+keywords: ["docs","response codes","major codes","minor codes","major","minor","data structure","reference"]
 ---
 
-When a call is successful, you see the entire data structure returned. In the event of an unsuccessful call, you receive a response code and a text message indicating what issue occurred.
+When a call is successful, you see the entire data structure returned. In the event of an unsuccessful call, you receive a response code and a text message indicating what issue occurred. An example for calling an API without a valid bearer token is shown below.
 
-Tritium® provides detailed response codes that go far beyond standard HTTP response codes. With the exception of Success and Failed, all major codes are six digits in length.
+```json
+{
+    "responseCode": "205000",
+    "message": "Token invalid."
+}
+```
 
-The first three digits of the six-digit code indicate the primary response. For codes with xxx in their value, an accompanying minor code is included in the response. For example, code 205044 indicates a major code of 205 ("Not Authorized") and a minor code of 044 ("AuthTokenId"). 
+The Episode Six (E6) Platform provides detailed response codes that go far beyond standard HTTP response codes. With the exception of Success and Failed, all major codes are six digits in length.
+
+The first three digits of the six-digit code indicate the primary response. For codes with `xxx` in their value, an accompanying minor code is included in the response. For example, code `205044` indicates a major code of `205` ("Not Authorized") and a minor code of `044` ("AuthTokenId").
 
 ## Major codes
 
 Major codes define the type of error code being returned. It answers the how or why of an error. Some major codes, such as 200xxx (Not Available), contain a minor code that describes what triggered the failure.
 
-| Field |	Value |
-| -- | -- |
-| Success |	0 |
-| Failed |	99 |
-| Invalid Parameter |	100000 |
-| Null Pointer |	101000 |
-| Connection |	102000 |
-| Unsupported Operation |	103000 |
-| Illegal State |	104000 |
-| Not Available |	200xxx |
-| Not Found |	201xxx |
-| Invalid Currency |	202000 |
-| Currency Conversion |	203000 |
-| No Exchange Rate |	204000 |
-| Not Authorized |	205xxx |
-| Currency Mismatch |	206000 |
-| Reversal - Cannot Reverse a Transaction |	207000 |
-| Validation |	208000 |
-| Duplicate |	209000 |
-| Exchange Amount Too Small |	210000 |
-| Insufficient Funds |	300000 |
-| Migration | 301000 |
-| Risk Rule |	400xxx |
-| Change Order |	500000 |
-| External Callout Failed |	600000 |
-| Client-Specific Error |	610xxx |
-| HTTP Error | 900000 | 
+| Field | Value |
+| --- | --- |
+| Success                                 | 0      |
+| Failed                                  | 99     |
+| Invalid Parameter                       | 100000 |
+| Null Pointer                            | 101000 |
+| Connection                              | 102000 |
+| Unsupported Operation                   | 103000 |
+| Illegal State                           | 104000 |
+| Not Available                           | 200xxx |
+| Not Found                               | 201xxx |
+| Invalid Currency                        | 202000 |
+| Currency Conversion                     | 203000 |
+| No Exchange Rate                        | 204000 |
+| Not Authorized                          | 205xxx |
+| Currency Mismatch                       | 206000 |
+| Reversal - Cannot Reverse a Transaction | 207000 |
+| Validation                              | 208000 |
+| Duplicate                               | 209000 |
+| Exchange Amount Too Small               | 210000 |
+| Insufficient Funds                      | 300000 |
+| Migration                               | 301000 |
+| Risk Rule                               | 400xxx |
+| Change Order                            | 500000 |
+| External Callout Failed                 | 600000 |
+| Client-Specific Error                   | 610xxx |
+| HTTP Error                              | 900000 |
 
 ## Minor codes
 
-Minor codes are how Tritium identifies which triggering object caused an error to occur. These numbers make up the last three digits of Not Available, Not Found, Not Authorized, Risk Rule error codes and Client-Specific error codes. 
+Minor codes are how Tritium identifies which triggering object caused an error to occur. These numbers make up the last three digits of Not Available, Not Found, Not Authorized, Risk Rule error codes and Client-Specific error codes.
 
-|Field | Value |
-| -- | -- |
-| NotApplicable |	000 |
-| CustomerNumber |	001 |
-| CustomerExternalReference |	002 |
-| ProgramName |	003 |
-| AccountNumber |	004 |
-| StoreNumber |	005 |
-| WalletCurrency |	006 |
-| CardNumber |	007 |
-| PAN |	008 |
-| CardId |	009 |
-| BankName |	010 |
-| InterchangeName |	011 |
-| PartnerName |	012 |
-| ExchangeProviderName |	013 |
-| ExchangeName |	014 |
-| FeePlanName |	015 |
-| SecurityLevel |	016 |
-| Expired |	017 |
-| ApprovalNumber |	018 |
-| PersonId |	019 |
-| RiskRule |	020 |
-| AuthCode |	021 |
-| Transaction |	022 |
-| AddressId |	030 |
-| EmailId |	031 |
-| OfficialIdId |	032 |
-| PhoneId |	033 |
-| CardProfileName |	034 |
-| FeeEntryId |	035 |
-| MailTemplateId |	036 |
-| Currency |	037 |
-| ExchangePairRate |	038 |
-| InvoiceSummaryId |	039 |
-| InvoiceSummaryModification |	040 |
-| RiskExceptionId |	041 |
-| Parameter |	042 |
-| AmountValue |	043 |
-| AuthTokenId |	044 |
-| CustomerMemoId |	045 |
-| ShippingNumber |	046 |
-| AttributeName |	047 |
-| AccountLocked |	048 |
-| DateOfBirth |	049 |
-| CardExpirationDate |	050 |
-| SecurityCode |	051 |
-| ChildCustomer |	052 |
-| PendingTransaction |	053 |
-| CardOrder |	054 |
-| CardStatus |	055 |
-| PIN |	056 |
-| CustomerBlocked |	057 |
-| Passcode |	058 |
-| Password |	059 |
-| Plugin |	060 |
-| CustomerMemoAttributeId |	061 |
-| SessionToken |	062 |
-| PartnerUserId |	063 |
-| PartnerUserName |	064 |
-| NewPassword |	065 |
-| ISO8583MessageId |	070 |
-| ChargebackId |	071 |
-| ChargebackMessageId |	072 |
-| ChangeOrderId |	090 |
-| ChangeOrderState |	091 |
-| ChangeOrderAction |	092 |
-| ChangeOrderType |	093 |
-| ChangeOrderRequester |	094 |
-| PinVerification |	200 |
-| PinFailCount |	201 |
-| CardExpired |	202 |
-| ExpiryMismatch |	204 |
-| KnownErrorCode |	600 |
+| Field | Value |
+| --- | --- |
+| NotApplicable              | 000 |
+| CustomerNumber             | 001 |
+| CustomerExternalReference  | 002 |
+| ProgramName                | 003 |
+| AccountNumber              | 004 |
+| StoreNumber                | 005 |
+| WalletCurrency             | 006 |
+| CardNumber                 | 007 |
+| PAN                        | 008 |
+| CardId                     | 009 |
+| BankName                   | 010 |
+| InterchangeName            | 011 |
+| PartnerName                | 012 |
+| ExchangeProviderName       | 013 |
+| ExchangeName               | 014 |
+| FeePlanName                | 015 |
+| SecurityLevel              | 016 |
+| Expired                    | 017 |
+| ApprovalNumber             | 018 |
+| PersonId                   | 019 |
+| RiskRule                   | 020 |
+| AuthCode                   | 021 |
+| Transaction                | 022 |
+| AddressId                  | 030 |
+| EmailId                    | 031 |
+| OfficialIdId               | 032 |
+| PhoneId                    | 033 |
+| CardProfileName            | 034 |
+| FeeEntryId                 | 035 |
+| MailTemplateId             | 036 |
+| Currency                   | 037 |
+| ExchangePairRate           | 038 |
+| InvoiceSummaryId           | 039 |
+| InvoiceSummaryModification | 040 |
+| RiskExceptionId            | 041 |
+| Parameter                  | 042 |
+| AmountValue                | 043 |
+| AuthTokenId                | 044 |
+| CustomerMemoId             | 045 |
+| ShippingNumber             | 046 |
+| AttributeName              | 047 |
+| AccountLocked              | 048 |
+| DateOfBirth                | 049 |
+| CardExpirationDate         | 050 |
+| SecurityCode               | 051 |
+| ChildCustomer              | 052 |
+| PendingTransaction         | 053 |
+| CardOrder                  | 054 |
+| CardStatus                 | 055 |
+| PIN                        | 056 |
+| CustomerBlocked            | 057 |
+| Passcode                   | 058 |
+| Password                   | 059 |
+| Plugin                     | 060 |
+| CustomerMemoAttributeId    | 061 |
+| SessionToken               | 062 |
+| PartnerUserId              | 063 |
+| PartnerUserName            | 064 |
+| NewPassword                | 065 |
+| ISO8583MessageId           | 070 |
+| ChargebackId               | 071 |
+| ChargebackMessageId        | 072 |
+| ChangeOrderId              | 090 |
+| ChangeOrderState           | 091 |
+| ChangeOrderAction          | 092 |
+| ChangeOrderType            | 093 |
+| ChangeOrderRequester       | 094 |
+| PinVerification            | 200 |
+| PinFailCount               | 201 |
+| CardExpired                | 202 |
+| ExpiryMismatch             | 204 |
+| KnownErrorCode             | 600 |

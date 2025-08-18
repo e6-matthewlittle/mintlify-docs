@@ -1,21 +1,14 @@
 ---
-name: "Authentication"
-menu: Getting Started
-route: /tech-specs/getting-started/authentication
+title: "Authentication"
 excerpt: Users can be provisioned access authorization in order to make requests to a system.
-_tags:
+keywords:
   - login
   - logout
   - authentication
   - token
   - authorization
   - bearer token
-containerWide: true
-showHeadingsNav: true
-date: "03-13-202"
 ---
-
-import Callout from "src/gatsby-theme-docz/components/Callout";
 
 Users can be provisioned access authorization in order to make requests to a system. Access is only typically granted after the user has been authenticated using some type of identity validation. The user is identified using some type of unique identifier such as a username. Proof of identity is then performed using a password, a one-time password, or other mechanism.
 
@@ -23,15 +16,13 @@ Users can be provisioned access authorization in order to make requests to a sys
 
 Episode Six (E6) provides an out-of-the-box authentication mechanism for users. A bearer token is then provided to the user to pass in the header of subsequent API calls made to the E6 platform.
 
-<Callout
-    calloutType={'info'}
->
-    E6 is also able to support other types of authentication methods other that the built in identity and access management capability. E6 is able to integrate with OAuth2 providers to provide single sign-on (SSO) and with TOTP providers to provide multi-factor authentication (MFA). For more information, reach out to your E6 representative.
-</Callout>
+<Info>
+  E6 is also able to support other types of authentication methods other that the built in identity and access management capability. E6 is able to integrate with OAuth2 providers to provide single sign-on (SSO) and with TOTP providers to provide multi-factor authentication (MFA). For more information, reach out to your E6 representative.
+</Info>
 
 ## Prerequisites
 
-A user can authenticate with the TRITIUM platform as soon as it has been created. For more information, see [Users](/docs/users/users).
+A user can authenticate with the E6 Platform as soon as it has been created. For more information, see [Users](/docs/users/users).
 
 ## Actions
 

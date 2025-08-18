@@ -1,18 +1,11 @@
 ---
-name: "Pagination"
-menu: Getting Started
-route: /tech-specs/getting-started/pagination
+title: "Pagination"
 excerpt: Many of Episode Six's (E6) list-based APIs support cursor-based pagination and query-based pagination.
-_tags:
+keywords:
   - pagination
   - search
   - queries
-containerWide: true
-showHeadingsNav: true
-date: "07-15-2022"
 ---
-
-import Callout from "src/gatsby-theme-docz/components/Callout";
 
 Many of Episode Six's (E6) list-based APIs support cursor-based pagination and query-based pagination. Cursor-based pagination uses a `cursor` object to navigate through large data sets, allowing you to easily view the information you need without having to sort through all the data at once. Query-based pagination can be used in the path of the endpoint.
 
@@ -27,11 +20,9 @@ The following parameters can be included in supporting API calls to begin cursor
 | `limit` | Max limit on the number of results to be displayed per page. |
 | `ascending` | Boolean where `true` sorts results in ascending order and `false` sorts in descending order. |
 
-<Callout
-    calloutType='info'
->
-    Examples below for different pagination scenarios use the <a href={"/tech-specs/cards/card-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_listCardOrders_POST"}>Generate Program Card Order List API</a>.
-</Callout>
+<Info>
+  Examples below for different pagination scenarios use the [Generate Program Card Order List API](/tech-specs/cards/card-orders/api?#operation/net.e6tech.h3.middletier.api.v1.partner.customer.CardAPI_listCardOrders_POST).
+</Info>
 
 ### First page
 
@@ -75,11 +66,9 @@ The response returns the first page of results, as well as a `nextCursor` which 
 
 If the `returnCount` is equal to the `limit` then requests for further pages can continue to be made. To see the further pages, start a new request with the same endpoint and include the `indexStart` and the `timestamp` of the `nextCursor` in the new request. In the above response example, the `cardId` is the `indexStart` which should be passed into the new request.
 
-<Callout
-    calloutType='warning'
->
-    When calling next pages, if the <tt>timestamp</tt> and <tt>indexStart</tt> are not both provided in the request, then the first page will continue to be returned.
-</Callout>
+<Warning>
+  When calling next pages, if the `timestamp` and `indexStart` are not both provided in the request, then the first page will continue to be returned.
+</Warning>
 
 ```json
 {

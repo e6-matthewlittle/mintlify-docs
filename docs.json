@@ -439,6 +439,25 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Tech Specs",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "tech-specs/getting-started/introduction",
+              "tech-specs/getting-started/environments",
+              "tech-specs/getting-started/data-segregation",
+              "tech-specs/getting-started/headers",
+              "tech-specs/getting-started/authentication",
+              "tech-specs/getting-started/identifiers",
+              "tech-specs/getting-started/pagination",
+              "tech-specs/getting-started/response-codes",
+              "tech-specs/getting-started/logging"
+            ]
+          }
+        ]
       }
     ]
   },

@@ -1,0 +1,302 @@
+---
+openapi: 3.0.1
+info:
+  title: Episode Six API
+  license:
+    name: Copyright ® EPISODE SIX
+  version: v2.0
+externalDocs:
+  description: Privacy Policy
+  url: https://episodesix.com/privacy-policy/
+paths:
+  "/v1/customers/{customer-number}/persons":
+    post:
+      tags:
+      - Account Holders
+      summary: Add Account Holders
+      description: |-
+        Adds a secondary person to the customer account. If the primary account holder already exists, the added person is a secondary account holder.
+        Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
+      operationId: net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addPerson_POST
+      parameters:
+      - name: customer-number
+        in: path
+        description: A unique identifying number for the customer account generated
+          by Tritium. This is the customerNumber from the customer object.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PersonDTO"
+            examples:
+              Basic:
+                value:
+                  firstName: Joe
+                  lastName: Test
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PersonDTO"
+              examples:
+                Basic:
+                  value:
+                    creationTime: 1547573554173
+                    modifiedTime: 1547573554173
+                    id: 8202C315D8960020534E4D9E0C5509BE-1000057006
+                    firstName: Joe
+                    lastName: Test
+    get:
+      tags:
+      - Account Holders
+      summary: Retrieve Customer Account Holders
+      description: |-
+        Retrieves an array of persons listed as account holders for the customer account.
+        Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
+      operationId: net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getPersons_GET
+      parameters:
+      - name: customer-number
+        in: path
+        description: A unique identifying number for the customer account generated
+          by Tritium. This is the customerNumber from the customer object.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/PersonDTO"
+  "/v1/customers/{customer-number}/persons/{person-id}":
+    get:
+      tags:
+      - Account Holders
+      summary: Retrieve Account Holder
+      description: |-
+        Retrieves information on an account holder identified by `customer-number` and `persons-id`.
+        Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
+      operationId: net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_getPerson_GET
+      parameters:
+      - name: customer-number
+        in: path
+        description: A unique identifying number for the customer account generated
+          by Tritium. This is the customerNumber from the customer object.
+        required: true
+        schema:
+          type: string
+      - name: person-id
+        in: path
+        description: An encrypted identifier for a Person obtained from Tritium API
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PersonDTO"
+    put:
+      tags:
+      - Account Holders
+      summary: Add Existing Account Holder to Customer
+      description: |-
+        Add an account holder identified by `customer-number` and `person-id`
+
+        Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
+      operationId: net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_addExistingPerson_PUT
+      parameters:
+      - name: customer-number
+        in: path
+        description: A unique identifying number for the customer account generated
+          by Tritium. This is the customerNumber from the customer object.
+        required: true
+        schema:
+          type: string
+        example: ''
+      - name: person-id
+        in: path
+        description: An encrypted identifier for a Person obtained from Tritium API.
+        required: true
+        schema:
+          type: string
+        example: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json: {}
+      security:
+      - {}
+      - {}
+    delete:
+      tags:
+      - Account Holders
+      summary: Remove Account Holder from Customer
+      description: |-
+        Remove an account holder identified by `customer-number` and `person-id`.
+
+        Roles Allowed: CustomerAgent, CustomerManager, RiskManager, RiskAgent
+      operationId: net.e6tech.h3.middletier.api.v1.partner.customer.CustomerAPI_removePerson_DELETE
+      parameters:
+      - name: customer-number
+        in: path
+        description: A unique identifying number for the customer account generated
+          by Tritium. This is the customerNumber from the customer object.
+        required: true
+        schema:
+          type: string
+        example: ''
+      - name: person-id
+        in: path
+        description: An encrypted identifier for a Person obtained from Tritium API.
+        required: true
+        schema:
+          type: string
+        example: ''
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json: {}
+      security:
+      - {}
+      - {}
+components:
+  schemas:
+    PersonDTO:
+      required:
+      - firstName
+      - id
+      - lastName
+      type: object
+      properties:
+        creationTime:
+          type: integer
+          description: 'Timestamp expressed in unix epoch time. '
+          format: int64
+          readOnly: true
+          example: 1547573554173
+        modifiedTime:
+          type: integer
+          description: 'Timestamp expressed in unix epoch time. '
+          format: int64
+          readOnly: true
+          example: 1547573554173
+        id:
+          type: string
+          description: An encrypted identifier for this instance generated by Tritium
+          readOnly: true
+          example: 8202C315D8960020534E4D9E0C5509BE-1000057006
+        firstName:
+          maxLength: 64
+          minLength: 1
+          type: string
+          description: The person's first name.
+          example: Joe
+        middleName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: The person's middle name (if applicable).
+          example: Last
+        lastName:
+          maxLength: 64
+          minLength: 1
+          type: string
+          description: The person's last name.
+          example: Last
+        lastName2:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Last name 2. A person in some cultures many have a second last
+            name
+          example: Last
+        gender:
+          type: string
+          description: Gender of the person.
+          example: male
+          enum:
+          - male
+          - female
+        dob:
+          maxLength: 8
+          minLength: 0
+          type: string
+          description: Day of birth in `yyyyMMdd` format.
+          example: '19820301'
+        nickName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Nickname of the customer
+          example: Chuck
+        title:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Title prefix of the person's name.
+          example: Dr
+        suffix:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Suffix designating the name's contextual relationship.
+          example: Jr
+        embossedName:
+          maxLength: 26
+          minLength: 2
+          type: string
+          description: The embossed name must be defined using the format SURNAME/FIRSTNAME.
+            This field determines how personalized cards will print the person's name
+            during creation. If left blank during customer or person creation, the
+            firstName and lastName provided will be used to create the embossedName
+            in the required SURNAME/FIRSTNAME format.
+          example: LAST/JOE
+        phoneticFirstName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Phonetic spelling of the person's first name.
+          example: Joe
+        phoneticMiddleName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Phonetic spelling of the person's middle name.
+          example: Chuck
+        phoneticLastName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Phonetic spelling of the person's last name.
+          example: Test
+        altFirstName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Alternative first name.
+          example: Howard
+        altMiddleName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Alternative middle name.
+          example: Chuck
+        altLastName:
+          maxLength: 64
+          minLength: 0
+          type: string
+          description: Alterantive last name.
+          example: Test
