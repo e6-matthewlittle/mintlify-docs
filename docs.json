@@ -455,6 +455,7 @@
             "group": "Customer management",
             "pages": [
               {
+                "group": "Programs",
                 "openapi": "/tech-specs/openapi/customer-management/programs/programs.yaml"
               },
               {
