@@ -462,11 +462,9 @@
                 "group": "Customers",
                 "pages": [
                   {
-                    "group": "Account members",
                     "openapi": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
                   },
                   {
-                    "group": "Account activity",
                     "openapi": "/tech-specs/openapi/customer-management/customers/account-activity.yaml"
                   }
                 ]
