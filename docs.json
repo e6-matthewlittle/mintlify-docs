@@ -436,47 +436,63 @@
       },
       {
         "tab": "Tech Specs",
-        "groups": [
+        "menu": [
           {
-            "group": "Getting started",
-            "pages": [
-              "tech-specs/getting-started/introduction",
-              "tech-specs/getting-started/environments",
-              "tech-specs/getting-started/data-segregation",
-              "tech-specs/getting-started/headers",
-              "tech-specs/getting-started/authentication",
-              "tech-specs/getting-started/identifiers",
-              "tech-specs/getting-started/pagination",
-              "tech-specs/getting-started/response-codes",
-              "tech-specs/getting-started/logging"
+            "item": "Getting started",
+            "icon": "play",
+            "groups":[
+              {
+                "group": "Getting started",
+                "pages": [
+                  "tech-specs/getting-started/introduction",
+                  "tech-specs/getting-started/environments",
+                  "tech-specs/getting-started/data-segregation",
+                  "tech-specs/getting-started/headers",
+                  "tech-specs/getting-started/authentication",
+                  "tech-specs/getting-started/identifiers",
+                  "tech-specs/getting-started/pagination",
+                  "tech-specs/getting-started/response-codes",
+                  "tech-specs/getting-started/logging"
+                ]
+              }
             ]
           },
           {
-            "group": "Customer management",
-            "pages": [
+            "item": "Customer management",
+            "icon": "Card Issuing",
+            "groups": [
               {
-                "group": "Programs",
-                "openapi": "/tech-specs/openapi/customer-management/programs/programs.yaml"
-              },
-              {
-                "group": "Persons",
-                "pages": []
-              },
-              {
-                "group": "Blocks",
-                "pages": []
-              },
-              {
-                "group": "Controls",
-                "pages": []
-              },
-              {
-                "group": "Change orders",
-                "pages": []
-              },
-              {
-                "group": "Security questions",
-                "pages": []
+                "group": "Customer management",
+                "pages": [
+                  {
+                    "group": "Programs",
+                    "openapi": "/tech-specs/openapi/customer-management/programs/programs.yaml"
+                  },
+                  {
+                    "group": "Customers",
+                    "openapi": "/tech-specs/openapi/customer-management/programs/programs.yaml"
+                  },
+                  {
+                    "group": "Persons",
+                    "pages": []
+                  },
+                  {
+                    "group": "Blocks",
+                    "pages": []
+                  },
+                  {
+                    "group": "Controls",
+                    "pages": []
+                  },
+                  {
+                    "group": "Change orders",
+                    "pages": []
+                  },
+                  {
+                    "group": "Security questions",
+                    "pages": []
+                  }
+                ]
               }
             ]
           }
