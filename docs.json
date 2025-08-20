@@ -460,14 +460,12 @@
               },
               {
                 "group": "Customers",
-                "pages": [
-                  {
-                    "group": "Account members",
-                    "openapi": {
-                      "source": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
-                    }
-                  }
-                ]
+                "openapi": {
+                  "source": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
+                },
+                "openapi": {
+                  "source": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
+                }
               },
               {
                 "group": "Persons",
