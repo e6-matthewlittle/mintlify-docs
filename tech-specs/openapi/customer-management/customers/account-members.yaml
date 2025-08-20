@@ -302,7 +302,6 @@ components:
           type: string
           description: Alterantive last name.
           example: Test
-
   securitySchemes:
     BearerAuth: # arbitrary name for the security scheme
       type: http

@@ -8,6 +8,8 @@ info:
 externalDocs:
   description: Privacy Policy
   url: https://episodesix.com/privacy-policy/
+security:
+  - BearerAuth: [] # Refer to the name defined in securitySchemes
 paths:
   "/v1/customers/{customer-id}/activity":
     get:
@@ -116,7 +118,6 @@ components:
           items:
             "$ref": "#/components/schemas/RecentActivityDTO"
   securitySchemes:
-    bearerAuth:
+    BearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
-      bearerFormat: JWT
