@@ -461,12 +461,8 @@
               {
                 "group": "Customers",
                 "pages": [
-                  {
-                    "openapi": "/tech-specs/openapi/customer-management/customers/account-members.yaml"
-                  },
-                  {
-                    "openapi": "/tech-specs/openapi/customer-management/customers/account-activity.yaml"
-                  }
+                  "tech-specs/openapi/customer-management/customers/account-members.yaml",
+                  "tech-specs/openapi/customer-management/customers/account-activity.yaml"
                 ]
               },
               {
